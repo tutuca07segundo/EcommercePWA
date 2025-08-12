@@ -1,8 +1,341 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model EcommercePWA.Models.ProductViewModel
+@{
+    ViewData["Title"] = "Kaboom - E-commerce de Periféricos e Peças";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Header com Barra de Pesquisa -->
+<header class="bg-dark text-white py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <h1 class="h3 mb-0 text-warning">
+                    <i class="fas fa-bolt me-2"></i>KABOOM
+                </h1>
+                <small class="text-muted">Periféricos & Peças de Computador</small>
+            </div>
+            <div class="col-md-6">
+                <form asp-action="Search" method="get" class="d-flex">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control form-control-lg" 
+                               placeholder="Buscar produtos, marcas, categorias..." 
+                               value="@Model.SearchTerm">
+                        <button class="btn btn-warning btn-lg" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3 text-end">
+                <button class="btn btn-outline-warning" id="sidebarToggle">
+                    <i class="fas fa-bars"></i> Menu
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Sidebar de Categorias -->
+<div class="sidebar bg-light" id="sidebar">
+    <div class="sidebar-header p-3 border-bottom">
+        <h5 class="mb-0">
+            <i class="fas fa-th-large me-2"></i>Categorias
+        </h5>
+        <button type="button" class="btn-close" id="sidebarClose"></button>
+    </div>
+    <div class="sidebar-body p-0">
+        <div class="list-group list-group-flush">
+            <a href="@Url.Action("Index", "Home")" 
+               class="list-group-item list-group-item-action @(string.IsNullOrEmpty(Model.SelectedCategory) ? "active" : "")">
+                <i class="fas fa-home me-2"></i>Todas as Categorias
+            </a>
+            @foreach (var category in Model.Categories.OrderBy(c => c.DisplayOrder))
+            {
+                <a href="@Url.Action("Category", "Home", new { name = category.Name })" 
+                   class="list-group-item list-group-item-action @(Model.SelectedCategory == category.Name ? "active" : "")">
+                    <i class="@category.IconClass me-2" style="color: @category.Color;"></i>
+                    @category.Name
+                    <small class="text-muted d-block">@category.Description</small>
+                </a>
+            }
+        </div>
+    </div>
 </div>
+
+<!-- Overlay para fechar sidebar -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Conteúdo Principal -->
+<main class="main-content">
+    <div class="container-fluid py-4">
+        <!-- Filtros e Ordenação -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-filter me-2"></i>Filtros
+                                </h6>
+                                @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                                {
+                                    <span class="badge bg-primary me-2">
+                                        Busca: "@Model.SearchTerm"
+                                        <a href="@Url.Action("Index", "Home")" class="text-white text-decoration-none ms-1">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    </span>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.SelectedCategory))
+                                {
+                                    <span class="badge bg-success me-2">
+                                        Categoria: @Model.SelectedCategory
+                                        <a href="@Url.Action("Index", "Home")" class="text-white text-decoration-none ms-1">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    </span>
+                                }
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <div class="btn-group" role="group">
+                                    <label class="btn btn-outline-secondary">
+                                        <i class="fas fa-sort me-1"></i>Ordenar:
+                                    </label>
+                                    <a href="@Url.Action("Sort", "Home", new { order = "name" })" 
+                                       class="btn btn-outline-secondary @(Model.SortOrder == "name" ? "active" : "")">
+                                        Nome
+                                    </a>
+                                    <a href="@Url.Action("Sort", "Home", new { order = "price_asc" })" 
+                                       class="btn btn-outline-secondary @(Model.SortOrder == "price_asc" ? "active" : "")">
+                                        <i class="fas fa-sort-amount-down me-1"></i>Menor Preço
+                                    </a>
+                                    <a href="@Url.Action("Sort", "Home", new { order = "price_desc" })" 
+                                       class="btn btn-outline-secondary @(Model.SortOrder == "price_desc" ? "active" : "")">
+                                        <i class="fas fa-sort-amount-up me-1"></i>Maior Preço
+                                    </a>
+                                    <a href="@Url.Action("Sort", "Home", new { order = "rating" })" 
+                                       class="btn btn-outline-secondary @(Model.SortOrder == "rating" ? "active" : "")">
+                                        <i class="fas fa-star me-1"></i>Avaliação
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultados da Busca -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-boxes me-2"></i>
+                        @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                        {
+                            <span>Resultados para "@Model.SearchTerm"</span>
+                        }
+                        else if (!string.IsNullOrEmpty(Model.SelectedCategory))
+                        {
+                            <span>@Model.SelectedCategory</span>
+                        }
+                        else
+                        {
+                            <span>Todos os Produtos</span>
+                        }
+                    </h5>
+                    <span class="text-muted">@Model.Products.Count produto(s) encontrado(s)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid de Produtos -->
+        @if (Model.Products.Any())
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+                @foreach (var product in Model.Products)
+                {
+                    <div class="col">
+                        <div class="card h-100 product-card">
+                            <div class="position-relative">
+                                <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/placeholder.jpg" : product.ImageUrl)" 
+                                     class="card-img-top" alt="@product.Name" 
+                                     style="height: 200px; object-fit: cover;">
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    @if (product.StockQuantity <= 5 && product.StockQuantity > 0)
+                                    {
+                                        <span class="badge bg-warning">Últimas unidades</span>
+                                    }
+                                    else if (product.StockQuantity == 0)
+                                    {
+                                        <span class="badge bg-danger">Indisponível</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Em estoque</span>
+                                    }
+                                </div>
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-primary">@product.Type</span>
+                                </div>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-2">
+                                    <small class="text-muted">@product.Brand</small>
+                                </div>
+                                <h6 class="card-title">@product.Name</h6>
+                                <p class="card-text text-muted small flex-grow-1">@product.Description</p>
+                                
+                                <div class="mb-2">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <div class="text-warning me-2">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= product.Rating)
+                                                {
+                                                    <i class="fas fa-star"></i>
+                                                }
+                                                else if (i - 0.5m <= product.Rating)
+                                                {
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="far fa-star"></i>
+                                                }
+                                            }
+                                        </div>
+                                        <small class="text-muted">(@product.ReviewCount)</small>
+                                    </div>
+                                </div>
+
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="h5 text-primary mb-0">R$ @product.Price.ToString("N2")</span>
+                                        <small class="text-muted">@product.StockQuantity em estoque</small>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-warning btn-sm">
+                                            <i class="fas fa-shopping-cart me-1"></i>Adicionar ao Carrinho
+                                        </button>
+                                        <button class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-heart me-1"></i>Favoritar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">Nenhum produto encontrado</h4>
+                <p class="text-muted">Tente ajustar os filtros ou fazer uma nova busca.</p>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-warning">
+                    <i class="fas fa-home me-1"></i>Ver Todos os Produtos
+                </a>
+            </div>
+        }
+    </div>
+</main>
+
+<!-- Carrossel de Categorias em Destaque -->
+<div class="container-fluid py-5 bg-light">
+    <h3 class="text-center mb-4">
+        <i class="fas fa-fire me-2 text-warning"></i>Categorias em Destaque
+    </h3>
+    <div class="row">
+        <div class="col-12">
+            <div class="category-carousel">
+                @foreach (var category in Model.Categories.Take(6))
+                {
+                    <div class="category-item text-center p-3">
+                        <div class="category-icon mb-3" style="color: @category.Color;">
+                            <i class="@category.IconClass fa-3x"></i>
+                        </div>
+                        <h6 class="mb-2">@category.Name</h6>
+                        <p class="text-muted small mb-3">@category.Description</p>
+                        <a href="@Url.Action("Category", "Home", new { name = category.Name })" 
+                           class="btn btn-outline-primary btn-sm">
+                            Ver Produtos
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Funcionalidade da Sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const mainContent = document.querySelector('.main-content');
+
+            function openSidebar() {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            sidebarToggle.addEventListener('click', openSidebar);
+            sidebarClose.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+
+            // Fechar sidebar ao redimensionar
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeSidebar();
+                }
+            });
+
+            // Funcionalidade do carrossel de categorias
+            const categoryCarousel = document.querySelector('.category-carousel');
+            if (categoryCarousel) {
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+
+                categoryCarousel.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    categoryCarousel.classList.add('active');
+                    startX = e.pageX - categoryCarousel.offsetLeft;
+                    scrollLeft = categoryCarousel.scrollLeft;
+                });
+
+                categoryCarousel.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    categoryCarousel.classList.remove('active');
+                });
+
+                categoryCarousel.addEventListener('mouseup', () => {
+                    isDown = false;
+                    categoryCarousel.classList.remove('active');
+                });
+
+                categoryCarousel.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - categoryCarousel.offsetLeft;
+                    const walk = (x - startX) * 2;
+                    categoryCarousel.scrollLeft = scrollLeft - walk;
+                });
+            }
+        });
+    </script>
+}

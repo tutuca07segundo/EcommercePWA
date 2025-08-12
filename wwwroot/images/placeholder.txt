@@ -1,0 +1,32 @@
+Esta pasta contém as imagens dos produtos.
+
+Para um projeto real, você deve adicionar as seguintes imagens:
+
+1. mouse-logitech-gpro.jpg
+2. mouse-razer-deathadder.jpg
+3. mouse-hyperx-haste.jpg
+4. teclado-corsair-k100.jpg
+5. teclado-hyperx-alloy.jpg
+6. teclado-logitech-g915.jpg
+7. headset-steelseries-arctis.jpg
+8. headset-hyperx-cloud.jpg
+9. headset-logitech-gpro.jpg
+10. monitor-samsung-g9.jpg
+11. monitor-lg-27gl850.jpg
+12. monitor-aoc-c24g1.jpg
+13. processador-intel-i9.jpg
+14. processador-amd-ryzen9.jpg
+15. processador-intel-i5.jpg
+16. gpu-rtx4090.jpg
+17. gpu-rx7900xtx.jpg
+18. gpu-rtx4070ti.jpg
+19. ram-corsair-dominator.jpg
+20. ram-gskill-trident.jpg
+21. ram-kingston-fury.jpg
+22. ssd-samsung-990pro.jpg
+23. ssd-wd-black.jpg
+24. ssd-crucial-p5.jpg
+
+Tamanho recomendado: 400x300 pixels
+Formato: JPG ou PNG
+Otimização: Compressão para web

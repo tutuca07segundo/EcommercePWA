@@ -268,8 +268,9 @@ Este projeto é parte de um trabalho semestral acadêmico. Todos os direitos res
 
 ## 👨‍💻 Autor
 
-**Desenvolvido para o curso de [NOME_DO_CURSO]**
-**Semestre**: [SEMESTRE]
+**Desenvolvido para o curso de :
+desenvolvimento de sistemas ams
+**Semestre**: 2°
 **Ano**: 2025
 
 ---

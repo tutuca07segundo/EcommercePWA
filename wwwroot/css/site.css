@@ -367,3 +367,192 @@ a:hover {
         text-align: center;
     }
 }
+
+/* Estilos para o carrinho */
+.cart-count {
+  font-size: 0.75rem;
+  top: -8px !important;
+  right: -8px !important;
+}
+
+/* Estilos para variações de produto */
+.variation-option .btn-check:checked + .btn {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+}
+
+.color-swatch {
+  border: 2px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Estilos para o carrinho */
+.cart-item {
+  transition: all 0.3s ease;
+}
+
+.cart-item:hover {
+  background-color: #f8f9fa;
+}
+
+.quantity-controls .input-group {
+  max-width: 120px;
+}
+
+/* Estilos para o checkout */
+.status-timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.status-timeline::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #e9ecef;
+}
+
+.status-step {
+  position: relative;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.status-icon {
+  position: absolute;
+  left: -22px;
+  background: white;
+  padding: 2px;
+}
+
+.status-step.completed .status-icon {
+  color: #28a745;
+}
+
+.status-step.pending .status-icon {
+  color: #6c757d;
+}
+
+.status-content {
+  margin-left: 10px;
+}
+
+/* Estilos para alertas */
+.alert-sm {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* Estilos para cupons */
+.coupon-item {
+  transition: all 0.3s ease;
+}
+
+.coupon-item:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-2px);
+}
+
+/* Estilos para produtos relacionados */
+.related-product-card {
+  transition: all 0.3s ease;
+}
+
+.related-product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Estilos para avaliações */
+.review-item {
+  transition: all 0.3s ease;
+}
+
+.review-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Estilos para breadcrumbs */
+.breadcrumb {
+  background-color: transparent;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  content: ">";
+  color: #6c757d;
+}
+
+/* Estilos para botões de ação */
+.btn-action {
+  transition: all 0.3s ease;
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+}
+
+/* Estilos para imagens de produto */
+.product-image {
+  transition: all 0.3s ease;
+}
+
+.product-image:hover {
+  transform: scale(1.05);
+}
+
+/* Estilos para variações de cor */
+.variation-color {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.variation-color:hover {
+  transform: scale(1.1);
+}
+
+.variation-color.selected {
+  border: 3px solid #007bff;
+}
+
+/* Estilos para o resumo do pedido */
+.order-summary {
+  position: sticky;
+  top: 20px;
+}
+
+/* Estilos para campos de formulário */
+.form-control:focus {
+  border-color: #ffc107;
+  box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+/* Estilos para validação */
+.field-validation-error {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Estilos para responsividade adicional */
+@media (max-width: 768px) {
+  .cart-count {
+    font-size: 0.7rem;
+    top: -6px !important;
+    right: -6px !important;
+  }
+  
+  .variation-options {
+    flex-direction: column;
+  }
+  
+  .variation-option {
+    margin-bottom: 0.5rem;
+  }
+}

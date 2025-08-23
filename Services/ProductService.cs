@@ -10,6 +10,8 @@ namespace EcommercePWA.Services
         List<Product> SortProducts(List<Product> products, string sortOrder);
         List<Category> GetAllCategories();
         Product? GetProductById(int id);
+        List<Product> GetRelatedProducts(Product product, int count);
+        List<ProductVariation> GetProductVariations(int productId);
     }
 
     public class ProductService : IProductService
@@ -132,6 +134,21 @@ namespace EcommercePWA.Services
         public Product? GetProductById(int id)
         {
             return _products.FirstOrDefault(p => p.Id == id);
+        }
+
+        public List<Product> GetRelatedProducts(Product product, int count)
+        {
+            return _products
+                .Where(p => p.Id != product.Id && p.Category == product.Category)
+                .OrderByDescending(p => p.Rating)
+                .Take(count)
+                .ToList();
+        }
+
+        public List<ProductVariation> GetProductVariations(int productId)
+        {
+            var product = GetProductById(productId);
+            return product?.Variations ?? new List<ProductVariation>();
         }
     }
 }

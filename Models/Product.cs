@@ -42,5 +42,14 @@ namespace EcommercePWA.Models
         public decimal Rating { get; set; } = 0;
         
         public int ReviewCount { get; set; } = 0;
+        
+        // Novos campos para variações de cor
+        public List<ProductVariation> Variations { get; set; } = new List<ProductVariation>();
+        
+        // Relacionamentos
+        public List<Review> Reviews { get; set; } = new List<Review>();
+        public List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public List<CartItem> CartItems { get; set; } = new List<CartItem>();
+        public List<WishlistItem> WishlistItems { get; set; } = new List<WishlistItem>();
     }
 }

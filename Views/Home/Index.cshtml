@@ -26,9 +26,20 @@
                 </form>
             </div>
             <div class="col-md-3 text-end">
-                <button class="btn btn-outline-warning" id="sidebarToggle">
-                    <i class="fas fa-bars"></i> Menu
-                </button>
+                <div class="d-flex align-items-center justify-content-end gap-2">
+                                    @if (Context.Session.GetInt32("UserId").HasValue)
+                {
+                    <a href="@Url.Action("Index", "Cart")" class="btn btn-outline-warning position-relative">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count">
+                            0
+                        </span>
+                    </a>
+                }
+                    <button class="btn btn-outline-warning" id="sidebarToggle">
+                        <i class="fas fa-bars"></i> Menu
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -183,7 +194,11 @@
                                 <div class="mb-2">
                                     <small class="text-muted">@product.Brand</small>
                                 </div>
-                                <h6 class="card-title">@product.Name</h6>
+                                <h6 class="card-title">
+                                    <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="text-decoration-none text-dark">
+                                        @product.Name
+                                    </a>
+                                </h6>
                                 <p class="card-text text-muted small flex-grow-1">@product.Description</p>
                                 
                                 <div class="mb-2">
@@ -216,10 +231,19 @@
                                     </div>
                                     
                                     <div class="d-grid gap-2">
-                                        <button class="btn btn-warning btn-sm">
-                                            <i class="fas fa-shopping-cart me-1"></i>Adicionar ao Carrinho
-                                        </button>
-                                        <button class="btn btn-outline-secondary btn-sm">
+                                                    @if (Context.Session.GetInt32("UserId").HasValue)
+            {
+                <button class="btn btn-warning btn-sm" onclick="addToCartFromHome(@product.Id)">
+                    <i class="fas fa-shopping-cart me-1"></i>Adicionar ao Carrinho
+                </button>
+            }
+            else
+            {
+                                 <a href="@Url.Action("Login", "Auth", new { returnUrl = Context.Request.Path + Context.Request.QueryString })" class="btn btn-warning btn-sm">
+                     <i class="fas fa-sign-in-alt me-1"></i>Fazer Login para Comprar
+                 </a>
+            }
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="addToWishlist(@product.Id)">
                                             <i class="fas fa-heart me-1"></i>Favoritar
                                         </button>
                                     </div>
@@ -306,6 +330,80 @@
 
             // Funcionalidade do carrossel de categorias
             const categoryCarousel = document.querySelector('.category-carousel');
+            
+            // Funções do carrinho
+                         function addToCartFromHome(productId) {
+                 @if (Context.Session.GetInt32("UserId").HasValue)
+                 {
+                     <text>
+                     const data = {
+                         productId: productId,
+                         variationId: null,
+                         quantity: 1
+                     };
+
+                     fetch('@Url.Action("AddToCart", "Cart")', {
+                         method: 'POST',
+                         headers: {
+                             'Content-Type': 'application/json',
+                             'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                         },
+                         body: JSON.stringify(data)
+                     })
+                     .then(response => response.json())
+                     .then(data => {
+                         if (data.success) {
+                             // Atualizar contador do carrinho
+                             updateCartCount(data.cartItemCount);
+                             showAlert('success', data.message);
+                         } else {
+                             showAlert('danger', data.message);
+                     }
+                     })
+                     .catch(error => {
+                         console.error('Erro:', error);
+                         showAlert('danger', 'Erro ao adicionar ao carrinho');
+                     });
+                     </text>
+                 }
+                 else
+                 {
+                     <text>
+                     // Redirecionar para login com URL de retorno para o produto
+                     const returnUrl = window.location.pathname + window.location.search;
+                     window.location.href = '@Url.Action("Login", "Auth")?returnUrl=' + encodeURIComponent(returnUrl);
+                     </text>
+                 }
+             }
+
+            function addToWishlist(productId) {
+                showAlert('info', 'Funcionalidade em desenvolvimento');
+            }
+
+            function updateCartCount(count) {
+                const cartCountElement = document.querySelector('.cart-count');
+                if (cartCountElement) {
+                    cartCountElement.textContent = count;
+                }
+            }
+
+            function showAlert(type, message) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+                alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                alertDiv.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                // Auto-remover após 5 segundos
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 5000);
+            }
             if (categoryCarousel) {
                 let isDown = false;
                 let startX;

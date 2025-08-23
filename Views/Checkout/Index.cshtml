@@ -1,0 +1,291 @@
+@model EcommercePWA.Models.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-credit-card me-2"></i>Informações de Entrega e Pagamento
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Process" method="post" id="checkoutForm">
+                        @Html.AntiForgeryToken()
+                        
+                        <!-- Informações de Entrega -->
+                        <div class="shipping-section mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-shipping-fast me-2"></i>Informações de Entrega
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="ShippingName" class="form-label">Nome Completo *</label>
+                                    <input asp-for="ShippingName" class="form-control" required>
+                                    <span asp-validation-for="ShippingName" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="ShippingPhone" class="form-label">Telefone *</label>
+                                    <input asp-for="ShippingPhone" class="form-control" required>
+                                    <span asp-validation-for="ShippingPhone" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ShippingAddress" class="form-label">Endereço *</label>
+                                <input asp-for="ShippingAddress" class="form-control" required>
+                                <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="ShippingCity" class="form-label">Cidade *</label>
+                                    <input asp-for="ShippingCity" class="form-control" required>
+                                    <span asp-validation-for="ShippingCity" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="ShippingZipCode" class="form-label">CEP *</label>
+                                    <input asp-for="ShippingZipCode" class="form-control" required>
+                                    <span asp-validation-for="ShippingZipCode" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="ShippingCountry" class="form-label">País *</label>
+                                    <input asp-for="ShippingCountry" class="form-control" value="Brasil" required>
+                                    <span asp-validation-for="ShippingCountry" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informações de Pagamento -->
+                        <div class="payment-section mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-credit-card me-2"></i>Informações de Pagamento
+                            </h5>
+                            <div class="mb-3">
+                                <label asp-for="PaymentMethod" class="form-label">Método de Pagamento *</label>
+                                <select asp-for="PaymentMethod" class="form-select" required>
+                                    <option value="">Selecione uma opção</option>
+                                    <option value="credit_card">Cartão de Crédito</option>
+                                    <option value="debit_card">Cartão de Débito</option>
+                                    <option value="pix">PIX</option>
+                                    <option value="boleto">Boleto Bancário</option>
+                                </select>
+                                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                            </div>
+                            
+                            <div id="creditCardFields" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="CardNumber" class="form-label">Número do Cartão *</label>
+                                        <input asp-for="CardNumber" class="form-control" placeholder="1234 5678 9012 3456">
+                                        <span asp-validation-for="CardNumber" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="CardName" class="form-label">Nome no Cartão *</label>
+                                        <input asp-for="CardName" class="form-control" placeholder="Como está impresso no cartão">
+                                        <span asp-validation-for="CardName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="CardExpiry" class="form-label">Validade *</label>
+                                        <input asp-for="CardExpiry" class="form-control" placeholder="MM/AA">
+                                        <span asp-validation-for="CardExpiry" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="CardCvv" class="form-label">CVV *</label>
+                                        <input asp-for="CardCvv" class="form-control" placeholder="123">
+                                        <span asp-validation-for="CardCvv" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">&nbsp;</label>
+                                        <div class="form-check mt-2">
+                                            <input asp-for="SavePaymentInfo" class="form-check-input" type="checkbox">
+                                            <label asp-for="SavePaymentInfo" class="form-check-label">
+                                                Salvar informações de pagamento
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Opções Adicionais -->
+                        <div class="additional-options mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-cog me-2"></i>Opções Adicionais
+                            </h5>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input asp-for="SaveShippingInfo" class="form-check-input" type="checkbox">
+                                    <label asp-for="SaveShippingInfo" class="form-check-label">
+                                        Salvar endereço de entrega para futuras compras
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Notes" class="form-label">Observações</label>
+                                <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Instruções especiais para entrega, observações sobre o pedido..."></textarea>
+                                <span asp-validation-for="Notes" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="d-flex justify-content-between">
+                            <a href="@Url.Action("Index", "Cart")" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar ao Carrinho
+                            </a>
+                            <button type="submit" class="btn btn-warning btn-lg" id="submitOrder">
+                                <i class="fas fa-lock me-2"></i>Finalizar Pedido
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Resumo do Pedido -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Resumo do Pedido</h5>
+                </div>
+                <div class="card-body">
+                    <div class="order-summary">
+                        <!-- Itens do Carrinho -->
+                        <div class="cart-items mb-3">
+                            @foreach (var item in Model.Cart.Items)
+                            {
+                                <div class="cart-item d-flex justify-content-between align-items-center mb-2">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center">
+                                            <img src="@(string.IsNullOrEmpty(item.Product.ImageUrl) ? "/images/placeholder.jpg" : item.Product.ImageUrl)" 
+                                                 class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                            <div>
+                                                <small class="d-block">@item.Product.Name</small>
+                                                <small class="text-muted">Qtd: @item.Quantity</small>
+                                                @if (item.ProductVariation != null)
+                                                {
+                                                    <small class="text-muted d-block">@item.ProductVariation.Name</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="text-end">R$ @item.Total.ToString("N2")</span>
+                                </div>
+                            }
+                        </div>
+
+                        <hr>
+
+                        <!-- Totais -->
+                        <div class="totals">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>R$ @Model.Cart.Subtotal.ToString("N2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Frete:</span>
+                                <span>R$ @Model.Cart.ShippingCost.ToString("N2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Impostos:</span>
+                                <span>R$ @Model.Cart.TaxAmount.ToString("N2")</span>
+                            </div>
+                            
+                            @if (Model.Cart.DiscountAmount.HasValue && Model.Cart.DiscountAmount.Value > 0)
+                            {
+                                <div class="d-flex justify-content-between mb-2 text-success">
+                                    <span>Desconto:</span>
+                                    <span>-R$ @Model.Cart.DiscountAmount.Value.ToString("N2")</span>
+                                </div>
+                            }
+                            
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong>Total:</strong>
+                                <strong class="h5 text-primary mb-0">R$ @Model.Cart.Total.ToString("N2")</strong>
+                            </div>
+                        </div>
+
+                        <!-- Informações de Segurança -->
+                        <div class="security-info mt-3">
+                            <div class="alert alert-info">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                <small>
+                                    <strong>Compra 100% Segura</strong><br>
+                                    Seus dados estão protegidos com criptografia SSL de 256 bits.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Mostrar/ocultar campos do cartão de crédito
+        document.getElementById('PaymentMethod').addEventListener('change', function() {
+            const creditCardFields = document.getElementById('creditCardFields');
+            if (this.value === 'credit_card' || this.value === 'debit_card') {
+                creditCardFields.style.display = 'block';
+            } else {
+                creditCardFields.style.display = 'none';
+            }
+        });
+
+        // Formatação do número do cartão
+        document.getElementById('CardNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+            e.target.value = value.substring(0, 19);
+        });
+
+        // Formatação da data de validade
+        document.getElementById('CardExpiry').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value.substring(0, 5);
+        });
+
+        // Formatação do CVV
+        document.getElementById('CardCvv').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            e.target.value = value.substring(0, 4);
+        });
+
+        // Formatação do CEP
+        document.getElementById('ShippingZipCode').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 5) {
+                value = value.substring(0, 5) + '-' + value.substring(5, 8);
+            }
+            e.target.value = value.substring(0, 9);
+        });
+
+        // Formatação do telefone
+        document.getElementById('ShippingPhone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = '(' + value.substring(0, 2) + ') ' + value.substring(2);
+            }
+            if (value.length >= 10) {
+                value = value.substring(0, 10) + '-' + value.substring(10, 14);
+            }
+            e.target.value = value.substring(0, 15);
+        });
+
+        // Validação do formulário
+        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+            const submitButton = document.getElementById('submitOrder');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processando...';
+        });
+    </script>
+}

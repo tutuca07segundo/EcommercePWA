@@ -1,0 +1,342 @@
+@model EcommercePWA.Models.CartViewModel
+@{
+    ViewData["Title"] = "Carrinho de Compras";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-shopping-cart me-2"></i>Carrinho de Compras
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (Model.Items.Any())
+                    {
+                        <div class="cart-items">
+                            @foreach (var item in Model.Items)
+                            {
+                                <div class="cart-item border-bottom pb-3 mb-3" data-item-id="@item.Id">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-2">
+                                            <img src="@(string.IsNullOrEmpty(item.Product.ImageUrl) ? "/images/placeholder.jpg" : item.Product.ImageUrl)" 
+                                                 class="img-fluid rounded" alt="@item.Product.Name" style="max-height: 80px;">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h6 class="mb-1">
+                                                <a href="@Url.Action("Details", "Product", new { id = item.Product.Id })" class="text-decoration-none">
+                                                    @item.Product.Name
+                                                </a>
+                                            </h6>
+                                            <small class="text-muted">@item.Product.Brand</small>
+                                            @if (item.ProductVariation != null)
+                                            {
+                                                <div class="mt-1">
+                                                    <span class="badge bg-light text-dark">
+                                                        @if (!string.IsNullOrEmpty(item.ProductVariation.ColorHex))
+                                                        {
+                                                            <span class="color-swatch me-1" style="background-color: @item.ProductVariation.ColorHex; width: 16px; height: 16px; border-radius: 50%; display: inline-block;"></span>
+                                                        }
+                                                        @item.ProductVariation.Name
+                                                    </span>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="quantity-controls">
+                                                <div class="input-group input-group-sm">
+                                                    <button type="button" class="btn btn-outline-secondary" onclick="updateQuantity(@item.Id, -1)">-</button>
+                                                    <input type="number" class="form-control text-center quantity-input" value="@item.Quantity" min="1" max="@item.Product.StockQuantity" data-item-id="@item.Id">
+                                                    <button type="button" class="btn btn-outline-secondary" onclick="updateQuantity(@item.Id, 1)">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 text-center">
+                                            <span class="h6 mb-0">R$ @item.UnitPrice.ToString("N2")</span>
+                                        </div>
+                                        <div class="col-md-2 text-center">
+                                            <span class="h6 mb-0 text-primary">R$ @item.Total.ToString("N2")</span>
+                                        </div>
+                                        <div class="col-md-1 text-end">
+                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeItem(@item.Id)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Seu carrinho está vazio</h5>
+                            <p class="text-muted">Adicione alguns produtos para começar suas compras!</p>
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-warning">
+                                <i class="fas fa-shopping-bag me-2"></i>Continuar Comprando
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Resumo do Pedido</h5>
+                </div>
+                <div class="card-body">
+                    <div class="cart-summary">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>R$ @Model.Subtotal.ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Frete:</span>
+                            <span>R$ @Model.ShippingCost.ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Impostos:</span>
+                            <span>R$ @Model.TaxAmount.ToString("N2")</span>
+                        </div>
+                        
+                        @if (Model.DiscountAmount.HasValue && Model.DiscountAmount.Value > 0)
+                        {
+                            <div class="d-flex justify-content-between mb-2 text-success">
+                                <span>Desconto:</span>
+                                <span>-R$ @Model.DiscountAmount.Value.ToString("N2")</span>
+                            </div>
+                        }
+                        
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>Total:</strong>
+                            <strong class="h5 text-primary mb-0">R$ @Model.Total.ToString("N2")</strong>
+                        </div>
+
+                        <!-- Cupom de Desconto -->
+                        <div class="coupon-section mb-3">
+                            <form id="couponForm" class="d-flex">
+                                <input type="text" class="form-control me-2" id="couponCode" placeholder="Código do cupom" value="@Model.CouponCode">
+                                <button type="submit" class="btn btn-outline-primary">Aplicar</button>
+                            </form>
+                            @if (!string.IsNullOrEmpty(Model.CouponMessage))
+                            {
+                                <div class="alert alert-@(Model.IsCouponValid ? "success" : "danger") alert-sm mt-2">
+                                    @Model.CouponMessage
+                                </div>
+                            }
+                        </div>
+
+                        @if (Model.Items.Any())
+                        {
+                            <div class="d-grid gap-2">
+                                <a href="@Url.Action("Index", "Checkout")" class="btn btn-warning btn-lg">
+                                    <i class="fas fa-credit-card me-2"></i>Finalizar Compra
+                                </a>
+                                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Continuar Comprando
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cupons Disponíveis -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Cupons Disponíveis</h6>
+                </div>
+                <div class="card-body">
+                    <div class="available-coupons">
+                        <div class="coupon-item mb-2 p-2 border rounded">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong class="text-primary">WELCOME10</strong>
+                                    <small class="d-block text-muted">10% de desconto para novos clientes</small>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="applyCoupon('WELCOME10')">
+                                    Aplicar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="coupon-item mb-2 p-2 border rounded">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong class="text-primary">FREESHIP</strong>
+                                    <small class="d-block text-muted">Frete grátis para pedidos acima de R$ 200</small>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="applyCoupon('FREESHIP')">
+                                    Aplicar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="coupon-item mb-2 p-2 border rounded">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong class="text-primary">GAMING20</strong>
+                                    <small class="d-block text-muted">20% de desconto em produtos gaming</small>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="applyCoupon('GAMING20')">
+                                    Aplicar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Atualizar quantidade
+        function updateQuantity(itemId, delta) {
+            const quantityInput = document.querySelector(`input[data-item-id="${itemId}"]`);
+            let newQuantity = parseInt(quantityInput.value) + delta;
+            newQuantity = Math.max(1, Math.min(newQuantity, 99));
+            quantityInput.value = newQuantity;
+            
+            // Atualizar no servidor
+            fetch('@Url.Action("UpdateQuantity", "Cart")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                },
+                body: JSON.stringify({ itemId: itemId, quantity: newQuantity })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Atualizar totais
+                    updateCartTotals(data);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                showAlert('danger', 'Erro ao atualizar quantidade');
+            });
+        }
+
+        // Remover item
+        function removeItem(itemId) {
+            if (confirm('Tem certeza que deseja remover este item?')) {
+                fetch('@Url.Action("RemoveItem", "Cart")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify({ itemId: itemId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remover item da interface
+                        const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
+                        if (itemElement) {
+                            itemElement.remove();
+                        }
+                        
+                        // Atualizar totais
+                        updateCartTotals(data);
+                        
+                        // Verificar se o carrinho está vazio
+                        if (data.cartItemCount === 0) {
+                            location.reload();
+                        }
+                        
+                        showAlert('success', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    showAlert('danger', 'Erro ao remover item');
+                });
+            }
+        }
+
+        // Aplicar cupom
+        function applyCoupon(code) {
+            document.getElementById('couponCode').value = code;
+            document.getElementById('couponForm').dispatchEvent(new Event('submit'));
+        }
+
+        // Formulário de cupom
+        document.getElementById('couponForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const couponCode = document.getElementById('couponCode').value.trim();
+            if (!couponCode) return;
+            
+            fetch('@Url.Action("ApplyCoupon", "Cart")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                },
+                body: JSON.stringify({ couponCode: couponCode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('success', data.message);
+                    // Recarregar página para atualizar totais
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showAlert('danger', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                showAlert('danger', 'Erro ao aplicar cupom');
+            });
+        });
+
+        // Atualizar totais do carrinho
+        function updateCartTotals(data) {
+            // Atualizar contador do carrinho no header
+            const cartCountElement = document.querySelector('.cart-count');
+            if (cartCountElement) {
+                cartCountElement.textContent = data.cartItemCount;
+            }
+        }
+
+        // Mostrar alerta
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+            
+            // Auto-remover após 5 segundos
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Atualizar quantidade ao mudar input
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const itemId = this.dataset.itemId;
+                const quantity = parseInt(this.value);
+                if (quantity > 0) {
+                    updateQuantity(parseInt(itemId), 0); // Forçar atualização
+                }
+            });
+        });
+    </script>
+}

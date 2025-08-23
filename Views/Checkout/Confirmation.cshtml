@@ -1,0 +1,284 @@
+@model EcommercePWA.Models.Order
+@{
+    ViewData["Title"] = "Pedido Confirmado";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white text-center">
+                    <i class="fas fa-check-circle fa-3x mb-3"></i>
+                    <h3 class="mb-0">Pedido Confirmado com Sucesso!</h3>
+                    <p class="mb-0">Obrigado por escolher a Kaboom</p>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h5 class="text-success">Número do Pedido: @Model.OrderNumber</h5>
+                        <p class="text-muted">Data do Pedido: @Model.OrderDate.ToString("dd/MM/yyyy 'às' HH:mm")</p>
+                    </div>
+
+                    <!-- Status do Pedido -->
+                    <div class="order-status mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">Status do Pedido</h6>
+                        <div class="status-timeline">
+                            <div class="status-step completed">
+                                <div class="status-icon">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                </div>
+                                <div class="status-content">
+                                    <strong>Pedido Confirmado</strong>
+                                    <small class="text-muted d-block">@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                            </div>
+                            <div class="status-step @(Model.Status != "Pending" ? "completed" : "pending")">
+                                <div class="status-icon">
+                                    @if (Model.Status != "Pending")
+                                    {
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-clock text-muted"></i>
+                                    }
+                                </div>
+                                <div class="status-content">
+                                    <strong>Em Processamento</strong>
+                                    @if (Model.Status != "Pending")
+                                    {
+                                        <small class="text-muted d-block">Processando seu pedido</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted d-block">Aguardando processamento</small>
+                                    }
+                                </div>
+                            </div>
+                            <div class="status-step @(Model.Status == "Shipped" || Model.Status == "Delivered" ? "completed" : "pending")">
+                                <div class="status-icon">
+                                    @if (Model.Status == "Shipped" || Model.Status == "Delivered")
+                                    {
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-clock text-muted"></i>
+                                    }
+                                </div>
+                                <div class="status-content">
+                                    <strong>Enviado</strong>
+                                    @if (Model.Status == "Shipped" || Model.Status == "Delivered")
+                                    {
+                                        <small class="text-muted d-block">@Model.ShippedDate?.ToString("dd/MM/yyyy HH:mm")</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted d-block">Aguardando envio</small>
+                                    }
+                                </div>
+                            </div>
+                            <div class="status-step @(Model.Status == "Delivered" ? "completed" : "pending")">
+                                <div class="status-icon">
+                                    @if (Model.Status == "Delivered")
+                                    {
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-clock text-muted"></i>
+                                    }
+                                </div>
+                                <div class="status-content">
+                                    <strong>Entregue</strong>
+                                    @if (Model.Status == "Delivered")
+                                    {
+                                        <small class="text-muted d-block">@Model.DeliveredDate?.ToString("dd/MM/yyyy HH:mm")</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted d-block">Aguardando entrega</small>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumo do Pedido -->
+                    <div class="order-summary mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">Resumo do Pedido</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Endereço de Entrega</h6>
+                                <address class="text-muted">
+                                    @Model.ShippingAddress<br>
+                                    @Model.ShippingCity - @Model.ShippingZipCode<br>
+                                    @Model.ShippingCountry
+                                </address>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Informações de Pagamento</h6>
+                                <p class="text-muted mb-1">
+                                    <strong>Método:</strong> @Model.PaymentMethod
+                                </p>
+                                <p class="text-muted mb-1">
+                                    <strong>Status:</strong> 
+                                    <span class="badge bg-success">@Model.PaymentStatus</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Itens do Pedido -->
+                    <div class="order-items mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">Itens do Pedido</h6>
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="order-item d-flex align-items-center mb-3 p-3 border rounded">
+                                <img src="@(string.IsNullOrEmpty(item.Product?.ImageUrl) ? "/images/placeholder.jpg" : item.Product.ImageUrl)" 
+                                     class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">@item.ProductName</h6>
+                                    <small class="text-muted">
+                                        Quantidade: @item.Quantity
+                                        @if (!string.IsNullOrEmpty(item.VariationName))
+                                        {
+                                            <span class="ms-2">| Variação: @item.VariationName</span>
+                                        }
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <strong>R$ @item.UnitPrice.ToString("N2")</strong>
+                                    <div class="text-muted">
+                                        <small>Total: R$ @item.Total.ToString("N2")</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Totais -->
+                    <div class="order-totals mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">Resumo Financeiro</h6>
+                        <div class="row">
+                            <div class="col-md-8 offset-md-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span>R$ @Model.Subtotal.ToString("N2")</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Frete:</span>
+                                    <span>R$ @Model.ShippingCost.ToString("N2")</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Impostos:</span>
+                                    <span>R$ @Model.TaxAmount.ToString("N2")</span>
+                                </div>
+                                @if (Model.DiscountAmount > 0)
+                                {
+                                    <div class="d-flex justify-content-between mb-2 text-success">
+                                        <span>Desconto:</span>
+                                        <span>-R$ @Model.DiscountAmount.ToString("N2")</span>
+                                    </div>
+                                }
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <strong>Total:</strong>
+                                    <strong class="h5 text-primary mb-0">R$ @Model.Total.ToString("N2")</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Próximos Passos -->
+                    <div class="next-steps mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">Próximos Passos</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-primary">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
+                                        <h6>Confirmação por Email</h6>
+                                        <small class="text-muted">Você receberá um email com os detalhes do pedido</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-info">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-truck fa-2x text-info mb-2"></i>
+                                        <h6>Rastreamento</h6>
+                                        <small class="text-muted">Receberá atualizações sobre o status da entrega</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <div class="text-center">
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-warning btn-lg me-3">
+                            <i class="fas fa-shopping-bag me-2"></i>Continuar Comprando
+                        </a>
+                        <a href="#" class="btn btn-outline-primary btn-lg" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Imprimir Pedido
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .status-timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .status-timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: #e9ecef;
+    }
+
+    .status-step {
+        position: relative;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .status-icon {
+        position: absolute;
+        left: -22px;
+        background: white;
+        padding: 2px;
+    }
+
+    .status-step.completed .status-icon {
+        color: #28a745;
+    }
+
+    .status-step.pending .status-icon {
+        color: #6c757d;
+    }
+
+    .status-content {
+        margin-left: 10px;
+    }
+
+    @@media print {
+        .btn {
+            display: none !important;
+        }
+        
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+    }
+</style>

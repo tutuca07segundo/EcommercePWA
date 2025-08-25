@@ -305,47 +305,7 @@
 
 @section Scripts {
     <script>
-        // Funcionalidade da Sidebar
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebarClose = document.getElementById('sidebarClose');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const mainContent = document.querySelector('.main-content');
-
-            function openSidebar() {
-                sidebar.classList.add('active');
-                sidebarOverlay.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeSidebar() {
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-
-            sidebarToggle.addEventListener('click', openSidebar);
-            sidebarClose.addEventListener('click', closeSidebar);
-            sidebarOverlay.addEventListener('click', closeSidebar);
-
-            // Fechar sidebar ao redimensionar
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
-                    closeSidebar();
-                }
-            });
-
-            // Funcionalidade do carrossel de categorias
-            const categoryCarousel = document.querySelector('.category-carousel');
-            
-            // Funções do carrinho
-            function redirectToLogin() {
-                const returnUrl = window.location.pathname + window.location.search;
-                window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
-            }
-            
-            function addToCartFromHome(productId) {
+         function addToCartFromHome(productId) {
                 @if (!Context.Session.GetInt32("UserId").HasValue)
                 {
                     <text>
@@ -400,11 +360,7 @@
                 });
             }
 
-            function addToWishlist(productId) {
-                showAlert('info', 'Funcionalidade em desenvolvimento');
-            }
-
-            function updateCartCount(count) {
+             function updateCartCount(count) {
                 const cartCountElement = document.querySelector('.cart-count');
                 if (cartCountElement) {
                     cartCountElement.textContent = count;
@@ -428,6 +384,50 @@
                     }
                 }, 5000);
             }
+
+            function redirectToLogin() {
+                const returnUrl = window.location.pathname + window.location.search;
+                window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
+            }
+
+        // Funcionalidade da Sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const mainContent = document.querySelector('.main-content');
+
+            function openSidebar() {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            sidebarToggle.addEventListener('click', openSidebar);
+            sidebarClose.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+
+            // Fechar sidebar ao redimensionar
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeSidebar();
+                }
+            });
+
+            // Funcionalidade do carrossel de categorias
+            const categoryCarousel = document.querySelector('.category-carousel');
+
+            function addToWishlist(productId) {
+                showAlert('info', 'Funcionalidade em desenvolvimento');
+            }
+
             if (categoryCarousel) {
                 let isDown = false;
                 let startX;

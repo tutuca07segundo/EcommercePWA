@@ -64,7 +64,6 @@ C:\Users\Arthur\Desktop\EcommercePWA\obj\Debug\net9.0\EcommercePWA.sourcelink.js
 C:\Users\Arthur\Desktop\EcommercePWA\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\Arthur\Desktop\EcommercePWA\obj\Debug\net9.0\scopedcss\bundle\EcommercePWA.styles.css
 C:\Users\Arthur\Desktop\EcommercePWA\obj\Debug\net9.0\scopedcss\projectbundle\EcommercePWA.bundle.scp.css
-C:\Users\Arthur\Desktop\EcommercePWA\obj\Debug\net9.0\compressed\okohksbcf5-qftzbpuniw.gz
 C:\Users\Arthur\Desktop\EcommercePWA\obj\Debug\net9.0\compressed\xymgwf927v-61n19gt1b8.gz
 C:\Users\Arthur\Desktop\EcommercePWA\obj\Debug\net9.0\compressed\h7d4mamtp1-q9sf6zxzf5.gz
 C:\Users\Arthur\Desktop\EcommercePWA\obj\Debug\net9.0\compressed\332b2lwu4r-2elkkky3py.gz
@@ -677,3 +676,4 @@ C:\Users\Gabriel\Desktop\New folder\EcommercePWA\obj\Debug\net9.0\refint\Ecommer
 C:\Users\Gabriel\Desktop\New folder\EcommercePWA\obj\Debug\net9.0\EcommercePWA.pdb
 C:\Users\Gabriel\Desktop\New folder\EcommercePWA\obj\Debug\net9.0\EcommercePWA.genruntimeconfig.cache
 C:\Users\Gabriel\Desktop\New folder\EcommercePWA\obj\Debug\net9.0\ref\EcommercePWA.dll
+C:\Users\Arthur\Desktop\EcommercePWA\obj\Debug\net9.0\compressed\okohksbcf5-kf33gx15t1.gz

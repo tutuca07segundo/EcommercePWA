@@ -335,12 +335,7 @@
                         updateCartCount(data.cartItemCount);
                         showAlert('success', data.message);
                         
-                        // Redirecionar para o carrinho após 1 segundo
-                        if (data.redirectToCart) {
-                            setTimeout(() => {
-                                window.location.href = '@Url.Action("Index", "Cart")';
-                            }, 1000);
-                        }
+                       
                     } else {
                         if (data.requireLogin) {
                             showAlert('warning', 'Faça login para continuar comprando');

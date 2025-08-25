@@ -5,7 +5,7 @@ namespace EcommercePWA.Services
     public interface ICartService
     {
         Cart GetCart(string sessionId);
-        void AddToCart(string sessionId, int productId, int? variationId, int quantity);
+        Task AddToCart(string sessionId, int productId, int? variationId, int quantity);
         void UpdateQuantity(string sessionId, int itemId, int quantity);
         void RemoveItem(string sessionId, int itemId);
         void ClearCart(string sessionId);

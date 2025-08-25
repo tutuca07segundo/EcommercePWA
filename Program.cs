@@ -31,16 +31,33 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// 🛠️ Executa Seed/Migration opcionalmente
+// 🛠️ Executa Seed/Migration e inicializa o banco
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<ApplicationDbContext>();
+    var authService = services.GetRequiredService<IAuthService>();
+    var productService = services.GetRequiredService<IProductService>();
 
-    // Opcional:
-    // context.Database.EnsureDeleted();
-    // context.Database.Migrate();
-    // await DbInitializer.InitializeAsync(context);
+    try
+    {
+        // Garantir que o banco existe e está atualizado
+        await context.Database.EnsureCreatedAsync();
+        
+        // Inicializar usuário admin
+        await authService.InitializeDatabaseAsync();
+        
+        // Inicializar produtos e categorias
+        await productService.InitializeDatabaseAsync();
+        
+        Console.WriteLine("✅ Banco de dados inicializado com sucesso!");
+        Console.WriteLine("👤 Usuário admin: admin@kaboom.com / admin123");
+        Console.WriteLine("📦 Produtos e categorias carregados");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"❌ Erro ao inicializar banco de dados: {ex.Message}");
+    }
 }
 
 // Configure o pipeline HTTP
@@ -56,7 +73,7 @@ app.UseStaticFiles();
 app.UseSession();
 
 app.UseSwagger();
-app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TotemPWA API v1"));
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Kaboom E-commerce API v1"));
 
 app.UseHttpsRedirection();
 app.UseRouting();

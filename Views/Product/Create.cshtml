@@ -1,0 +1,139 @@
+@model EcommercePWA.Models.Product
+@{
+    ViewData["Title"] = "Criar Novo Produto";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>Criar Novo Produto
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Name" class="form-label">Nome do Produto *</label>
+                                    <input asp-for="Name" class="form-control" placeholder="Ex: Mouse Gaming Logitech G Pro X" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Brand" class="form-label">Marca *</label>
+                                    <input asp-for="Brand" class="form-control" placeholder="Ex: Logitech" />
+                                    <span asp-validation-for="Brand" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Descrição *</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Descreva as características do produto..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="Category" class="form-label">Categoria *</label>
+                                    <select asp-for="Category" class="form-select">
+                                        <option value="">Selecione uma categoria</option>
+                                        @foreach (var category in ViewBag.Categories)
+                                        {
+                                            <option value="@category.Name">@category.Name</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="Category" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="Type" class="form-label">Tipo *</label>
+                                    <select asp-for="Type" class="form-select">
+                                        <option value="">Selecione o tipo</option>
+                                        <option value="Periférico">Periférico</option>
+                                        <option value="Peça">Peça</option>
+                                        <option value="Acessório">Acessório</option>
+                                    </select>
+                                    <span asp-validation-for="Type" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="StockQuantity" class="form-label">Quantidade em Estoque *</label>
+                                    <input asp-for="StockQuantity" class="form-control" type="number" min="0" placeholder="0" />
+                                    <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Price" class="form-label">Preço (R$) *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">R$</span>
+                                        <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" placeholder="0.00" />
+                                    </div>
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ImageUrl" class="form-label">URL da Imagem</label>
+                                    <input asp-for="ImageUrl" class="form-control" placeholder="https://exemplo.com/imagem.jpg" />
+                                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                                    <small class="form-text text-muted">Deixe em branco para usar imagem padrão</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Tags" class="form-label">Tags</label>
+                            <input asp-for="Tags" class="form-control" placeholder="gaming, wireless, leve (separadas por vírgula)" />
+                            <span asp-validation-for="Tags" class="text-danger"></span>
+                            <small class="form-text text-muted">Separe as tags por vírgula</small>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-2"></i>Criar Produto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        // Converter string de tags para array e vice-versa
+        document.addEventListener('DOMContentLoaded', function() {
+            const tagsInput = document.querySelector('input[name="Tags"]');
+            
+            // Converter array para string ao carregar
+            if (tagsInput.value && tagsInput.value.startsWith('[')) {
+                try {
+                    const tags = JSON.parse(tagsInput.value);
+                    tagsInput.value = tags.join(', ');
+                } catch (e) {
+                    console.log('Tags já estão em formato string');
+                }
+            }
+        });
+    </script>
+}

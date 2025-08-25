@@ -16,8 +16,12 @@ namespace EcommercePWA.Controllers
         }
 
         // GET: /Auth/Login
-        public IActionResult Login(string? returnUrl = null)
+        public IActionResult Login(string? returnUrl = null, int? mustLoginToBuy = null)
         {
+            if (mustLoginToBuy == 1)
+            {
+                ViewData["MustLoginToBuyMessage"] = "Acesse sua conta para continuar a compra.";
+            }
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }

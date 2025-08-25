@@ -16,51 +16,131 @@ public class HomeController : Controller
         _productService = productService;
     }
 
-    public IActionResult Index(string searchTerm = "", string category = "", string sortOrder = "name")
+    // GET: /Home
+    public async Task<IActionResult> Index(string? category, string? searchTerm, string? sortOrder)
     {
-        var viewModel = new ProductViewModel
+        try
         {
-            Categories = _productService.GetAllCategories(),
-            SearchTerm = searchTerm,
-            SelectedCategory = category,
-            SortOrder = sortOrder
-        };
+            List<Product> products;
+            
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                products = await _productService.SearchProductsAsync(searchTerm);
+            }
+            else if (!string.IsNullOrEmpty(category))
+            {
+                products = await _productService.GetProductsByCategoryAsync(category);
+            }
+            else
+            {
+                products = await _productService.GetAllProductsAsync();
+            }
 
-        // Filtrar produtos
-        var products = _productService.GetAllProducts();
-        
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
-            products = _productService.SearchProducts(searchTerm);
+            if (!string.IsNullOrEmpty(sortOrder))
+            {
+                products = _productService.SortProducts(products, sortOrder);
+            }
+
+            var categories = await _productService.GetAllCategoriesAsync();
+
+            var viewModel = new ProductViewModel
+            {
+                Products = products,
+                Categories = categories,
+                SelectedCategory = category,
+                SearchTerm = searchTerm ?? "",
+                SortOrder = sortOrder ?? "name"
+            };
+
+            return View(viewModel);
         }
-        
-        if (!string.IsNullOrWhiteSpace(category))
+        catch (Exception ex)
         {
-            products = _productService.GetProductsByCategory(category);
+            _logger.LogError(ex, "Erro ao carregar página inicial");
+            return View(new ProductViewModel
+            {
+                Products = new List<Product>(),
+                Categories = new List<Category>(),
+                SelectedCategory = "",
+                SearchTerm = "",
+                SortOrder = "name"
+            });
         }
-
-        // Ordenar produtos
-        viewModel.Products = _productService.SortProducts(products, sortOrder);
-
-        return View(viewModel);
     }
 
-    public IActionResult Search(string q, string category = "", string sortOrder = "name")
+    // GET: /Home/Search
+    public async Task<IActionResult> Search(string q)
     {
-        return RedirectToAction("Index", new { searchTerm = q, category, sortOrder });
+        try
+        {
+            var products = await _productService.SearchProductsAsync(q);
+            var categories = await _productService.GetAllCategoriesAsync();
+
+            var viewModel = new ProductViewModel
+            {
+                Products = products,
+                Categories = categories,
+                SearchTerm = q ?? "",
+                SortOrder = "name"
+            };
+
+            return View("Index", viewModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao realizar busca");
+            return RedirectToAction("Index");
+        }
     }
 
-    public IActionResult Category(string name, string sortOrder = "name")
+    // GET: /Home/Category/{name}
+    public async Task<IActionResult> Category(string name)
     {
-        return RedirectToAction("Index", new { category = name, sortOrder });
+        try
+        {
+            var products = await _productService.GetProductsByCategoryAsync(name);
+            var categories = await _productService.GetAllCategoriesAsync();
+
+            var viewModel = new ProductViewModel
+            {
+                Products = products,
+                Categories = categories,
+                SelectedCategory = name,
+                SortOrder = "name"
+            };
+
+            return View("Index", viewModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao carregar categoria: {CategoryName}", name);
+            return RedirectToAction("Index");
+        }
     }
 
-    public IActionResult Sort(string order)
+    // GET: /Home/Sort
+    public async Task<IActionResult> Sort(string order)
     {
-        var searchTerm = Request.Query["searchTerm"].ToString();
-        var category = Request.Query["category"].ToString();
-        
-        return RedirectToAction("Index", new { searchTerm, category, sortOrder = order });
+        try
+        {
+            var products = await _productService.GetAllProductsAsync();
+            var sortedProducts = _productService.SortProducts(products, order);
+            var categories = await _productService.GetAllCategoriesAsync();
+
+            var viewModel = new ProductViewModel
+            {
+                Products = sortedProducts,
+                Categories = categories,
+                SortOrder = order
+            };
+
+            return View("Index", viewModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao ordenar produtos");
+            return RedirectToAction("Index");
+        }
     }
 
     public IActionResult Privacy()

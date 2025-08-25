@@ -12,7 +12,10 @@ namespace EcommercePWA.Attributes
             if (!userId.HasValue)
             {
                 var returnUrl = context.HttpContext.Request.Path + context.HttpContext.Request.QueryString;
-                context.Result = new RedirectToActionResult("Login", "Auth", new { returnUrl = returnUrl.ToString() });
+                context.Result = new RedirectToActionResult("Login", "Auth", new { 
+                    returnUrl = returnUrl.ToString(),
+                    mustLoginToBuy = 1
+                });
                 return;
             }
 

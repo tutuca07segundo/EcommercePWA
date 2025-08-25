@@ -11,5 +11,6 @@ namespace EcommercePWA.Services
         bool VerifyPassword(string password, string hashedPassword);
         string HashPassword(string password);
         Task<bool> CreateAdminUserAsync();
+        Task<bool> InitializeDatabaseAsync();
     }
 }

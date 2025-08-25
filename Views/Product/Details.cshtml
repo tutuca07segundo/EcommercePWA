@@ -274,18 +274,28 @@
                     </div>
 
                     <!-- Botões de Ação -->
-                    <div class="d-grid gap-2 mb-3">
+                    <div class="d-grid gap-2">
                         @if (Context.Session.GetInt32("UserId").HasValue)
                         {
                             <button class="btn btn-warning btn-lg" onclick="addToCart()">
-                                <i class="fas fa-shopping-cart me-2"></i>ADICIONAR AO CARRINHO
+                                <i class="fas fa-shopping-cart me-2"></i>Adicionar ao Carrinho
                             </button>
+                            
+                            <!-- Botões de Administração -->
+                            <div class="btn-group" role="group">
+                                <a href="@Url.Action("Edit", "Product", new { id = Model.Product.Id })" class="btn btn-outline-primary">
+                                    <i class="fas fa-edit me-2"></i>Editar
+                                </a>
+                                <a href="@Url.Action("Delete", "Product", new { id = Model.Product.Id })" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash me-2"></i>Excluir
+                                </a>
+                            </div>
                         }
                         else
                         {
-                                                     <a href="@Url.Action("Login", "Auth", new { returnUrl = Context.Request.Path })" class="btn btn-warning btn-lg">
-                             <i class="fas fa-sign-in-alt me-2"></i>FAZER LOGIN PARA COMPRAR
-                         </a>
+                            <button type="button" class="btn btn-warning btn-lg" onclick="redirectToLogin()">
+                                <i class="fas fa-sign-in-alt me-2"></i>FAZER LOGIN PARA COMPRAR
+                            </button>
                         }
                     </div>
 
@@ -401,11 +411,21 @@
             if (data.success) {
                 showAlert('success', data.message);
                 // Redirecionar para o carrinho após 1 segundo
-                setTimeout(() => {
-                    window.location.href = '@Url.Action("Index", "Cart")';
-                }, 1000);
+                if (data.redirectToCart) {
+                    setTimeout(() => {
+                        window.location.href = '@Url.Action("Index", "Cart")';
+                    }, 1000);
+                }
             } else {
-                showAlert('danger', data.message);
+                if (data.requireLogin) {
+                    showAlert('warning', 'Faça login para continuar comprando');
+                    // Redirecionar para login após 2 segundos
+                    setTimeout(() => {
+                        window.location.href = '@Url.Action("Login", "Auth")?returnUrl=' + encodeURIComponent(window.location.pathname);
+                    }, 2000);
+                } else {
+                    showAlert('danger', data.message);
+                }
             }
         })
         .catch(error => {
@@ -439,5 +459,9 @@
                 alertDiv.remove();
             }
         }, 5000);
+    }
+
+    function redirectToLogin() {
+        window.location.href = '@Url.Action("Login", "Auth")?returnUrl=' + encodeURIComponent(window.location.pathname);
     }
 </script>

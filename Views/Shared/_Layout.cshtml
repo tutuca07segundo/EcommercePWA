@@ -23,7 +23,7 @@
                 {
                     <span class="navbar-text me-3">
                         <i class="fas fa-user text-warning"></i> 
-                        Olá, @Context.Session.GetString("UserName")
+                        @Context.Session.GetString("UserEmail")
                     </span>
                     <form method="post" action="@Url.Action("Logout", "Auth")" class="d-inline">
                         @Html.AntiForgeryToken()

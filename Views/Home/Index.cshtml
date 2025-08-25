@@ -155,7 +155,15 @@
                             <span>Todos os Produtos</span>
                         }
                     </h5>
-                    <span class="text-muted">@Model.Products.Count produto(s) encontrado(s)</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted">@Model.Products.Count produto(s) encontrado(s)</span>
+                        @if (Context.Session.GetInt32("UserId").HasValue)
+                        {
+                            <a href="@Url.Action("Create", "Product")" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus me-1"></i>Novo Produto
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
@@ -231,18 +239,18 @@
                                     </div>
                                     
                                     <div class="d-grid gap-2">
-                                                    @if (Context.Session.GetInt32("UserId").HasValue)
-            {
-                <button class="btn btn-warning btn-sm" onclick="addToCartFromHome(@product.Id)">
-                    <i class="fas fa-shopping-cart me-1"></i>Adicionar ao Carrinho
-                </button>
-            }
-            else
-            {
-                                 <a href="@Url.Action("Login", "Auth", new { returnUrl = Context.Request.Path + Context.Request.QueryString })" class="btn btn-warning btn-sm">
-                     <i class="fas fa-sign-in-alt me-1"></i>Fazer Login para Comprar
-                 </a>
-            }
+                                        @if (Context.Session.GetInt32("UserId").HasValue)
+                                        {
+                                            <button class="btn btn-warning btn-sm" onclick="addToCartFromHome(@product.Id)">
+                                                <i class="fas fa-shopping-cart me-1"></i>Adicionar ao Carrinho
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-warning btn-sm" onclick="redirectToLogin()">
+                                                <i class="fas fa-sign-in-alt me-1"></i>Fazer Login para Comprar
+                                            </button>
+                                        }
                                         <button class="btn btn-outline-secondary btn-sm" onclick="addToWishlist(@product.Id)">
                                             <i class="fas fa-heart me-1"></i>Favoritar
                                         </button>
@@ -332,49 +340,65 @@
             const categoryCarousel = document.querySelector('.category-carousel');
             
             // Funções do carrinho
-                         function addToCartFromHome(productId) {
-                 @if (Context.Session.GetInt32("UserId").HasValue)
-                 {
-                     <text>
-                     const data = {
-                         productId: productId,
-                         variationId: null,
-                         quantity: 1
-                     };
+            function redirectToLogin() {
+                const returnUrl = window.location.pathname + window.location.search;
+                window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
+            }
+            
+            function addToCartFromHome(productId) {
+                @if (!Context.Session.GetInt32("UserId").HasValue)
+                {
+                    <text>
+                    const returnUrl = window.location.pathname + window.location.search;
+                    window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
+                    return;
+                    </text>
+                }
+                // Se logado, segue fluxo normal
+                const data = {
+                    productId: productId,
+                    variationId: null,
+                    quantity: 1
+                };
 
-                     fetch('@Url.Action("AddToCart", "Cart")', {
-                         method: 'POST',
-                         headers: {
-                             'Content-Type': 'application/json',
-                             'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                         },
-                         body: JSON.stringify(data)
-                     })
-                     .then(response => response.json())
-                     .then(data => {
-                         if (data.success) {
-                             // Atualizar contador do carrinho
-                             updateCartCount(data.cartItemCount);
-                             showAlert('success', data.message);
-                         } else {
-                             showAlert('danger', data.message);
-                     }
-                     })
-                     .catch(error => {
-                         console.error('Erro:', error);
-                         showAlert('danger', 'Erro ao adicionar ao carrinho');
-                     });
-                     </text>
-                 }
-                 else
-                 {
-                     <text>
-                     // Redirecionar para login com URL de retorno para o produto
-                     const returnUrl = window.location.pathname + window.location.search;
-                     window.location.href = '@Url.Action("Login", "Auth")?returnUrl=' + encodeURIComponent(returnUrl);
-                     </text>
-                 }
-             }
+                fetch('@Url.Action("AddToCart", "Cart")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateCartCount(data.cartItemCount);
+                        showAlert('success', data.message);
+                        
+                        // Redirecionar para o carrinho após 1 segundo
+                        if (data.redirectToCart) {
+                            setTimeout(() => {
+                                window.location.href = '@Url.Action("Index", "Cart")';
+                            }, 1000);
+                        }
+                    } else {
+                        if (data.requireLogin) {
+                            showAlert('warning', 'Faça login para continuar comprando');
+                            // Redirecionar para login após 2 segundos
+                            setTimeout(() => {
+                                const returnUrl = window.location.pathname + window.location.search;
+                                window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
+                            }, 2000);
+                        } else {
+                            showAlert('danger', data.message);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    showAlert('danger', 'Erro ao adicionar ao carrinho');
+                });
+            }
 
             function addToWishlist(productId) {
                 showAlert('info', 'Funcionalidade em desenvolvimento');

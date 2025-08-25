@@ -20,33 +20,76 @@ namespace EcommercePWA.Controllers
 
         // GET: /Cart
         [RequireAuth]
-        public IActionResult Index()
-        {
-            var sessionId = GetSessionId();
-            var cart = _cartService.GetCart(sessionId);
-            
-            var viewModel = new CartViewModel
-            {
-                Cart = cart,
-                Items = cart.Items,
-                Subtotal = cart.Subtotal,
-                ShippingCost = CalculateShippingCost(cart),
-                TaxAmount = CalculateTaxAmount(cart.Subtotal),
-                Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal)
-            };
-
-            return View(viewModel);
-        }
-
-        // POST: /Cart/AddToCart
-        [HttpPost]
-        [RequireAuth]
-        public IActionResult AddToCart([FromBody] AddToCartRequest request)
+        public async Task<IActionResult> Index()
         {
             try
             {
                 var sessionId = GetSessionId();
-                var product = _productService.GetProductById(request.ProductId);
+                var cart = _cartService.GetCart(sessionId);
+                
+                // Carregar dados completos dos produtos
+                var cartItems = new List<CartItem>();
+                foreach (var item in cart.Items)
+                {
+                    var product = await _productService.GetProductByIdAsync(item.ProductId);
+                    if (product != null)
+                    {
+                        item.Product = product;
+                        if (item.ProductVariationId.HasValue)
+                        {
+                            item.ProductVariation = product.Variations.FirstOrDefault(v => v.Id == item.ProductVariationId);
+                        }
+                    }
+                    cartItems.Add(item);
+                }
+                
+                var viewModel = new CartViewModel
+                {
+                    Cart = cart,
+                    Items = cartItems,
+                    Subtotal = cart.Subtotal,
+                    ShippingCost = CalculateShippingCost(cart),
+                    TaxAmount = CalculateTaxAmount(cart.Subtotal),
+                    Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal)
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao carregar carrinho");
+                return View(new CartViewModel
+                {
+                    Cart = new Cart { Items = new List<CartItem>() },
+                    Items = new List<CartItem>(),
+                    Subtotal = 0,
+                    ShippingCost = 0,
+                    TaxAmount = 0,
+                    Total = 0
+                });
+            }
+        }
+
+        // POST: /Cart/AddToCart
+        [HttpPost]
+        public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request)
+        {
+            try
+            {
+                // Verificar se o usuário está autenticado
+                var userId = HttpContext.Session.GetInt32("UserId");
+                if (!userId.HasValue)
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Usuário não autenticado", 
+                        requireLogin = true,
+                        returnUrl = HttpContext.Request.Path + HttpContext.Request.QueryString
+                    });
+                }
+
+                var sessionId = GetSessionId();
+                var product = await _productService.GetProductByIdAsync(request.ProductId);
                 
                 if (product == null)
                 {
@@ -62,7 +105,7 @@ namespace EcommercePWA.Controllers
                     }
                 }
 
-                _cartService.AddToCart(sessionId, request.ProductId, request.VariationId, request.Quantity);
+                await _cartService.AddToCart(sessionId, request.ProductId, request.VariationId, request.Quantity);
                 
                 var cart = _cartService.GetCart(sessionId);
                 
@@ -70,7 +113,9 @@ namespace EcommercePWA.Controllers
                     success = true, 
                     message = "Produto adicionado ao carrinho",
                     cartItemCount = cart.ItemCount,
-                    cartTotal = cart.Total.ToString("C")
+                    cartTotal = cart.Total.ToString("C"),
+                    cartSubtotal = cart.Subtotal.ToString("C"),
+                    redirectToCart = true
                 });
             }
             catch (Exception ex)

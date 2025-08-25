@@ -1,66 +1,103 @@
 using System.Security.Cryptography;
 using System.Text;
 using EcommercePWA.Models;
+using EcommercePWA.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace EcommercePWA.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly List<User> _users;
+        private readonly ApplicationDbContext _context;
         private readonly ILogger<AuthService> _logger;
 
-        public AuthService(ILogger<AuthService> logger)
+        public AuthService(ApplicationDbContext context, ILogger<AuthService> logger)
         {
+            _context = context;
             _logger = logger;
-            _users = new List<User>();
-            
-            // Criar usuário admin padrão
-            _ = CreateAdminUserAsync();
         }
 
-        public Task<User?> AuthenticateAsync(string email, string password)
+        public async Task<User?> AuthenticateAsync(string email, string password)
         {
-            var user = _users.FirstOrDefault(u => u.Email.ToLower() == email.ToLower() && u.IsActive);
-            if (user == null) return Task.FromResult<User?>(null);
-
-            if (VerifyPassword(password, user.Password))
+            try
             {
-                return Task.FromResult<User?>(user);
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower() && u.IsActive);
+                
+                if (user == null) return null;
+
+                if (VerifyPassword(password, user.Password))
+                {
+                    return user;
+                }
+
+                return null;
             }
-
-            return Task.FromResult<User?>(null);
-        }
-
-        public Task<User?> RegisterAsync(string name, string email, string password)
-        {
-            if (_users.Any(u => u.Email.ToLower() == email.ToLower()))
+            catch (Exception ex)
             {
-                return Task.FromResult<User?>(null); // Email já existe
+                _logger.LogError(ex, "Erro durante autenticação do usuário {Email}", email);
+                return null;
             }
+        }
 
-            var user = new User
+        public async Task<User?> RegisterAsync(string name, string email, string password)
+        {
+            try
             {
-                Id = _users.Count + 1,
-                Name = name,
-                Email = email,
-                Password = HashPassword(password),
-                Role = "User",
-                CreatedAt = DateTime.Now,
-                IsActive = true
-            };
+                if (await _context.Users.AnyAsync(u => u.Email.ToLower() == email.ToLower()))
+                {
+                    return null; // Email já existe
+                }
 
-            _users.Add(user);
-            return Task.FromResult<User?>(user);
+                var user = new User
+                {
+                    Name = name,
+                    Email = email,
+                    Password = HashPassword(password),
+                    Role = "User",
+                    CreatedAt = DateTime.Now,
+                    IsActive = true
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+                
+                _logger.LogInformation("Novo usuário registrado: {Email}", email);
+                return user;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro durante registro do usuário {Email}", email);
+                return null;
+            }
         }
 
-        public Task<User?> GetUserByIdAsync(int id)
+        public async Task<User?> GetUserByIdAsync(int id)
         {
-            return Task.FromResult(_users.FirstOrDefault(u => u.Id == id && u.IsActive));
+            try
+            {
+                return await _context.Users
+                    .FirstOrDefaultAsync(u => u.Id == id && u.IsActive);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar usuário por ID {Id}", id);
+                return null;
+            }
         }
 
-        public Task<User?> GetUserByEmailAsync(string email)
+        public async Task<User?> GetUserByEmailAsync(string email)
         {
-            return Task.FromResult(_users.FirstOrDefault(u => u.Email.ToLower() == email.ToLower() && u.IsActive));
+            try
+            {
+                return await _context.Users
+                    .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower() && u.IsActive);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar usuário por email {Email}", email);
+                return null;
+            }
         }
 
         public bool VerifyPassword(string password, string hashedPassword)
@@ -78,27 +115,55 @@ namespace EcommercePWA.Services
             }
         }
 
-        public Task<bool> CreateAdminUserAsync()
+        public async Task<bool> CreateAdminUserAsync()
         {
-            if (_users.Any(u => u.Role == "Admin"))
+            try
             {
-                return Task.FromResult(true); // Admin já existe
+                if (await _context.Users.AnyAsync(u => u.Role == "Admin"))
+                {
+                    return true; // Admin já existe
+                }
+
+                var adminUser = new User
+                {
+                    Name = "Administrador",
+                    Email = "admin@kaboom.com",
+                    Password = HashPassword("admin123"),
+                    Role = "Admin",
+                    CreatedAt = DateTime.Now,
+                    IsActive = true
+                };
+
+                _context.Users.Add(adminUser);
+                await _context.SaveChangesAsync();
+                
+                _logger.LogInformation("Usuário admin criado: admin@kaboom.com / admin123");
+                return true;
             }
-
-            var adminUser = new User
+            catch (Exception ex)
             {
-                Id = 1,
-                Name = "Administrador",
-                Email = "admin@kaboom.com",
-                Password = HashPassword("admin123"),
-                Role = "Admin",
-                CreatedAt = DateTime.Now,
-                IsActive = true
-            };
+                _logger.LogError(ex, "Erro ao criar usuário admin");
+                return false;
+            }
+        }
 
-            _users.Add(adminUser);
-            _logger.LogInformation("Usuário admin criado: admin@kaboom.com / admin123");
-            return Task.FromResult(true);
+        public async Task<bool> InitializeDatabaseAsync()
+        {
+            try
+            {
+                // Garantir que o banco existe
+                await _context.Database.EnsureCreatedAsync();
+                
+                // Criar usuário admin se não existir
+                await CreateAdminUserAsync();
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao inicializar banco de dados");
+                return false;
+            }
         }
     }
 }

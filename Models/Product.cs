@@ -25,7 +25,7 @@ namespace EcommercePWA.Models
         [StringLength(50)]
         public string Brand { get; set; } = string.Empty;
         
-        [StringLength(100)]
+        [StringLength(500)]
         public string ImageUrl { get; set; } = string.Empty;
         
         public int StockQuantity { get; set; }

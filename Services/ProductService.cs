@@ -59,8 +59,8 @@ namespace EcommercePWA.Services
         public async Task<List<Product>> SearchProductsAsync(string searchTerm)
         {
             try
-            {
-                if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
                     return await GetAllProductsAsync();
 
                 return await _context.Products
@@ -85,8 +85,8 @@ namespace EcommercePWA.Services
         public async Task<List<Product>> GetProductsByCategoryAsync(string category)
         {
             try
-            {
-                if (string.IsNullOrWhiteSpace(category))
+        {
+            if (string.IsNullOrWhiteSpace(category))
                     return await GetAllProductsAsync();
 
                 return await _context.Products
@@ -105,16 +105,16 @@ namespace EcommercePWA.Services
         public List<Product> SortProducts(List<Product> products, string sortOrder)
         {
             try
+        {
+            return sortOrder switch
             {
-                return sortOrder switch
-                {
-                    "price_asc" => products.OrderBy(p => p.Price).ToList(),
-                    "price_desc" => products.OrderByDescending(p => p.Price).ToList(),
-                    "name" => products.OrderBy(p => p.Name).ToList(),
-                    "rating" => products.OrderByDescending(p => p.Rating).ToList(),
-                    "newest" => products.OrderByDescending(p => p.CreatedAt).ToList(),
-                    _ => products.OrderBy(p => p.Name).ToList()
-                };
+                "price_asc" => products.OrderBy(p => p.Price).ToList(),
+                "price_desc" => products.OrderByDescending(p => p.Price).ToList(),
+                "name" => products.OrderBy(p => p.Name).ToList(),
+                "rating" => products.OrderByDescending(p => p.Rating).ToList(),
+                "newest" => products.OrderByDescending(p => p.CreatedAt).ToList(),
+                _ => products.OrderBy(p => p.Name).ToList()
+            };
             }
             catch (Exception ex)
             {
@@ -161,9 +161,9 @@ namespace EcommercePWA.Services
                 return await _context.Products
                     .Include(p => p.Variations)
                     .Include(p => p.Reviews)
-                    .Where(p => p.Id != product.Id && p.Category == product.Category)
-                    .OrderByDescending(p => p.Rating)
-                    .Take(count)
+                .Where(p => p.Id != product.Id && p.Category == product.Category)
+                .OrderByDescending(p => p.Rating)
+                .Take(count)
                     .ToListAsync();
             }
             catch (Exception ex)

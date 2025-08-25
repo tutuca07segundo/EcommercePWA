@@ -262,5 +262,40 @@ namespace EcommercePWA.Controllers
                 return RedirectToAction("Details", new { id });
             }
         }
+
+        // GET: /Product/EditSelector
+        [RequireAuth]
+        public async Task<IActionResult> EditSelector(int? id)
+        {
+            var products = await _productService.GetAllProductsAsync();
+            Product? selectedProduct = null;
+            if (id.HasValue)
+            {
+                selectedProduct = await _productService.GetProductByIdAsync(id.Value);
+            }
+            var categories = await _productService.GetAllCategoriesAsync();
+            ViewBag.Categories = categories;
+            ViewBag.Products = products;
+            return View("EditSelector", selectedProduct ?? new Product());
+        }
+
+        // POST: /Product/EditSelector
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequireAuth]
+        public async Task<IActionResult> EditSelector(Product product)
+        {
+            if (ModelState.IsValid)
+            {
+                await _productService.UpdateProductAsync(product);
+                TempData["SuccessMessage"] = "Produto atualizado com sucesso!";
+                return RedirectToAction("EditSelector", new { id = product.Id });
+            }
+            var products = await _productService.GetAllProductsAsync();
+            var categories = await _productService.GetAllCategoriesAsync();
+            ViewBag.Categories = categories;
+            ViewBag.Products = products;
+            return View("EditSelector", product);
+        }
     }
 }

@@ -20,6 +20,7 @@ namespace EcommercePWA.Data
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
         public DbSet<WishlistItem> WishlistItems { get; set; }
+        public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -84,6 +85,14 @@ namespace EcommercePWA.Data
             modelBuilder.Entity<Review>()
                 .Property(r => r.Rating)
                 .HasColumnType("decimal(3,1)");
+
+            // Configuração do PasswordResetRequest
+            modelBuilder.Entity<PasswordResetRequest>()
+                .Property(p => p.Email)
+                .HasMaxLength(150);
+            modelBuilder.Entity<PasswordResetRequest>()
+                .Property(p => p.Code)
+                .HasMaxLength(6);
         }
     }
 }

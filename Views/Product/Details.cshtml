@@ -243,14 +243,14 @@
 
                     <!-- Preços -->
                     <div class="text-center mb-3">
-                        <div class="text-decoration-line-through text-muted">R$ @(Model.Product.Price * 1.1m).ToString("N2")</div>
+                        <div class="text-decoration-line-through text-muted">R$ @((Model.Product.Price * 1.1m).ToString("N2"))</div>
                         <div class="h3 text-warning fw-bold">R$ @Model.Product.Price.ToString("N2")</div>
                         <small class="text-success">À vista no PIX com 7% de desconto</small>
                     </div>
 
                     <!-- Parcelamento -->
                     <div class="mb-3">
-                        <p class="mb-1">R$ @(Model.Product.Price * 1.05m).ToString("N2") em até 10x de R$ @((Model.Product.Price * 1.05m / 10).ToString("N2")) sem juros</p>
+                        <p class="mb-1">R$ @((Model.Product.Price * 1.05m).ToString("N2")) em até 10x de R$ @(((Model.Product.Price * 1.05m / 10)).ToString("N2")) sem juros</p>
                         <small class="text-muted">ou 1x com 7% de desconto no cartão</small>
                         <br>
                         <a href="#" class="text-decoration-none">Ver mais opções de pagamento e parcelamento</a>
@@ -280,16 +280,17 @@
                             <button class="btn btn-warning btn-lg" onclick="addToCart()">
                                 <i class="fas fa-shopping-cart me-2"></i>Adicionar ao Carrinho
                             </button>
-                            
-                            <!-- Botões de Administração -->
-                            <div class="btn-group" role="group">
-                                <a href="@Url.Action("Edit", "Product", new { id = Model.Product.Id })" class="btn btn-outline-primary">
-                                    <i class="fas fa-edit me-2"></i>Editar
-                                </a>
-                                <a href="@Url.Action("Delete", "Product", new { id = Model.Product.Id })" class="btn btn-outline-danger">
-                                    <i class="fas fa-trash me-2"></i>Excluir
-                                </a>
-                            </div>
+                            @if (Context.Session.GetString("UserRole") == "Admin")
+                            {
+                                <div class="btn-group" role="group">
+                                    <a href="@Url.Action("Edit", "Product", new { id = Model.Product.Id })" class="btn btn-outline-primary">
+                                        <i class="fas fa-edit me-2"></i>Editar
+                                    </a>
+                                    <a href="@Url.Action("Delete", "Product", new { id = Model.Product.Id })" class="btn btn-outline-danger">
+                                        <i class="fas fa-trash me-2"></i>Excluir
+                                    </a>
+                                </div>
+                            }
                         }
                         else
                         {
@@ -302,7 +303,7 @@
                     <!-- Oferta Especial -->
                     <div class="alert alert-info text-center">
                         <i class="fas fa-star me-2"></i>
-                        <strong>ASSINE PRIME NINJA E PAGUE R$ @(Model.Product.Price * 0.97m).ToString("N2")</strong>
+                        <strong>ASSINE PRIME NINJA E PAGUE R$ @((Model.Product.Price * 0.97m).ToString("N2"))</strong>
                     </div>
 
                     <!-- Frete -->

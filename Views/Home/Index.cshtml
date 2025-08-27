@@ -5,9 +5,12 @@
 
 <!-- Header com Barra de Pesquisa -->
 <header class="bg-dark text-white py-4">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-3">
+    <div class="container-fluid px-0">
+        <div class="row align-items-center gx-2">
+            <div class="col-md-3 d-flex align-items-center gap-2">
+                <button class="btn btn-warning btn-lg ms-0" id="sidebarToggle">
+                    <i class="fas fa-bars"></i> Menu
+                </button>
                 
                 <small class="text-muted">Periféricos & Peças de Computador</small>
             </div>
@@ -23,25 +26,49 @@
                     </div>
                 </form>
             </div>
-            <div class="col-md-3 text-end">
+            <div class="col-md-3 text-end pe-3">
                 <div class="d-flex align-items-center justify-content-end gap-2">
-                                    @if (Context.Session.GetInt32("UserId").HasValue)
-                {
-                    <a href="@Url.Action("Index", "Cart")" class="btn btn-outline-warning position-relative">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count">
-                            0
-                        </span>
-                    </a>
-                }
-                    <button class="btn btn-outline-warning" id="sidebarToggle">
-                        <i class="fas fa-bars"></i> Menu
-                    </button>
+                    @if (Context.Session.GetInt32("UserId").HasValue)
+                    {
+                        <a href="@Url.Action("Index", "Cart")" class="btn btn-outline-warning position-relative">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count">
+                                0
+                            </span>
+                        </a>
+                    }
                 </div>
             </div>
         </div>
     </div>
 </header>
+
+<!-- Carrossel de Categorias em Destaque (movido para o topo) -->
+<div class="container-fluid py-5 bg-light">
+    <h3 class="text-center mb-4">
+        <i class="fas fa-fire me-2 text-warning"></i>Categorias em Destaque
+    </h3>
+    <div class="row">
+        <div class="col-12">
+            <div class="category-carousel">
+                @foreach (var category in Model.Categories.Take(6))
+                {
+                    <div class="category-item text-center p-3">
+                        <div class="category-icon mb-3" style="color: @category.Color;">
+                            <i class="@category.IconClass fa-3x"></i>
+                        </div>
+                        <h6 class="mb-2">@category.Name</h6>
+                        <p class="text-muted small mb-3">@category.Description</p>
+                        <a href="@Url.Action("Category", "Home", new { name = category.Name })" 
+                           class="btn btn-outline-primary btn-sm">
+                            Ver Produtos
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Sidebar de Categorias -->
 <div class="sidebar bg-light" id="sidebar">
@@ -273,33 +300,6 @@
         }
     </div>
 </main>
-
-<!-- Carrossel de Categorias em Destaque -->
-<div class="container-fluid py-5 bg-light">
-    <h3 class="text-center mb-4">
-        <i class="fas fa-fire me-2 text-warning"></i>Categorias em Destaque
-    </h3>
-    <div class="row">
-        <div class="col-12">
-            <div class="category-carousel">
-                @foreach (var category in Model.Categories.Take(6))
-                {
-                    <div class="category-item text-center p-3">
-                        <div class="category-icon mb-3" style="color: @category.Color;">
-                            <i class="@category.IconClass fa-3x"></i>
-                        </div>
-                        <h6 class="mb-2">@category.Name</h6>
-                        <p class="text-muted small mb-3">@category.Description</p>
-                        <a href="@Url.Action("Category", "Home", new { name = category.Name })" 
-                           class="btn btn-outline-primary btn-sm">
-                            Ver Produtos
-                        </a>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
 
 @section Scripts {
     <script>

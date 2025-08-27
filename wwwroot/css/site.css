@@ -556,3 +556,21 @@ a:hover {
     margin-bottom: 0.5rem;
   }
 }
+
+/* Header adjustments */
+.navbar-brand.fs-2 { font-weight: 700; }
+
+/* Destaques menores */
+.category-carousel { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+.category-item { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.05); min-width: 200px; }
+.category-item .fa-3x { font-size: 2rem; }
+
+/* Espaçamento menor da seção */
+.container-fluid.py-5.bg-light { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+
+/* Botão de menu maior no topo da home */
+#sidebarToggle.btn-lg { padding: .6rem 1rem; font-size: 1.1rem; }
+header.bg-dark .container-fluid { padding-left: 0 !important; padding-right: 0 !important; }
+.navbar .container-fluid { padding-left: 0 !important; padding-right: 0 !important; }
+#sidebarToggle { margin-left: 0; }
+header.bg-dark .container-fluid, .navbar .container-fluid { padding-left: 16px !important; padding-right: 16px !important; }

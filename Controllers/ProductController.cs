@@ -113,6 +113,8 @@ namespace EcommercePWA.Controllers
         [RequireAuth]
         public async Task<IActionResult> Create()
         {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Forbid();
             try
             {
                 var categories = await _productService.GetAllCategoriesAsync();
@@ -132,6 +134,8 @@ namespace EcommercePWA.Controllers
         [RequireAuth]
         public async Task<IActionResult> Create([Bind("Name,Description,Price,Category,Brand,ImageUrl,StockQuantity,Type,Tags")] Product product)
         {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Forbid();
             try
             {
                 if (ModelState.IsValid)
@@ -160,6 +164,8 @@ namespace EcommercePWA.Controllers
         [RequireAuth]
         public async Task<IActionResult> Edit(int id)
         {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Forbid();
             try
             {
                 var product = await _productService.GetProductByIdAsync(id);
@@ -185,6 +191,8 @@ namespace EcommercePWA.Controllers
         [RequireAuth]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,Category,Brand,ImageUrl,StockQuantity,Type,Tags")] Product product)
         {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Forbid();
             try
             {
                 if (id != product.Id)
@@ -218,6 +226,8 @@ namespace EcommercePWA.Controllers
         [RequireAuth]
         public async Task<IActionResult> Delete(int id)
         {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Forbid();
             try
             {
                 var product = await _productService.GetProductByIdAsync(id);
@@ -241,6 +251,8 @@ namespace EcommercePWA.Controllers
         [RequireAuth]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Forbid();
             try
             {
                 var result = await _productService.DeleteProductAsync(id);
@@ -267,6 +279,8 @@ namespace EcommercePWA.Controllers
         [RequireAuth]
         public async Task<IActionResult> EditSelector(int? id)
         {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Forbid();
             var products = await _productService.GetAllProductsAsync();
             Product? selectedProduct = null;
             if (id.HasValue)
@@ -285,6 +299,8 @@ namespace EcommercePWA.Controllers
         [RequireAuth]
         public async Task<IActionResult> EditSelector(Product product)
         {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Forbid();
             if (ModelState.IsValid)
             {
                 await _productService.UpdateProductAsync(product);

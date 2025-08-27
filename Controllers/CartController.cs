@@ -136,11 +136,32 @@ namespace EcommercePWA.Controllers
                 _cartService.UpdateQuantity(sessionId, request.ItemId, request.Quantity);
                 
                 var cart = _cartService.GetCart(sessionId);
+                var item = cart.Items.FirstOrDefault(i => i.Id == request.ItemId);
+
+                // Recuperar cupom aplicado, se houver
+                string? couponCode = null;
+                if (HttpContext.Session.TryGetValue("CouponCode", out var couponBytes))
+                {
+                    couponCode = System.Text.Encoding.UTF8.GetString(couponBytes);
+                }
+                decimal discountAmount = 0;
+                if (!string.IsNullOrEmpty(couponCode))
+                {
+                    var couponResult = _cartService.ApplyCoupon(sessionId, couponCode);
+                    if (couponResult.IsValid)
+                        discountAmount = couponResult.DiscountAmount;
+                }
                 
-                return Json(new { 
-                    success = true, 
-                    cartTotal = cart.Total.ToString("C"),
-                    itemTotal = cart.Items.FirstOrDefault(i => i.Id == request.ItemId)?.Total.ToString("C")
+                return Json(new {
+                    success = true,
+                    itemId = request.ItemId,
+                    itemTotal = item?.Total ?? 0,
+                    subtotal = cart.Subtotal,
+                    shippingCost = CalculateShippingCost(cart),
+                    taxAmount = CalculateTaxAmount(cart.Subtotal),
+                    discountAmount = discountAmount,
+                    total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal) - discountAmount,
+                    cartItemCount = cart.ItemCount
                 });
             }
             catch (Exception ex)

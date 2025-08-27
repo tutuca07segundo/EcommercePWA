@@ -307,6 +307,37 @@
             if (cartCountElement) {
                 cartCountElement.textContent = data.cartItemCount;
             }
+
+            // Atualizar valor do item na linha
+            if (data.itemId && data.itemTotal !== undefined) {
+                const itemElement = document.querySelector(`[data-item-id="${data.itemId}"]`);
+                if (itemElement) {
+                    const totalSpan = itemElement.querySelector('.col-md-2.text-center .h6.mb-0.text-primary');
+                    if (totalSpan) {
+                        totalSpan.textContent = `R$ ${parseFloat(data.itemTotal).toFixed(2).replace('.', ',')}`;
+                    }
+                }
+            }
+
+            // Atualizar resumo do pedido
+            if (data.subtotal !== undefined) {
+                document.querySelector('.cart-summary span:nth-child(2)').textContent = `R$ ${parseFloat(data.subtotal).toFixed(2).replace('.', ',')}`;
+            }
+            if (data.shippingCost !== undefined) {
+                document.querySelector('.cart-summary .d-flex:nth-child(2) span:nth-child(2)').textContent = `R$ ${parseFloat(data.shippingCost).toFixed(2).replace('.', ',')}`;
+            }
+            if (data.taxAmount !== undefined) {
+                document.querySelector('.cart-summary .d-flex:nth-child(3) span:nth-child(2)').textContent = `R$ ${parseFloat(data.taxAmount).toFixed(2).replace('.', ',')}`;
+            }
+            if (data.discountAmount !== undefined) {
+                const discountDiv = document.querySelector('.cart-summary .text-success span:nth-child(2)');
+                if (discountDiv) {
+                    discountDiv.textContent = `-R$ ${parseFloat(data.discountAmount).toFixed(2).replace('.', ',')}`;
+                }
+            }
+            if (data.total !== undefined) {
+                document.querySelector('.cart-summary strong.h5.text-primary.mb-0').textContent = `R$ ${parseFloat(data.total).toFixed(2).replace('.', ',')}`;
+            }
         }
 
         // Mostrar alerta

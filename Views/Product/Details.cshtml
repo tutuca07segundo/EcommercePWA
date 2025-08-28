@@ -273,7 +273,7 @@
                         <label for="quantity" class="form-label">Quantidade:</label>
                         <div class="input-group">
                             <button type="button" class="btn btn-outline-secondary" onclick="changeQuantity(-1)">-</button>
-                            <input type="number" class="form-control text-center" id="quantity" value="1" min="1" max="@Model.Product.StockQuantity">
+                            <input type="number" class="form-control text-center" id="quantity" value="1" min="1" max="@Model.Product.StockQuantity" >
                             <button type="button" class="btn btn-outline-secondary" onclick="changeQuantity(1)">+</button>
                         </div>
                     </div>
@@ -492,10 +492,14 @@
                     </text>
                 }
                 // Se logado, segue fluxo normal
+                let qt = document.getElementById("quantity").value
+                if (qt <= 0){
+                    qt = 0
+                }
                 const data = {
                     productId: productId,
                     variationId: null,
-                    quantity: 1
+                    quantity: qt
                 };
 
                 fetch('@Url.Action("AddToCart", "Cart")', {

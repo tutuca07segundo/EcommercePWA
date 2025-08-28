@@ -88,7 +88,7 @@
                 <!-- Vendido por -->
                 <p class="text-muted mb-3">
                     Vendido e entregue por 
-                    <span class="text-warning fw-bold">KaBuM!</span>
+                    <span class="text-warning fw-bold">Kaboom!</span>
                 </p>
 
                 <!-- Sobre o Produto -->
@@ -282,7 +282,7 @@
                     <div class="d-grid gap-2">
                         @if (Context.Session.GetInt32("UserId").HasValue)
                         {
-                            <button class="btn btn-warning btn-lg" onclick="addToCart()">
+                            <button class="btn btn-warning btn-lg" onclick="addToCartFromHome(@Model.Product.Id)">
                                 <i class="fas fa-shopping-cart me-2"></i>Adicionar ao Carrinho
                             </button>
                             @if (Context.Session.GetString("UserRole") == "Admin")
@@ -481,4 +481,53 @@
         const base = parseFloat('@Model.Product.Price'.replace(',', '.'));
         bindVariationAndQuantityHandlers(base);
     });
+
+             function addToCartFromHome(productId) {
+                @if (!Context.Session.GetInt32("UserId").HasValue)
+                {
+                    <text>
+                    const returnUrl = window.location.pathname + window.location.search;
+                    window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
+                    return;
+                    </text>
+                }
+                // Se logado, segue fluxo normal
+                const data = {
+                    productId: productId,
+                    variationId: null,
+                    quantity: 1
+                };
+
+                fetch('@Url.Action("AddToCart", "Cart")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('success', data.message);
+                        
+                       
+                    } else {
+                        if (data.requireLogin) {
+                            showAlert('warning', 'Faça login para continuar comprando');
+                            // Redirecionar para login após 2 segundos
+                            setTimeout(() => {
+                                const returnUrl = window.location.pathname + window.location.search;
+                                window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
+                            }, 2000);
+                        } else {
+                            showAlert('danger', data.message);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    showAlert('danger', 'Erro ao adicionar ao carrinho');
+                });
+            }
 </script>

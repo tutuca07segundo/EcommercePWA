@@ -17,6 +17,19 @@ namespace EcommercePWA.Services
             _logger = logger;
         }
 
+        public async Task<List<User>> GetAllUsersAsync()
+        {
+            try
+            {
+                return await _context.Users.Where(u => u.IsActive).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar todos os usuários");
+                return new List<User>();
+            }
+        }
+
         public async Task<User?> AuthenticateAsync(string email, string password)
         {
             try

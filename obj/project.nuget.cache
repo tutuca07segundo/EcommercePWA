@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "plmOLBB2FVE=",
+  "dgSpecHash": "7//+RdCiJBQ=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Pedro\\OneDrive\\Área de Trabalho\\Nova pasta\\EcommercePWA\\EcommercePWA.csproj",
+  "projectFilePath": "C:\\Users\\Pedro\\OneDrive\\Área de Trabalho\\ecomercce\\EcommercePWA\\EcommercePWA.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Pedro\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Pedro\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\7.0.0\\microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",
@@ -68,7 +68,7 @@
       "code": "NU1902",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "O pacote 'RestSharp' 110.2.0 tem uma moderado vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-4rr6-2v9v-wcpc",
+      "message": "Package 'RestSharp' 110.2.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4rr6-2v9v-wcpc",
       "libraryId": "RestSharp",
       "targetGraphs": [
         "net9.0"

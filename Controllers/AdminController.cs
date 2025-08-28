@@ -40,12 +40,13 @@ namespace EcommercePWA.Controllers
                 var products = await _productService.GetAllProductsAsync();
                 var orders = await _orderService.GetAllOrders();
                 
+                var users = await _authService.GetAllUsersAsync();
                 var dashboard = new AdminDashboardViewModel
                 {
                     TotalProducts = products.Count,
                     TotalCoupons = _couponService.GetAllCoupons().Count,
                     TotalOrders = orders.Count,
-                    TotalUsers = 0, // TODO: Implementar GetAllUsers no AuthService
+                    TotalUsers = users.Count,
                     RecentOrders = orders.Take(5).ToList(),
                     RecentProducts = products.Take(5).ToList()
                 };
@@ -83,8 +84,7 @@ namespace EcommercePWA.Controllers
         // GET: /Admin/Users
         public IActionResult Users()
         {
-            // TODO: Implementar GetAllUsers no AuthService
-            var users = new List<User>();
+            var users = _authService.GetAllUsersAsync().Result;
             return View(users);
         }
 

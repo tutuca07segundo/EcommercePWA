@@ -3694,11 +3694,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Pedro\\OneDrive\\Área de Trabalho\\Nova pasta\\EcommercePWA\\EcommercePWA.csproj",
+      "projectUniqueName": "C:\\Users\\Pedro\\OneDrive\\Área de Trabalho\\ecomercce\\EcommercePWA\\EcommercePWA.csproj",
       "projectName": "EcommercePWA",
-      "projectPath": "C:\\Users\\Pedro\\OneDrive\\Área de Trabalho\\Nova pasta\\EcommercePWA\\EcommercePWA.csproj",
+      "projectPath": "C:\\Users\\Pedro\\OneDrive\\Área de Trabalho\\ecomercce\\EcommercePWA\\EcommercePWA.csproj",
       "packagesPath": "C:\\Users\\Pedro\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Pedro\\OneDrive\\Área de Trabalho\\Nova pasta\\EcommercePWA\\obj\\",
+      "outputPath": "C:\\Users\\Pedro\\OneDrive\\Área de Trabalho\\ecomercce\\EcommercePWA\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Pedro\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -3790,7 +3790,7 @@
       "code": "NU1902",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "O pacote 'RestSharp' 110.2.0 tem uma moderado vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-4rr6-2v9v-wcpc",
+      "message": "Package 'RestSharp' 110.2.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4rr6-2v9v-wcpc",
       "libraryId": "RestSharp",
       "targetGraphs": [
         "net9.0"

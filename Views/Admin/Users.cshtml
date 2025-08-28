@@ -1,0 +1,139 @@
+@model IEnumerable<EcommercePWA.Models.User>
+@{
+    ViewData["Title"] = "Gerenciar Usuários";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-users me-2"></i>
+                                Gerenciar Usuários
+                            </h4>
+                            <p class="mb-0 opacity-75">Gerencie contas de usuários e permissões</p>
+                        </div>
+                        <div>
+                            <a href="@Url.Action("Index", "Admin")" class="btn btn-light me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar
+                            </a>
+                            <a href="@Url.Action("Register", "Auth")" class="btn btn-success">
+                                <i class="fas fa-user-plus me-2"></i>Novo Usuário
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhum usuário encontrado</h5>
+                            <p class="text-muted">Comece criando o primeiro usuário do sistema.</p>
+                            <a href="@Url.Action("Register", "Auth")" class="btn btn-warning">
+                                <i class="fas fa-user-plus me-2"></i>Criar Primeiro Usuário
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Avatar</th>
+                                        <th>Nome</th>
+                                        <th>Email</th>
+                                        <th>Tipo</th>
+                                        <th>Status</th>
+                                        <th>Data Cadastro</th>
+                                        <th class="text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                                                     style="width: 40px; height: 40px;">
+                                                    <span class="text-white fw-bold">
+                                                        @(user.Name?.Substring(0, 1).ToUpper() ?? user.Email.Substring(0, 1).ToUpper())
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <strong>@user.Name</strong>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">@user.Email</span>
+                                            </td>
+                                            <td>
+                                                @if (user.Role == "Admin")
+                                                {
+                                                    <span class="badge bg-danger">Administrador</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-info">Cliente</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (user.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Ativo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inativo</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <small>
+                                                    @user.CreatedAt.ToString("dd/MM/yyyy")
+                                                    <br>
+                                                    @user.CreatedAt.ToString("HH:mm")
+                                                </small>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <a class="btn btn-outline-info btn-sm" href="@Url.Action("Details", "User", new { id = user.Id })" title="Detalhes">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a class="btn btn-outline-warning btn-sm" href="@Url.Action("Edit", "User", new { id = user.Id })" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    @if (user.Role != "Admin")
+                                                    {
+                                                        <a class="btn btn-outline-success btn-sm" href="@Url.Action("ToggleAdmin", "User", new { id = user.Id })" title="Tornar Admin">
+                                                            <i class="fas fa-user-shield"></i>
+                                                        </a>
+                                                    }
+                                                    <a class="btn btn-outline-danger btn-sm" href="@Url.Action("Delete", "User", new { id = user.Id })" title="Excluir">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

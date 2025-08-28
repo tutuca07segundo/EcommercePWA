@@ -10,5 +10,6 @@ namespace EcommercePWA.Services
         void UpdateCoupon(Coupon coupon);
         void DeleteCoupon(int id);
         bool ValidateCoupon(string code, decimal orderAmount);
+        Task InitializeDatabaseAsync();
     }
 }

@@ -1,0 +1,376 @@
+@model EcommercePWA.Controllers.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Painel Administrativo";
+}
+
+<div class="container-fluid">
+    <!-- Header do Dashboard -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-0">
+                                <i class="fas fa-tachometer-alt me-3"></i>
+                                Painel Administrativo
+                            </h2>
+                            <p class="mb-0 opacity-75">Gerencie todos os aspectos do seu e-commerce</p>
+                        </div>
+                        <div class="text-end">
+                            <h4 class="mb-0">Kaboom</h4>
+                            <small class="opacity-75">E-commerce</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards de Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Produtos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalProducts</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-box fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Cupons
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalCoupons</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-ticket-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Pedidos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalOrders</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Usuários
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalUsers</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegação dos CRUDs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 text-primary">
+                        <i class="fas fa-cogs me-2"></i>
+                        Gerenciamento do Sistema
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Produtos -->
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-box fa-3x text-primary"></i>
+                                    </div>
+                                    <h5 class="card-title">Produtos</h5>
+                                    <p class="card-text text-muted">Gerencie produtos, categorias e variações</p>
+                                    <div class="d-grid gap-2">
+                                        <a href="@Url.Action("Products", "Admin")" class="btn btn-primary">
+                                            <i class="fas fa-list me-2"></i>Ver Produtos
+                                        </a>
+                                        <a href="@Url.Action("Create", "Product")" class="btn btn-outline-primary">
+                                            <i class="fas fa-plus me-2"></i>Novo Produto
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cupons -->
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-ticket-alt fa-3x text-success"></i>
+                                    </div>
+                                    <h5 class="card-title">Cupons</h5>
+                                    <p class="card-text text-muted">Gerencie cupons de desconto e promoções</p>
+                                    <div class="d-grid gap-2">
+                                        <a href="@Url.Action("Coupons", "Admin")" class="btn btn-success">
+                                            <i class="fas fa-list me-2"></i>Ver Cupons
+                                        </a>
+                                        <a href="@Url.Action("Create", "Coupon")" class="btn btn-outline-success">
+                                            <i class="fas fa-plus me-2"></i>Novo Cupom
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pedidos -->
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-shopping-cart fa-3x text-info"></i>
+                                    </div>
+                                    <h5 class="card-title">Pedidos</h5>
+                                    <p class="card-text text-muted">Visualize e gerencie pedidos dos clientes</p>
+                                    <div class="d-grid gap-2">
+                                        <a href="@Url.Action("Orders", "Admin")" class="btn btn-info">
+                                            <i class="fas fa-list me-2"></i>Ver Pedidos
+                                        </a>
+                                        <a href="@Url.Action("Index", "Order")" class="btn btn-outline-info">
+                                            <i class="fas fa-chart-bar me-2"></i>Relatórios
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Usuários -->
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-users fa-3x text-warning"></i>
+                                    </div>
+                                    <h5 class="card-title">Usuários</h5>
+                                    <p class="card-text text-muted">Gerencie contas de usuários e permissões</p>
+                                    <div class="d-grid gap-2">
+                                        <a href="@Url.Action("Users", "Admin")" class="btn btn-warning">
+                                            <i class="fas fa-list me-2"></i>Ver Usuários
+                                        </a>
+                                        <a href="@Url.Action("Register", "Auth")" class="btn btn-outline-warning">
+                                            <i class="fas fa-user-plus me-2"></i>Novo Usuário
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Categorias -->
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-tags fa-3x text-secondary"></i>
+                                    </div>
+                                    <h5 class="card-title">Categorias</h5>
+                                    <p class="card-text text-muted">Organize produtos por categorias</p>
+                                    <div class="d-grid gap-2">
+                                        <a href="@Url.Action("Categories", "Admin")" class="btn btn-secondary">
+                                            <i class="fas fa-list me-2"></i>Ver Categorias
+                                        </a>
+                                        <a href="@Url.Action("Create", "Category")" class="btn btn-outline-secondary">
+                                            <i class="fas fa-plus me-2"></i>Nova Categoria
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Configurações -->
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-cog fa-3x text-dark"></i>
+                                    </div>
+                                    <h5 class="card-title">Configurações</h5>
+                                    <p class="card-text text-muted">Configurações gerais do sistema</p>
+                                    <div class="d-grid gap-2">
+                                        <a href="@Url.Action("Index", "Home")" class="btn btn-dark">
+                                            <i class="fas fa-home me-2"></i>Voltar ao Site
+                                        </a>
+                                        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark">
+                                            <i class="fas fa-chart-line me-2"></i>Analytics
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Atividade Recente -->
+    <div class="row">
+        <!-- Pedidos Recentes -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 text-primary">
+                        <i class="fas fa-clock me-2"></i>
+                        Pedidos Recentes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentOrders.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Cliente</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model.RecentOrders)
+                                    {
+                                        <tr>
+                                            <td>#@order.Id</td>
+                                            <td>@order.User?.Email</td>
+                                            <td>R$ @order.Total.ToString("N2")</td>
+                                            <td>
+                                                <span class="badge bg-success">Pago</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center mb-0">Nenhum pedido recente</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Produtos Recentes -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 text-primary">
+                        <i class="fas fa-star me-2"></i>
+                        Produtos Recentes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentProducts.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Preço</th>
+                                        <th>Categoria</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var product in Model.RecentProducts)
+                                    {
+                                        <tr>
+                                            <td>@product.Name</td>
+                                            <td>R$ @product.Price.ToString("N2")</td>
+                                            <td>@product.Category</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center mb-0">Nenhum produto recente</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .border-left-primary {
+        border-left: 4px solid #4e73df !important;
+    }
+    
+    .border-left-success {
+        border-left: 4px solid #1cc88a !important;
+    }
+    
+    .border-left-info {
+        border-left: 4px solid #36b9cc !important;
+    }
+    
+    .border-left-warning {
+        border-left: 4px solid #f6c23e !important;
+    }
+    
+    .text-gray-800 {
+        color: #5a5c69 !important;
+    }
+    
+    .text-gray-300 {
+        color: #dddfeb !important;
+    }
+    
+    .text-xs {
+        font-size: 0.7rem;
+    }
+    
+    .shadow-sm {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    }
+</style>

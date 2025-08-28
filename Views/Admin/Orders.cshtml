@@ -1,0 +1,154 @@
+@model IEnumerable<EcommercePWA.Models.Order>
+@{
+    ViewData["Title"] = "Gerenciar Pedidos";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Gerenciar Pedidos
+                            </h4>
+                            <p class="mb-0 opacity-75">Visualize e gerencie pedidos dos clientes</p>
+                        </div>
+                        <div>
+                            <a href="@Url.Action("Index", "Admin")" class="btn btn-light me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar
+                            </a>
+                            <a href="@Url.Action("Index", "Order")" class="btn btn-warning">
+                                <i class="fas fa-chart-bar me-2"></i>Relatórios
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhum pedido encontrado</h5>
+                            <p class="text-muted">Ainda não há pedidos registrados no sistema.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Cliente</th>
+                                        <th>Data</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Pagamento</th>
+                                        <th class="text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong class="text-primary">#@order.Id</strong>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <strong>@order.User?.Email</strong>
+                                                    @if (!string.IsNullOrEmpty(order.User?.Name))
+                                                    {
+                                                        <br>
+                                                        <small class="text-muted">@order.User.Name</small>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <small>
+                                                    @order.OrderDate.ToString("dd/MM/yyyy")
+                                                    <br>
+                                                    @order.OrderDate.ToString("HH:mm")
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <strong class="text-success">R$ @order.Total.ToString("N2")</strong>
+                                                @if (order.ShippingCost > 0)
+                                                {
+                                                    <br>
+                                                    <small class="text-muted">+ R$ @order.ShippingCost.ToString("N2") frete</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                @switch (order.Status)
+                                                {
+                                                    case "Pending":
+                                                        <span class="badge bg-warning">Pendente</span>
+                                                        break;
+                                                    case "Processing":
+                                                        <span class="badge bg-info">Processando</span>
+                                                        break;
+                                                    case "Shipped":
+                                                        <span class="badge bg-primary">Enviado</span>
+                                                        break;
+                                                    case "Delivered":
+                                                        <span class="badge bg-success">Entregue</span>
+                                                        break;
+                                                    case "Cancelled":
+                                                        <span class="badge bg-danger">Cancelado</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@order.Status</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (order.PaymentStatus == "Paid")
+                                                {
+                                                    <span class="badge bg-success">Pago</span>
+                                                }
+                                                else if (order.PaymentStatus == "Pending")
+                                                {
+                                                    <span class="badge bg-warning">Pendente</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Não Pago</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <a class="btn btn-outline-info btn-sm" href="@Url.Action("Details", "Order", new { id = order.Id })" title="Detalhes">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a class="btn btn-outline-warning btn-sm" href="@Url.Action("Edit", "Order", new { id = order.Id })" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a class="btn btn-outline-success btn-sm" href="@Url.Action("Process", "Order", new { id = order.Id })" title="Processar">
+                                                        <i class="fas fa-check"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

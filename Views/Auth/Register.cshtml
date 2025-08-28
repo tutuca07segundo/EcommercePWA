@@ -1,3 +1,4 @@
+@model EcommercePWA.Models.RegisterViewModel
 @{
     ViewData["Title"] = "Criar Conta";
 }
@@ -12,52 +13,52 @@
                     </h4>
                 </div>
                 <div class="card-body p-4">
-                    <form method="post" asp-action="Register">
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.Values.Any(v => v.Errors.Count > 0))
+                    {
+                        @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+                    }
+                    <form method="post" asp-action="Register" autocomplete="off">
                         <div class="mb-3">
-                            <label for="name" class="form-label">
-                                <i class="fas fa-user me-2"></i>Nome Completo
+                            <label asp-for="Name" class="form-label">
+                                <i class="fas fa-user me-2"></i>@Html.DisplayNameFor(m => m.Name)
                             </label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                            <input asp-for="Name" class="form-control" autocomplete="off" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
-                        
                         <div class="mb-3">
-                            <label for="email" class="form-label">
-                                <i class="fas fa-envelope me-2"></i>Email
+                            <label asp-for="Email" class="form-label">
+                                <i class="fas fa-envelope me-2"></i>@Html.DisplayNameFor(m => m.Email)
                             </label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input asp-for="Email" class="form-control" autocomplete="off" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
-                        
                         <div class="mb-3">
-                            <label for="password" class="form-label">
-                                <i class="fas fa-lock me-2"></i>Senha
+                            <label asp-for="Password" class="form-label">
+                                <i class="fas fa-lock me-2"></i>@Html.DisplayNameFor(m => m.Password)
                             </label>
-                            <input type="password" class="form-control" id="password" name="password" 
-                                   minlength="6" required>
+                            <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
                             <div class="form-text">Mínimo de 6 caracteres</div>
                         </div>
-                        
                         <div class="mb-3">
-                            <label for="confirmPassword" class="form-label">
-                                <i class="fas fa-lock me-2"></i>Confirmar Senha
+                            <label asp-for="ConfirmPassword" class="form-label">
+                                <i class="fas fa-lock me-2"></i>@Html.DisplayNameFor(m => m.ConfirmPassword)
                             </label>
-                            <input type="password" class="form-control" id="confirmPassword" 
-                                   name="confirmPassword" minlength="6" required>
+                            <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                         </div>
-                        
                         <div class="d-grid">
                             <button type="submit" class="btn btn-warning btn-lg">
                                 <i class="fas fa-user-plus me-2"></i>Criar Conta
                             </button>
                         </div>
                     </form>
-                    
                     <hr class="my-4">
-                    
                     <div class="text-center">
                         <p class="mb-0">Já tem uma conta?</p>
-                                                 <a href="@Url.Action("Login", "Auth", new { returnUrl = ViewData["ReturnUrl"] })" class="btn btn-outline-dark">
-                             <i class="fas fa-sign-in-alt me-2"></i>Fazer Login
-                         </a>
+                        <a href="@Url.Action("Login", "Auth", new { returnUrl = ViewData["ReturnUrl"] })" class="btn btn-outline-dark">
+                            <i class="fas fa-sign-in-alt me-2"></i>Fazer Login
+                        </a>
                     </div>
                 </div>
             </div>
@@ -65,28 +66,28 @@
     </div>
 </div>
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
 <style>
     .card {
         border: none;
         border-radius: 15px;
     }
-    
     .card-header {
         border-radius: 15px 15px 0 0 !important;
         border-bottom: none;
     }
-    
     .form-control {
         border-radius: 10px;
         border: 2px solid #e9ecef;
         transition: border-color 0.3s ease;
     }
-    
     .form-control:focus {
         border-color: #ffc107;
         box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
     }
-    
     .btn {
         border-radius: 10px;
         font-weight: 600;

@@ -1,0 +1,99 @@
+@model EcommercePWA.Models.Coupon
+@{
+    ViewData["Title"] = "Detalhes do Cupom";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="fas fa-eye me-2"></i>Detalhes do Cupom</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Informações Básicas -->
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">Informações Básicas</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Código</dt>
+                                <dd class="col-sm-8"><strong>@Model.Code</strong></dd>
+                                
+                                <dt class="col-sm-4">Descrição</dt>
+                                <dd class="col-sm-8">@Model.Description</dd>
+                                
+                                <dt class="col-sm-4">Status</dt>
+                                <dd class="col-sm-8">
+                                    @if (Model.IsActive)
+                                    {
+                                        <span class="badge bg-success">Ativo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inativo</span>
+                                    }
+                                </dd>
+                            </dl>
+                        </div>
+                        
+                        <!-- Configurações de Desconto -->
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">Configurações de Desconto</h5>
+                            <dl class="row">
+                                <dt class="col-sm-6">Valor do Desconto</dt>
+                                <dd class="col-sm-6">R$ @Model.DiscountAmount.ToString("N2")</dd>
+                                
+                                <dt class="col-sm-6">Percentual de Desconto</dt>
+                                <dd class="col-sm-6">@(Model.DiscountPercentage?.ToString("N2") ?? "0,00")%</dd>
+                                
+                                <dt class="col-sm-6">Valor Mínimo do Pedido</dt>
+                                <dd class="col-sm-6">R$ @(Model.MinimumOrderAmount?.ToString("N2") ?? "0,00")</dd>
+                                
+                                <dt class="col-sm-6">Máximo de Usos</dt>
+                                <dd class="col-sm-6">@(Model.MaximumUses?.ToString() ?? "Ilimitado")</dd>
+                                
+                                <dt class="col-sm-6">Usos Atuais</dt>
+                                <dd class="col-sm-6">@Model.CurrentUses</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <!-- Período de Validade -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">Período de Validade</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">Válido de</dt>
+                                        <dd class="col-sm-8">@Model.ValidFrom.ToString("dd/MM/yyyy HH:mm")</dd>
+                                    </dl>
+                                </div>
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">Válido até</dt>
+                                        <dd class="col-sm-8">@Model.ValidUntil.ToString("dd/MM/yyyy HH:mm")</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botões de Ação -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex gap-2">
+                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                                    <i class="fas fa-edit me-2"></i>Editar
+                                </a>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -254,6 +254,7 @@ EcommercePWA/
 - **Font Awesome** - Sistema de ícones consistente
 
 ## 🤝 Contribuição
+-Deus
 
 ### Como Contribuir
 1. Faça um fork do projeto

@@ -1,0 +1,130 @@
+@model IEnumerable<EcommercePWA.Models.Product>
+@{
+    ViewData["Title"] = "Gerenciar Produtos";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-box me-2"></i>
+                                Gerenciar Produtos
+                            </h4>
+                            <p class="mb-0 opacity-75">Gerencie todos os produtos do seu catálogo</p>
+                        </div>
+                        <div>
+                            <a href="@Url.Action("Index", "Admin")" class="btn btn-light me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar
+                            </a>
+                            <a href="@Url.Action("Create", "Product")" class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>Novo Produto
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhum produto encontrado</h5>
+                            <p class="text-muted">Comece criando seu primeiro produto.</p>
+                            <a href="@Url.Action("Create", "Product")" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Criar Primeiro Produto
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Imagem</th>
+                                        <th>Nome</th>
+                                        <th>Categoria</th>
+                                        <th>Preço</th>
+                                        <th>Estoque</th>
+                                        <th>Status</th>
+                                        <th class="text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var product in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                                {
+                                                    <img src="@product.ImageUrl" alt="@product.Name" 
+                                                         class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                }
+                                                else
+                                                {
+                                                    <div class="bg-secondary rounded d-flex align-items-center justify-content-center" 
+                                                         style="width: 50px; height: 50px;">
+                                                        <i class="fas fa-image text-white"></i>
+                                                    </div>
+                                                }
+                                            </td>
+                                            <td>
+                                                <strong>@product.Name</strong>
+                                                <br>
+                                                <small class="text-muted">@product.Description?.Substring(0, Math.Min(50, product.Description?.Length ?? 0))...</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">@product.Category</span>
+                                            </td>
+                                            <td>
+                                                <strong class="text-success">R$ @product.Price.ToString("N2")</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">@product.StockQuantity</span>
+                                            </td>
+                                            <td>
+                                                @if (product.IsAvailable)
+                                                {
+                                                    <span class="badge bg-success">Disponível</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Indisponível</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <a class="btn btn-outline-info btn-sm" href="@Url.Action("Details", "Product", new { id = product.Id })" title="Detalhes">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a class="btn btn-outline-warning btn-sm" href="@Url.Action("Edit", "Product", new { id = product.Id })" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a class="btn btn-outline-danger btn-sm" href="@Url.Action("Delete", "Product", new { id = product.Id })" title="Excluir">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

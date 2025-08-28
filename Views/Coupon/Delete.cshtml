@@ -1,0 +1,101 @@
+@model EcommercePWA.Models.Coupon
+@{
+    ViewData["Title"] = "Excluir Cupom";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Excluir Cupom</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Tem certeza que deseja excluir este cupom?
+                        </h5>
+                        <p class="mb-0">Esta ação não pode ser desfeita.</p>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Informações Básicas -->
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">Informações do Cupom</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Código</dt>
+                                <dd class="col-sm-8"><strong class="text-danger">@Model.Code</strong></dd>
+                                
+                                <dt class="col-sm-4">Descrição</dt>
+                                <dd class="col-sm-8">@Model.Description</dd>
+                                
+                                <dt class="col-sm-4">Status</dt>
+                                <dd class="col-sm-8">
+                                    @if (Model.IsActive)
+                                    {
+                                        <span class="badge bg-success">Ativo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inativo</span>
+                                    }
+                                </dd>
+                            </dl>
+                        </div>
+                        
+                        <!-- Configurações de Desconto -->
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">Configurações</h5>
+                            <dl class="row">
+                                <dt class="col-sm-6">Valor do Desconto</dt>
+                                <dd class="col-sm-6">R$ @Model.DiscountAmount.ToString("N2")</dd>
+                                
+                                <dt class="col-sm-6">Percentual de Desconto</dt>
+                                <dd class="col-sm-6">@(Model.DiscountPercentage?.ToString("N2") ?? "0,00")%</dd>
+                                
+                                <dt class="col-sm-6">Usos Atuais</dt>
+                                <dd class="col-sm-6">@Model.CurrentUses / @(Model.MaximumUses?.ToString() ?? "∞")</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <!-- Período de Validade -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">Período de Validade</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">Válido de</dt>
+                                        <dd class="col-sm-8">@Model.ValidFrom.ToString("dd/MM/yyyy HH:mm")</dd>
+                                    </dl>
+                                </div>
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">Válido até</dt>
+                                        <dd class="col-sm-8">@Model.ValidUntil.ToString("dd/MM/yyyy HH:mm")</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Formulário de Confirmação -->
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Confirmar Exclusão
+                            </button>
+                            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

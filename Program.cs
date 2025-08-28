@@ -39,6 +39,7 @@ using (var scope = app.Services.CreateScope())
     var context = services.GetRequiredService<ApplicationDbContext>();
     var authService = services.GetRequiredService<IAuthService>();
     var productService = services.GetRequiredService<IProductService>();
+    var couponService = services.GetRequiredService<ICouponService>();
 
     try
     {
@@ -51,9 +52,13 @@ using (var scope = app.Services.CreateScope())
         // Inicializar produtos e categorias
         await productService.InitializeDatabaseAsync();
         
+        // Inicializar cupons
+        await couponService.InitializeDatabaseAsync();
+        
         Console.WriteLine("✅ Banco de dados inicializado com sucesso!");
         Console.WriteLine("👤 Usuário admin: admin@kaboom.com / admin123");
         Console.WriteLine("📦 Produtos e categorias carregados");
+        Console.WriteLine("🎫 Cupons carregados");
     }
     catch (Exception ex)
     {

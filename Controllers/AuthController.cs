@@ -178,50 +178,31 @@ namespace EcommercePWA.Controllers
         public IActionResult Register(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            return View();
+            return View(new RegisterViewModel());
         }
 
         // POST: /Auth/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(string name, string email, string password, string confirmPassword, string? returnUrl = null)
+        public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
         {
             try
             {
-                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
-                {
-                    ModelState.AddModelError("", "Todos os campos são obrigatórios");
-                    return View();
-                }
+                if (!ModelState.IsValid)
+                    return View(model);
 
-                if (password != confirmPassword)
-                {
-                    ModelState.AddModelError("", "As senhas não coincidem");
-                    return View();
-                }
-
-                if (password.Length < 6)
-                {
-                    ModelState.AddModelError("", "A senha deve ter pelo menos 6 caracteres");
-                    return View();
-                }
-
-                var existingUser = await _authService.GetUserByEmailAsync(email);
+                var existingUser = await _authService.GetUserByEmailAsync(model.Email);
                 if (existingUser != null)
                 {
                     ModelState.AddModelError("", "Este email já está em uso");
-                    return View();
+                    return View(model);
                 }
-
-                var user = await _authService.RegisterAsync(name, email, password);
+                var user = await _authService.RegisterAsync(model.Name, model.Email, model.Password);
                 if (user == null)
                 {
                     ModelState.AddModelError("", "Erro ao criar conta. Tente novamente.");
-                    return View();
+                    return View(model);
                 }
-
-                _logger.LogInformation($"Novo usuário registrado: {user.Email}");
-
                 TempData["SuccessMessage"] = "Conta criada com sucesso! Faça login para continuar.";
                 return RedirectToAction("Login", new { returnUrl = returnUrl });
             }
@@ -229,7 +210,7 @@ namespace EcommercePWA.Controllers
             {
                 _logger.LogError(ex, "Erro durante o registro");
                 ModelState.AddModelError("", "Erro durante o registro. Tente novamente.");
-                return View();
+                return View(model);
             }
         }
 

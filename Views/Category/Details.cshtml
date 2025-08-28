@@ -1,0 +1,49 @@
+@model EcommercePWA.Models.Category
+@{
+    ViewData["Title"] = "Detalhes da Categoria";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h4 class="mb-0"><i class="fas fa-tag me-2"></i>Detalhes da Categoria</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-2">Nome</dt>
+                        <dd class="col-sm-10">@Model.Name</dd>
+                        <dt class="col-sm-2">Descrição</dt>
+                        <dd class="col-sm-10">@Model.Description</dd>
+                        <dt class="col-sm-2">Ícone</dt>
+                        <dd class="col-sm-10">@(string.IsNullOrEmpty(Model.IconClass) ? "fas fa-tag" : Model.IconClass)</dd>
+                        <dt class="col-sm-2">Cor</dt>
+                        <dd class="col-sm-10"><span class="badge" style="background-color:@Model.Color">@Model.Color</span></dd>
+                        <dt class="col-sm-2">Status</dt>
+                        <dd class="col-sm-10">@(Model.IsActive ? "Ativa" : "Inativa")</dd>
+                        <dt class="col-sm-2">Ordem</dt>
+                        <dd class="col-sm-10">@Model.DisplayOrder</dd>
+                        <dt class="col-sm-2">Qtde de Produtos</dt>
+                        <dd class="col-sm-10">
+                            <input class="form-control" value="@ViewBag.ProductCount" readonly />
+                        </dd>
+                    </dl>
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("Categories", "Admin")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar
+                        </a>
+                        <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning">
+                            <i class="fas fa-edit me-2"></i>Editar
+                        </a>
+                        <a href="@Url.Action("Delete", new { id = Model.Id })" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Excluir
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

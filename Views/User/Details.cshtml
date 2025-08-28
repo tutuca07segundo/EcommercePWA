@@ -1,0 +1,63 @@
+@model EcommercePWA.Models.User
+@{
+    ViewData["Title"] = "Detalhes do Usuário";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="fas fa-user me-2"></i>Detalhes do Usuário</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">Nome</dt>
+                                <dd class="col-sm-8">@Model.Name</dd>
+                                <dt class="col-sm-4">Email</dt>
+                                <dd class="col-sm-8">@Model.Email</dd>
+                                <dt class="col-sm-4">Papel</dt>
+                                <dd class="col-sm-8">
+                                    @if (Model.Role == "Admin")
+                                    {
+                                        <span class="badge bg-danger">Administrador</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info">Cliente</span>
+                                    }
+                                </dd>
+                                <dt class="col-sm-4">Criado em</dt>
+                                <dd class="col-sm-8">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
+                                <dt class="col-sm-4">Status</dt>
+                                <dd class="col-sm-8">@(Model.IsActive ? "Ativo" : "Inativo")</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("Users", "Admin")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar
+                        </a>
+                        <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning">
+                            <i class="fas fa-edit me-2"></i>Editar
+                        </a>
+                        @if (Model.Role != "Admin")
+                        {
+                            <a href="@Url.Action("ToggleAdmin", new { id = Model.Id })" class="btn btn-success">
+                                <i class="fas fa-user-shield me-2"></i>Tornar Admin
+                            </a>
+                        }
+                        <a href="@Url.Action("Delete", new { id = Model.Id })" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Excluir
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

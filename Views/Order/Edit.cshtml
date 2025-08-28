@@ -1,0 +1,56 @@
+@model EcommercePWA.Models.Order
+@{
+    ViewData["Title"] = "Editar Pedido";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Editar Status do Pedido #@Model.Id</h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success d-flex justify-content-between align-items-center">
+                            <span>@TempData["SuccessMessage"]</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger d-flex justify-content-between align-items-center">
+                            <span>@TempData["ErrorMessage"]</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="Pending" selected="@(Model.Status=="Pending")">Pendente</option>
+                                <option value="Processing" selected="@(Model.Status=="Processing")">Processando</option>
+                                <option value="Shipped" selected="@(Model.Status=="Shipped")">A caminho</option>
+                                <option value="Delivered" selected="@(Model.Status=="Delivered")">Entregue</option>
+                                <option value="Cancelled" selected="@(Model.Status=="Cancelled")">Cancelado</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="@Url.Action("Orders", "Admin")" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-2"></i>Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

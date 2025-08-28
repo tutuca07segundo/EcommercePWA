@@ -113,6 +113,64 @@ namespace EcommercePWA.Services
             }
         }
 
+        public async Task<User?> UpdateUserAsync(User user)
+        {
+            try
+            {
+                var existing = await _context.Users.FirstOrDefaultAsync(u => u.Id == user.Id && u.IsActive);
+                if (existing == null) return null;
+
+                existing.Name = user.Name;
+                existing.Email = user.Email;
+                if (!string.IsNullOrWhiteSpace(user.Password))
+                {
+                    existing.Password = user.Password.Length > 40 ? user.Password : HashPassword(user.Password);
+                }
+
+                await _context.SaveChangesAsync();
+                return existing;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar usuário {UserId}", user.Id);
+                return null;
+            }
+        }
+
+        public async Task<bool> SoftDeleteUserAsync(int id)
+        {
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id && u.IsActive);
+                if (user == null) return false;
+                user.IsActive = false;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir usuário {UserId}", id);
+                return false;
+            }
+        }
+
+        public async Task<bool> PromoteToAdminAsync(int id)
+        {
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id && u.IsActive);
+                if (user == null) return false;
+                user.Role = "Admin";
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao promover usuário a admin {UserId}", id);
+                return false;
+            }
+        }
+
         public bool VerifyPassword(string password, string hashedPassword)
         {
             var hashedInput = HashPassword(password);

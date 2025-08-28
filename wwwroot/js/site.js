@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCategoryCarousel();
     initializeLazyLoading();
     initializeTooltips();
+    // Inicializar bind para detalhes do produto (se existir no DOM)
+    const priceEl = document.getElementById('unitPrice');
+    if (priceEl) {
+        const basePrice = parseFloat(priceEl.textContent.replace('.', '').replace(',', '.')) || 0;
+        bindVariationAndQuantityHandlers(basePrice);
+    }
 });
 
 // Inicialização da Sidebar
@@ -402,6 +408,36 @@ function shareProduct(productName, productUrl) {
             showNotification('Link copiado para a área de transferência!', 'success');
         });
     }
+}
+
+// ===== Produto: Preço dinâmico por variação/quantidade =====
+function updatePrices(basePrice, variationPriceModifier) {
+    try {
+        const qtyInput = document.getElementById('quantity');
+        const qty = Math.max(1, parseInt(qtyInput?.value || '1'));
+        const unit = (parseFloat(basePrice) + (parseFloat(variationPriceModifier) || 0));
+        const unitSpan = document.getElementById('unitPrice');
+        const totalSpan = document.getElementById('totalPrice');
+        if (unitSpan) unitSpan.textContent = unit.toFixed(2).replace('.', ',');
+        if (totalSpan) totalSpan.textContent = (unit * qty).toFixed(2).replace('.', ',');
+    } catch (e) {
+        console.error('Falha ao atualizar preços', e);
+    }
+}
+
+function bindVariationAndQuantityHandlers(basePrice) {
+    const qtyInput = document.getElementById('quantity');
+    const radios = document.querySelectorAll('input[name="variationId"]');
+    const getSelectedModifier = () => {
+        const selected = document.querySelector('input[name="variationId"]:checked');
+        const modifier = selected?.getAttribute('data-modifier') || '0';
+        return parseFloat(modifier) || 0;
+    };
+    if (qtyInput) {
+        qtyInput.addEventListener('input', () => updatePrices(basePrice, getSelectedModifier()));
+    }
+    radios.forEach(r => r.addEventListener('change', () => updatePrices(basePrice, getSelectedModifier())));
+    updatePrices(basePrice, getSelectedModifier());
 }
 
 // Função para comparar produtos

@@ -36,6 +36,20 @@
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success d-flex justify-content-between align-items-center">
+                            <span>@TempData["SuccessMessage"]</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger d-flex justify-content-between align-items-center">
+                            <span>@TempData["ErrorMessage"]</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
                     @if (!Model.Any())
                     {
                         <div class="text-center py-5">

@@ -141,14 +141,18 @@
                     </div>
                     <div class="card-body">
                         <div class="d-flex flex-wrap gap-2">
-                            @foreach (var variation in Model.Variations)
+                            @foreach (var variation in Model.Variations.Where(v => v.IsAvailable))
                             {
                                 <div class="variation-item">
                                     <input type="radio" class="btn-check" name="variationId" 
-                                           id="variation_@variation.Id" value="@variation.Id" 
+                                           id="variation_@variation.Id" value="@variation.Id" data-modifier="@variation.PriceModifier"
                                            @(variation.Id == Model.Variations.First().Id ? "checked" : "")>
                                     <label class="btn btn-outline-primary" for="variation_@variation.Id">
                                         @variation.Name
+                                        @if (!string.IsNullOrEmpty(variation.ColorHex))
+                                        {
+                                            <span class="ms-2 align-middle" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:@variation.ColorHex;border:1px solid #ccc"></span>
+                                        }
                                         @if (variation.PriceModifier.HasValue && variation.PriceModifier != 0)
                                         {
                                             <small class="d-block">@(variation.PriceModifier > 0 ? "+" : "")@variation.PriceModifier.Value.ToString("N2")</small>
@@ -244,7 +248,8 @@
                     <!-- Preços -->
                     <div class="text-center mb-3">
                         <div class="text-decoration-line-through text-muted">R$ @((Model.Product.Price * 1.1m).ToString("N2"))</div>
-                        <div class="h3 text-warning fw-bold">R$ @Model.Product.Price.ToString("N2")</div>
+                        <div class="h3 text-warning fw-bold">R$ <span id="unitPrice">@Model.Product.Price.ToString("N2")</span></div>
+                        <div class="small text-muted">Total: R$ <span id="totalPrice">@Model.Product.Price.ToString("N2")</span></div>
                         <small class="text-success">À vista no PIX com 7% de desconto</small>
                     </div>
 
@@ -386,6 +391,10 @@
         const newValue = parseInt(input.value) + delta;
         if (newValue >= 1 && newValue <= @Model.Product.StockQuantity) {
             input.value = newValue;
+            const selected = document.querySelector('input[name="variationId"]:checked');
+            const modifier = parseFloat(selected?.getAttribute('data-modifier') || '0') || 0;
+            const base = parseFloat('@Model.Product.Price'.replace(',', '.'));
+            updatePrices(base, modifier);
         }
     }
 
@@ -465,4 +474,11 @@
     function redirectToLogin() {
         window.location.href = '@Url.Action("Login", "Auth")?returnUrl=' + encodeURIComponent(window.location.pathname);
     }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const base = parseFloat('@Model.Product.Price'.replace(',', '.'));
+        bindVariationAndQuantityHandlers(base);
+    });
 </script>

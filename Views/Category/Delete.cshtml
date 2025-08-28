@@ -1,0 +1,46 @@
+@model EcommercePWA.Models.Category
+@{
+    ViewData["Title"] = "Excluir Categoria";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Excluir Categoria</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Tem certeza que deseja excluir esta categoria?
+                        </h5>
+                        <p class="mb-0">Categorias com produtos vinculados não podem ser removidas.</p>
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-2">Nome</dt>
+                        <dd class="col-sm-10">@Model.Name</dd>
+                        <dt class="col-sm-2">Descrição</dt>
+                        <dd class="col-sm-10">@Model.Description</dd>
+                    </dl>
+
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Confirmar Exclusão
+                            </button>
+                            <a href="@Url.Action("Categories", "Admin")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -289,6 +289,7 @@ namespace EcommercePWA.Services
                 existingCategory.IconClass = category.IconClass;
                 existingCategory.Color = category.Color;
                 existingCategory.DisplayOrder = category.DisplayOrder;
+                existingCategory.IsActive = category.IsActive;
 
                 await _context.SaveChangesAsync();
                 

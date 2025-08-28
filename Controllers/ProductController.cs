@@ -142,7 +142,7 @@ namespace EcommercePWA.Controllers
                 {
                     await _productService.CreateProductAsync(product);
                     TempData["SuccessMessage"] = "Produto criado com sucesso!";
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Products", "Admin");
                 }
 
                 var categories = await _productService.GetAllCategoriesAsync();
@@ -204,7 +204,7 @@ namespace EcommercePWA.Controllers
                 {
                     await _productService.UpdateProductAsync(product);
                     TempData["SuccessMessage"] = "Produto atualizado com sucesso!";
-                    return RedirectToAction("Details", new { id = product.Id });
+                    return RedirectToAction("Products", "Admin");
                 }
 
                 var categories = await _productService.GetAllCategoriesAsync();
@@ -259,19 +259,19 @@ namespace EcommercePWA.Controllers
                 if (result)
                 {
                     TempData["SuccessMessage"] = "Produto removido com sucesso!";
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Products", "Admin");
                 }
                 else
                 {
                     TempData["ErrorMessage"] = "Erro ao remover produto.";
-                    return RedirectToAction("Details", new { id });
+                    return RedirectToAction("Products", "Admin");
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao remover produto: {ProductId}", id);
                 TempData["ErrorMessage"] = "Erro ao remover produto.";
-                return RedirectToAction("Details", new { id });
+                return RedirectToAction("Products", "Admin");
             }
         }
 
@@ -312,6 +312,84 @@ namespace EcommercePWA.Controllers
             ViewBag.Categories = categories;
             ViewBag.Products = products;
             return View("EditSelector", product);
+        }
+
+        // POST: /Product/AddVariation
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequireAuth]
+        public async Task<IActionResult> AddVariation(int productId, string name, string? colorHex, decimal? priceModifier, bool isAvailable = true)
+        {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Forbid();
+            try
+            {
+                var variation = new ProductVariation
+                {
+                    ProductId = productId,
+                    Name = name,
+                    Type = "Color",
+                    ColorHex = colorHex ?? string.Empty,
+                    PriceModifier = priceModifier,
+                    IsAvailable = isAvailable
+                };
+                await _productService.CreateProductVariationAsync(variation);
+                TempData["SuccessMessage"] = "Variação adicionada com sucesso!";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao adicionar variação ao produto {ProductId}", productId);
+                TempData["ErrorMessage"] = "Erro ao adicionar variação";
+            }
+            return RedirectToAction("Edit", new { id = productId });
+        }
+
+        // POST: /Product/ToggleVariation
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequireAuth]
+        public async Task<IActionResult> ToggleVariation(int productId, int variationId)
+        {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Forbid();
+            try
+            {
+                var variations = await _productService.GetProductVariationsAsync(productId);
+                var variation = variations.FirstOrDefault(v => v.Id == variationId);
+                if (variation != null)
+                {
+                    variation.IsAvailable = !variation.IsAvailable;
+                    await _productService.UpdateProductVariationAsync(variation);
+                    TempData["SuccessMessage"] = "Disponibilidade da variação atualizada";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao alternar variação {VariationId}", variationId);
+                TempData["ErrorMessage"] = "Erro ao atualizar variação";
+            }
+            return RedirectToAction("Edit", new { id = productId });
+        }
+
+        // POST: /Product/DeleteVariation
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequireAuth]
+        public async Task<IActionResult> DeleteVariation(int productId, int variationId)
+        {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Forbid();
+            try
+            {
+                await _productService.DeleteProductVariationAsync(variationId);
+                TempData["SuccessMessage"] = "Variação removida";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao remover variação {VariationId}", variationId);
+                TempData["ErrorMessage"] = "Erro ao remover variação";
+            }
+            return RedirectToAction("Edit", new { id = productId });
         }
     }
 }

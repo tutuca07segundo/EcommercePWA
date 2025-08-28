@@ -110,7 +110,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="@Url.Action("Details", "Product", new { id = Model.Id })" class="btn btn-outline-secondary">
+                            <a href="@Url.Action("Products", "Admin")" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Voltar
                             </a>
                             <button type="submit" class="btn btn-warning">
@@ -118,6 +118,99 @@
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-2">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-palette me-2"></i>Variações de Cor</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="AddVariation" method="post" class="row g-2 align-items-end">
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        <div class="col-md-4">
+                            <label class="form-label">Nome da Variação</label>
+                            <input name="name" class="form-control" placeholder="Ex: Preto" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Cor (hex)</label>
+                            <input name="colorHex" class="form-control" placeholder="#000000" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Ajuste de Preço</label>
+                            <input name="priceModifier" class="form-control" type="number" step="0.01" />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-plus me-2"></i>Adicionar
+                            </button>
+                        </div>
+                        @Html.AntiForgeryToken()
+                    </form>
+
+                    <hr>
+
+                    @if (Model.Variations != null && Model.Variations.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Cor</th>
+                                        <th>Ajuste</th>
+                                        <th>Disponível</th>
+                                        <th class="text-end">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var v in Model.Variations)
+                                    {
+                                        <tr>
+                                            <td>@v.Name</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(v.ColorHex))
+                                                {
+                                                    <span class="badge" style="background-color:@v.ColorHex">@v.ColorHex</span>
+                                                }
+                                            </td>
+                                            <td>@(v.PriceModifier?.ToString("N2") ?? "0,00")</td>
+                                            <td>
+                                                <form asp-action="ToggleVariation" method="post">
+                                                    <input type="hidden" name="productId" value="@Model.Id" />
+                                                    <input type="hidden" name="variationId" value="@v.Id" />
+                                                    @Html.AntiForgeryToken()
+                                                    <button class="btn btn-outline-@(v.IsAvailable ? "success" : "secondary") btn-sm" type="submit">
+                                                        @(v.IsAvailable ? "Ativa" : "Inativa")
+                                                    </button>
+                                                </form>
+                                            </td>
+                                            <td class="text-end">
+                                                <form asp-action="DeleteVariation" method="post" onsubmit="return confirm('Remover variação?')">
+                                                    <input type="hidden" name="productId" value="@Model.Id" />
+                                                    <input type="hidden" name="variationId" value="@v.Id" />
+                                                    @Html.AntiForgeryToken()
+                                                    <button class="btn btn-outline-danger btn-sm" type="submit">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-muted">Nenhuma variação cadastrada.</div>
+                    }
                 </div>
             </div>
         </div>

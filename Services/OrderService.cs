@@ -1,69 +1,87 @@
 using EcommercePWA.Models;
+using EcommercePWA.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace EcommercePWA.Services
 {
     public class OrderService : IOrderService
     {
-        private readonly List<Order> _orders;
-        private readonly List<OrderNotification> _notifications;
-        private int _nextOrderId = 1;
-        private int _nextNotificationId = 1;
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<OrderService> _logger;
 
-        public OrderService()
+        public OrderService(ApplicationDbContext context, ILogger<OrderService> logger)
         {
-            _orders = new List<Order>();
-            _notifications = new List<OrderNotification>();
+            _context = context;
+            _logger = logger;
         }
 
         public async Task<Order> CreateOrder(Order order)
         {
-            await Task.Delay(100); // Simular operação assíncrona
-            
-            order.Id = _nextOrderId++;
-            _orders.Add(order);
-            
-            // Criar notificação de confirmação
-            await CreateNotification(order.Id, "Pedido Confirmado", 
-                $"Seu pedido {order.OrderNumber} foi confirmado e está sendo processado.", "Success");
-            
-            return order;
+            try
+            {
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync();
+
+                await CreateNotification(order.Id, "Pedido Confirmado",
+                    $"Seu pedido {order.OrderNumber} foi confirmado e está sendo processado.", "Success");
+
+                return order;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar pedido");
+                throw;
+            }
         }
 
         public async Task<Order?> GetOrderById(int id)
         {
-            await Task.Delay(50);
-            return _orders.FirstOrDefault(o => o.Id == id);
+            return await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.ProductVariation)
+                .FirstOrDefaultAsync(o => o.Id == id);
         }
 
         public async Task<Order?> GetOrderByNumber(string orderNumber)
         {
-            await Task.Delay(50);
-            return _orders.FirstOrDefault(o => o.OrderNumber.Equals(orderNumber, StringComparison.OrdinalIgnoreCase));
+            return await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.OrderNumber == orderNumber);
         }
 
         public async Task<List<Order>> GetOrdersByUserId(int userId)
         {
-            await Task.Delay(50);
-            return _orders.Where(o => o.UserId == userId).OrderByDescending(o => o.OrderDate).ToList();
+            return await _context.Orders
+                .Include(o => o.Items)
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
         }
 
         public async Task<List<Order>> GetAllOrders()
         {
-            await Task.Delay(50);
-            return _orders.OrderByDescending(o => o.OrderDate).ToList();
+            return await _context.Orders
+                .Include(o => o.User)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
         }
 
         public async Task<Order> UpdateOrderStatus(int orderId, string status)
         {
-            await Task.Delay(100);
-            
-            var order = await GetOrderById(orderId);
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
             if (order == null)
                 throw new ArgumentException("Pedido não encontrado");
 
             order.Status = status;
-            
-            // Criar notificação de mudança de status
+            if (status == "Shipped") order.ShippedDate = DateTime.Now;
+            if (status == "Delivered") order.DeliveredDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
             string message = status switch
             {
                 "Processing" => "Seu pedido está sendo processado.",
@@ -74,17 +92,13 @@ namespace EcommercePWA.Services
             };
 
             await CreateNotification(orderId, $"Status Atualizado: {status}", message, "Info");
-            
             return order;
         }
 
         public async Task<OrderNotification> CreateNotification(int orderId, string title, string message, string type)
         {
-            await Task.Delay(50);
-            
             var notification = new OrderNotification
             {
-                Id = _nextNotificationId++,
                 OrderId = orderId,
                 Title = title,
                 Message = message,
@@ -92,35 +106,36 @@ namespace EcommercePWA.Services
                 CreatedAt = DateTime.Now,
                 IsRead = false
             };
-            
-            _notifications.Add(notification);
+            _context.Add(notification);
+            await _context.SaveChangesAsync();
             return notification;
         }
 
         public async Task<List<OrderNotification>> GetNotificationsByOrderId(int orderId)
         {
-            await Task.Delay(50);
-            return _notifications.Where(n => n.OrderId == orderId).OrderByDescending(n => n.CreatedAt).ToList();
+            return await _context.Set<OrderNotification>()
+                .Where(n => n.OrderId == orderId)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToListAsync();
         }
 
         public async Task<List<OrderNotification>> GetUnreadNotificationsByUserId(int userId)
         {
-            await Task.Delay(50);
-            // Buscar notificações não lidas dos pedidos do usuário
-            var userOrderIds = _orders.Where(o => o.UserId == userId).Select(o => o.Id);
-            return _notifications.Where(n => userOrderIds.Contains(n.OrderId) && !n.IsRead)
-                               .OrderByDescending(n => n.CreatedAt).ToList();
+            return await _context.Set<OrderNotification>()
+                .Include(n => n.Order)
+                .Where(n => !n.IsRead && n.Order.UserId == userId)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToListAsync();
         }
 
         public async Task MarkNotificationAsRead(int notificationId)
         {
-            await Task.Delay(50);
-            
-            var notification = _notifications.FirstOrDefault(n => n.Id == notificationId);
+            var notification = await _context.Set<OrderNotification>().FirstOrDefaultAsync(n => n.Id == notificationId);
             if (notification != null)
             {
                 notification.IsRead = true;
                 notification.ReadAt = DateTime.Now;
+                await _context.SaveChangesAsync();
             }
         }
     }

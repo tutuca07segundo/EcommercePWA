@@ -106,9 +106,14 @@
                         
                         @if (Model.DiscountAmount.HasValue && Model.DiscountAmount.Value > 0)
                         {
-                            <div class="d-flex justify-content-between mb-2 text-success">
-                                <span>Desconto:</span>
-                                <span>-R$ @Model.DiscountAmount.Value.ToString("N2")</span>
+                            <div class="d-flex justify-content-between mb-2 text-success" id="discountRow">
+                                <span>Desconto (@Model.CouponCode):</span>
+                                <div>
+                                    <span>-R$ @Model.DiscountAmount.Value.ToString("N2")</span>
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeCoupon()" title="Remover cupom">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
                             </div>
                         }
                         
@@ -273,6 +278,13 @@
         document.getElementById('couponForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Verificar se já existe um cupom aplicado
+            const existingCoupon = document.querySelector('.coupon-applied');
+            if (existingCoupon) {
+                showAlert('warning', 'Já existe um cupom aplicado. Remova o cupom atual antes de adicionar outro.');
+                return;
+            }
+            
             const couponCode = document.getElementById('couponCode').value.trim();
             if (!couponCode) return;
             
@@ -287,9 +299,15 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Adicionar classe ao elemento do cupom aplicado
+                    const couponElement = document.createElement('div');
+                    couponElement.className = 'coupon-applied';
+                    couponElement.style.display = 'none';
+                    document.body.appendChild(couponElement);
+                    
                     showAlert('success', data.message);
-                    // Recarregar página para atualizar totais
-                    setTimeout(() => location.reload(), 1000);
+                    // Atualizar interface com os novos valores
+                    updateCartTotalsWithDiscount(data);
                 } else {
                     showAlert('danger', data.message);
                 }
@@ -299,6 +317,88 @@
                 showAlert('danger', 'Erro ao aplicar cupom');
             });
         });
+
+        // Remover cupom
+        function removeCoupon() {
+            // Remover o marcador de cupom aplicado
+            const existingCoupon = document.querySelector('.coupon-applied');
+            if (existingCoupon) {
+                existingCoupon.remove();
+            }
+            
+            if (confirm('Tem certeza que deseja remover o cupom?')) {
+                fetch('@Url.Action("RemoveCoupon", "Cart")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('success', data.message);
+                        // Recarregar página para remover cupom da interface
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showAlert('danger', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    showAlert('danger', 'Erro ao remover cupom');
+                });
+            }
+        }
+
+        // Atualizar totais do carrinho com desconto
+        function updateCartTotalsWithDiscount(data) {
+            // Atualizar resumo do pedido
+            if (data.subtotal !== undefined) {
+                document.querySelector('.cart-summary span:nth-child(2)').textContent = `R$ ${parseFloat(data.subtotal).toFixed(2).replace('.', ',')}`;
+            }
+            if (data.shippingCost !== undefined) {
+                document.querySelector('.cart-summary .d-flex:nth-child(2) span:nth-child(2)').textContent = `R$ ${parseFloat(data.shippingCost).toFixed(2).replace('.', ',')}`;
+            }
+            if (data.taxAmount !== undefined) {
+                document.querySelector('.cart-summary .d-flex:nth-child(3) span:nth-child(2)').textContent = `R$ ${parseFloat(data.taxAmount).toFixed(2).replace('.', ',')}`;
+            }
+            
+            // Adicionar ou atualizar linha de desconto
+            const existingDiscountRow = document.getElementById('discountRow');
+            if (data.discountAmount && data.discountAmount > 0) {
+                if (existingDiscountRow) {
+                    existingDiscountRow.querySelector('span:nth-child(2)').textContent = `-R$ ${parseFloat(data.discountAmount).toFixed(2).replace('.', ',')}`;
+                } else {
+                    // Criar nova linha de desconto
+                    const discountHtml = `
+                        <div class="d-flex justify-content-between mb-2 text-success" id="discountRow">
+                            <span>Desconto (${data.couponCode}):</span>
+                            <div>
+                                <span>-R$ ${parseFloat(data.discountAmount).toFixed(2).replace('.', ',')}</span>
+                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeCoupon()" title="Remover cupom">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="coupon-applied" style="display: none;"></div>
+                    `;
+                    const hrElement = document.querySelector('.cart-summary hr');
+                    hrElement.insertAdjacentHTML('beforebegin', discountHtml);
+                }
+            }
+            
+            // Atualizar total final
+            if (data.total !== undefined) {
+                const totalElement = document.querySelector('.cart-summary strong.h5.text-primary.mb-0');
+                if (totalElement) {
+                    totalElement.textContent = `R$ ${parseFloat(data.total).toFixed(2).replace('.', ',')}`;
+                }
+            }
+            
+            // Limpar campo de cupom
+            document.getElementById('couponCode').value = '';
+        }
 
         // Atualizar totais do carrinho
         function updateCartTotals(data) {

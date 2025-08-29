@@ -43,14 +43,47 @@ namespace EcommercePWA.Controllers
                     cartItems.Add(item);
                 }
                 
+                // Verificar se há cupom aplicado na sessão
+                var couponCode = HttpContext.Session.GetString("CouponCode");
+                decimal discountAmount = 0;
+                string couponMessage = "";
+                bool isCouponValid = false;
+                
+                if (!string.IsNullOrEmpty(couponCode))
+                {
+                    var couponResult = _cartService.ApplyCoupon(sessionId, couponCode);
+                    if (couponResult.IsValid)
+                    {
+                        discountAmount = couponResult.DiscountAmount;
+                        couponMessage = couponResult.Message;
+                        isCouponValid = true;
+                        // Atualizar sessão com novo valor
+                        HttpContext.Session.SetString("DiscountAmount", discountAmount.ToString());
+                    }
+                    else
+                    {
+                        // Cupom inválido, remover da sessão
+                        HttpContext.Session.Remove("CouponCode");
+                        HttpContext.Session.Remove("DiscountAmount");
+                    }
+                }
+                
+                var shippingCost = CalculateShippingCost(cart);
+                var taxAmount = CalculateTaxAmount(cart.Subtotal);
+                var finalTotal = cart.Total + shippingCost + taxAmount - discountAmount;
+                
                 var viewModel = new CartViewModel
                 {
                     Cart = cart,
                     Items = cartItems,
                     Subtotal = cart.Subtotal,
-                    ShippingCost = CalculateShippingCost(cart),
-                    TaxAmount = CalculateTaxAmount(cart.Subtotal),
-                    Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal)
+                    ShippingCost = shippingCost,
+                    TaxAmount = taxAmount,
+                    Total = finalTotal,
+                    CouponCode = couponCode,
+                    DiscountAmount = discountAmount > 0 ? discountAmount : null,
+                    CouponMessage = couponMessage,
+                    IsCouponValid = isCouponValid
                 };
 
                 return View(viewModel);
@@ -209,22 +242,25 @@ namespace EcommercePWA.Controllers
                 
                 if (result.IsValid)
                 {
-                    var cart = _cartService.GetCart(sessionId);
-                    var viewModel = new CartViewModel
-                    {
-                        Cart = cart,
-                        Items = cart.Items,
-                        Subtotal = cart.Subtotal,
-                        ShippingCost = CalculateShippingCost(cart),
-                        TaxAmount = CalculateTaxAmount(cart.Subtotal),
-                        Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal),
-                        CouponCode = request.CouponCode,
-                        DiscountAmount = result.DiscountAmount,
-                        CouponMessage = result.Message,
-                        IsCouponValid = true
-                    };
+                    // Salvar cupom na sessão
+                    HttpContext.Session.SetString("CouponCode", request.CouponCode);
+                    HttpContext.Session.SetString("DiscountAmount", result.DiscountAmount.ToString());
                     
-                    return PartialView("_CartSummary", viewModel);
+                    var cart = _cartService.GetCart(sessionId);
+                    var shippingCost = CalculateShippingCost(cart);
+                    var taxAmount = CalculateTaxAmount(cart.Subtotal);
+                    var finalTotal = cart.Total + shippingCost + taxAmount - result.DiscountAmount;
+                    
+                    return Json(new { 
+                        success = true, 
+                        message = result.Message,
+                        discountAmount = result.DiscountAmount,
+                        subtotal = cart.Subtotal,
+                        shippingCost = shippingCost,
+                        taxAmount = taxAmount,
+                        total = finalTotal,
+                        couponCode = request.CouponCode
+                    });
                 }
                 else
                 {
@@ -235,6 +271,39 @@ namespace EcommercePWA.Controllers
             {
                 _logger.LogError(ex, "Erro ao aplicar cupom");
                 return Json(new { success = false, message = "Erro ao aplicar cupom" });
+            }
+        }
+
+        // POST: /Cart/RemoveCoupon
+        [HttpPost]
+        [RequireAuth]
+        public IActionResult RemoveCoupon()
+        {
+            try
+            {
+                // Remover cupom da sessão
+                HttpContext.Session.Remove("CouponCode");
+                HttpContext.Session.Remove("DiscountAmount");
+                
+                var sessionId = GetSessionId();
+                var cart = _cartService.GetCart(sessionId);
+                var shippingCost = CalculateShippingCost(cart);
+                var taxAmount = CalculateTaxAmount(cart.Subtotal);
+                var finalTotal = cart.Total + shippingCost + taxAmount;
+                
+                return Json(new { 
+                    success = true, 
+                    message = "Cupom removido com sucesso",
+                    subtotal = cart.Subtotal,
+                    shippingCost = shippingCost,
+                    taxAmount = taxAmount,
+                    total = finalTotal
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao remover cupom");
+                return Json(new { success = false, message = "Erro ao remover cupom" });
             }
         }
 
@@ -294,5 +363,10 @@ namespace EcommercePWA.Controllers
     public class ApplyCouponRequest
     {
         public string CouponCode { get; set; } = string.Empty;
+    }
+
+    public class RemoveCouponRequest
+    {
+        // Classe vazia, apenas para consistência
     }
 }

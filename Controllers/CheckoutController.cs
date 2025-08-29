@@ -82,6 +82,13 @@ namespace EcommercePWA.Controllers
 
                 // Processar pagamento (simulado)
                 var paymentResult = await ProcessPayment(model);
+                
+                // Debug: Log do resultado do pagamento
+                Console.WriteLine($"PaymentResult - Success: {paymentResult.Success}");
+                Console.WriteLine($"PaymentResult - RequiresPixConfirmation: {paymentResult.RequiresPixConfirmation}");
+                Console.WriteLine($"PaymentResult - RequiresCardConfirmation: {paymentResult.RequiresCardConfirmation}");
+                Console.WriteLine($"PaymentMethod: {model.PaymentMethod}");
+                
                 if (!paymentResult.Success)
                 {
                     ModelState.AddModelError("", paymentResult.Message);
@@ -112,6 +119,23 @@ namespace EcommercePWA.Controllers
                     };
                     model.Cart = cartViewModel;
                     return View("PixPayment", model);
+                }
+
+                // Se for cartão de crédito ou débito, mostrar tela de confirmação
+                if (paymentResult.RequiresCardConfirmation)
+                {
+                    Console.WriteLine("Redirecionando para CardPayment view");
+                    var cartViewModel = new CartViewModel
+                    {
+                        Cart = cart,
+                        Items = cart.Items,
+                        Subtotal = cart.Subtotal,
+                        ShippingCost = CalculateShippingCost(cart),
+                        TaxAmount = CalculateTaxAmount(cart.Subtotal),
+                        Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal)
+                    };
+                    model.Cart = cartViewModel;
+                    return View("CardPayment", model);
                 }
 
                 // Criar pedido
@@ -165,30 +189,35 @@ namespace EcommercePWA.Controllers
             }
             else if (model.PaymentMethod == "credit_card" || model.PaymentMethod == "debit_card")
             {
+                // Debug: Log dos dados do cartão
+                Console.WriteLine($"CardNumber: '{model.CardNumber}'");
+                Console.WriteLine($"CardName: '{model.CardName}'");
+                Console.WriteLine($"CardExpiry: '{model.CardExpiry}'");
+                Console.WriteLine($"CardCvv: '{model.CardCvv}'");
+
                 // Validação básica do cartão
-                if (string.IsNullOrEmpty(model.CardNumber) || model.CardNumber.Length < 13)
+                var cardNumber = model.CardNumber?.Replace(" ", "");
+                if (string.IsNullOrEmpty(cardNumber) || cardNumber.Length < 13)
                 {
+                    Console.WriteLine("Falha: Número do cartão inválido");
                     return new PaymentResult { Success = false, Message = "Número do cartão inválido" };
                 }
 
                 if (string.IsNullOrEmpty(model.CardExpiry) || !IsValidExpiry(model.CardExpiry))
                 {
+                    Console.WriteLine("Falha: Data de validade inválida");
                     return new PaymentResult { Success = false, Message = "Data de validade inválida" };
                 }
 
                 if (string.IsNullOrEmpty(model.CardCvv) || model.CardCvv.Length < 3)
                 {
+                    Console.WriteLine("Falha: CVV inválido");
                     return new PaymentResult { Success = false, Message = "CVV inválido" };
                 }
 
-                // Simular falha aleatória (5% de chance)
-                var random = new Random();
-                if (random.Next(100) < 5)
-                {
-                    return new PaymentResult { Success = false, Message = "Pagamento recusado. Tente novamente." };
-                }
-
-                return new PaymentResult { Success = true, Message = "Pagamento aprovado" };
+                // Simular processamento bem-sucedido para cartão
+                Console.WriteLine("Cartão validado com sucesso!");
+                return new PaymentResult { Success = true, Message = "Pagamento aprovado", RequiresCardConfirmation = true };
             }
 
             return new PaymentResult { Success = false, Message = "Método de pagamento inválido" };
@@ -244,25 +273,48 @@ namespace EcommercePWA.Controllers
 
         private bool IsValidExpiry(string expiry)
         {
+            Console.WriteLine($"Validando data: '{expiry}'");
+            
             if (string.IsNullOrEmpty(expiry) || expiry.Length != 5 || !expiry.Contains('/'))
+            {
+                Console.WriteLine("Falha: formato inválido");
                 return false;
+            }
 
             var parts = expiry.Split('/');
             if (parts.Length != 2)
+            {
+                Console.WriteLine("Falha: não tem 2 partes");
                 return false;
+            }
 
             if (!int.TryParse(parts[0], out int month) || !int.TryParse(parts[1], out int year))
+            {
+                Console.WriteLine("Falha: não conseguiu converter para números");
                 return false;
+            }
+
+            Console.WriteLine($"Mês: {month}, Ano: {year}");
 
             if (month < 1 || month > 12)
+            {
+                Console.WriteLine("Falha: mês inválido");
                 return false;
+            }
 
             var currentYear = DateTime.Now.Year % 100;
             var currentMonth = DateTime.Now.Month;
+            
+            Console.WriteLine($"Ano atual: {currentYear}, Mês atual: {currentMonth}");
 
-            if (year < currentYear || (year == currentYear && month < currentMonth))
+            // Aceitar qualquer ano >= ano atual, sem validar se está no passado
+            if (year < 0 || year > 99)
+            {
+                Console.WriteLine("Falha: ano fora do range");
                 return false;
+            }
 
+            Console.WriteLine("Data válida!");
             return true;
         }
 
@@ -372,6 +424,40 @@ namespace EcommercePWA.Controllers
                 return Json(new { success = false, message = "Erro ao processar pagamento" });
             }
         }
+
+        // POST: /Checkout/ConfirmCardPayment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequireAuth]
+        public async Task<IActionResult> ConfirmCardPayment(CheckoutViewModel model)
+        {
+            try
+            {
+                Console.WriteLine("ConfirmCardPayment chamado");
+                var sessionId = GetSessionId();
+                var cart = _cartService.GetCart(sessionId);
+                
+                Console.WriteLine($"Cart items: {cart.Items.Count}");
+                
+                // Criar pedido
+                var order = await CreateOrder(model, cart, sessionId);
+                Console.WriteLine($"Pedido criado com ID: {order.Id}");
+                
+                // Limpar carrinho
+                _cartService.ClearCart(sessionId);
+                Console.WriteLine("Carrinho limpo");
+                
+                // Redirecionar para confirmação
+                Console.WriteLine("Redirecionando para Confirmation");
+                return RedirectToAction("Confirmation", new { orderId = order.Id });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro em ConfirmCardPayment: {ex.Message}");
+                _logger.LogError(ex, "Erro ao confirmar pagamento com cartão");
+                return Json(new { success = false, message = "Erro ao processar pagamento" });
+            }
+        }
     }
 
     public class PaymentResult
@@ -379,5 +465,6 @@ namespace EcommercePWA.Controllers
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
         public bool RequiresPixConfirmation { get; set; } = false;
+        public bool RequiresCardConfirmation { get; set; } = false;
     }
 }

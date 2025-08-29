@@ -99,10 +99,9 @@
                                         <span asp-validation-for="CardCvv" class="text-danger"></span>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label class="form-label">&nbsp;</label>
-                                        <div class="form-check mt-2">
-                                            <input asp-for="SavePaymentInfo" class="form-check-input" type="checkbox">
-                                            <label asp-for="SavePaymentInfo" class="form-check-label">
+                                        <div class="form-check mt-4">
+                                            <input asp-for="SavePaymentInfo" class="form-check-input" type="checkbox" id="SavePaymentInfo">
+                                            <label for="SavePaymentInfo" class="form-check-label">
                                                 Salvar informações de pagamento
                                             </label>
                                         </div>
@@ -135,8 +134,8 @@
                             </h5>
                             <div class="mb-3">
                                 <div class="form-check">
-                                    <input asp-for="SaveShippingInfo" class="form-check-input" type="checkbox">
-                                    <label asp-for="SaveShippingInfo" class="form-check-label">
+                                    <input asp-for="SaveShippingInfo" class="form-check-input" type="checkbox" id="SaveShippingInfo">
+                                    <label for="SaveShippingInfo" class="form-check-label">
                                         Salvar endereço de entrega para futuras compras
                                     </label>
                                 </div>

@@ -1,0 +1,235 @@
+@model EcommercePWA.Models.CheckoutViewModel
+@{
+    ViewData["Title"] = "Pagamento com Cartão";
+    var isCredit = Model.PaymentMethod == "credit_card";
+    var paymentTitle = isCredit ? "Pagamento com Cartão de Crédito" : "Pagamento com Cartão de Débito";
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-credit-card me-2"></i>@paymentTitle
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Pagamento processado com segurança</strong>
+                    </div>
+
+                    <!-- Payment Success Message -->
+                    <div class="payment-success text-center mb-4">
+                        <div class="success-icon mb-3">
+                            <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                        </div>
+                        <h5 class="text-success mb-3">Pagamento Aprovado!</h5>
+                        <p class="text-muted">
+                            Seu pagamento com @(isCredit ? "cartão de crédito" : "cartão de débito") foi processado com sucesso.
+                        </p>
+                    </div>
+
+                    <!-- Payment Details -->
+                    <div class="payment-details mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="fas fa-credit-card me-2"></i>Detalhes do Pagamento
+                                        </h6>
+                                        <div class="payment-info">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Método:</span>
+                                                <span class="fw-bold">@(isCredit ? "Cartão de Crédito" : "Cartão de Débito")</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Cartão:</span>
+                                                <span>**** **** **** @(Model.CardNumber?.Substring(Math.Max(0, Model.CardNumber.Length - 4)) ?? "****")</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Status:</span>
+                                                <span class="text-success fw-bold">
+                                                    <i class="fas fa-check me-1"></i>Aprovado
+                                                </span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span>Valor:</span>
+                                                <span class="h6 text-success mb-0">R$ @Model.Cart.Total.ToString("N2")</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="fas fa-shield-alt me-2"></i>Segurança
+                                        </h6>
+                                        <div class="security-info">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fas fa-lock text-success me-2"></i>
+                                                <small>Transação criptografada</small>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fas fa-certificate text-success me-2"></i>
+                                                <small>SSL 256-bit</small>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fas fa-user-shield text-success me-2"></i>
+                                                <small>Dados protegidos</small>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-check-circle text-success me-2"></i>
+                                                <small>PCI DSS Compliance</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Processing Animation -->
+                    <div class="processing-animation text-center mb-4" id="processingAnimation" style="display: none;">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Processando...</span>
+                        </div>
+                        <p class="text-muted">Processando pagamento...</p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="@Url.Action("Index", "Checkout")" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar
+                        </a>
+                        <form asp-action="ConfirmCardPayment" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.ShippingName)
+                            @Html.HiddenFor(m => m.ShippingAddress)
+                            @Html.HiddenFor(m => m.ShippingCity)
+                            @Html.HiddenFor(m => m.ShippingZipCode)
+                            @Html.HiddenFor(m => m.ShippingCountry)
+                            @Html.HiddenFor(m => m.ShippingPhone)
+                            @Html.HiddenFor(m => m.PaymentMethod)
+                            @Html.HiddenFor(m => m.CardNumber)
+                            @Html.HiddenFor(m => m.CardName)
+                            @Html.HiddenFor(m => m.CardExpiry)
+                            @Html.HiddenFor(m => m.CardCvv)
+                            @Html.HiddenFor(m => m.Notes)
+                            <button type="submit" class="btn btn-success btn-lg" id="confirmPayment">
+                                <i class="fas fa-check me-2"></i>Confirmar Pedido
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Resumo do Pedido</h5>
+                </div>
+                <div class="card-body">
+                    <div class="order-summary">
+                        <!-- Itens do Carrinho -->
+                        <div class="cart-items mb-3">
+                            @foreach (var item in Model.Cart.Items)
+                            {
+                                <div class="cart-item d-flex justify-content-between align-items-center mb-2">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center">
+                                            <img src="@(string.IsNullOrEmpty(item.Product.ImageUrl) ? "/images/placeholder.jpg" : item.Product.ImageUrl)" 
+                                                 class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                            <div>
+                                                <small class="d-block">@item.Product.Name</small>
+                                                <small class="text-muted">Qtd: @item.Quantity</small>
+                                                @if (item.ProductVariation != null)
+                                                {
+                                                    <small class="text-muted d-block">@item.ProductVariation.Name</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="text-end">R$ @item.Total.ToString("N2")</span>
+                                </div>
+                            }
+                        </div>
+
+                        <hr>
+
+                        <!-- Totais -->
+                        <div class="totals">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>R$ @Model.Cart.Subtotal.ToString("N2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Frete:</span>
+                                <span>R$ @Model.Cart.ShippingCost.ToString("N2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Impostos:</span>
+                                <span>R$ @Model.Cart.TaxAmount.ToString("N2")</span>
+                            </div>
+                            
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong>Total:</strong>
+                                <strong class="h5 text-success mb-0">R$ @Model.Cart.Total.ToString("N2")</strong>
+                            </div>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <div class="payment-method mt-3">
+                            <div class="alert alert-success">
+                                <i class="fas fa-credit-card me-2"></i>
+                                <small>
+                                    <strong>Método de Pagamento:</strong><br>
+                                    @(isCredit ? "Cartão de Crédito" : "Cartão de Débito")
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simular processamento inicial
+            const processingAnimation = document.getElementById('processingAnimation');
+            const confirmButton = document.getElementById('confirmPayment');
+            
+            // Mostrar animação de processamento por 2 segundos
+            processingAnimation.style.display = 'block';
+            confirmButton.style.display = 'none';
+            
+            setTimeout(() => {
+                processingAnimation.style.display = 'none';
+                confirmButton.style.display = 'inline-block';
+                
+                // Adicionar efeito de sucesso
+                const successIcon = document.querySelector('.success-icon i');
+                successIcon.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    successIcon.style.transform = 'scale(1)';
+                }, 300);
+            }, 2000);
+        });
+
+        // Adicionar efeito de clique no botão confirmar
+        document.getElementById('confirmPayment').addEventListener('click', function(e) {
+            // Não desabilitar o botão nem mudar o texto para evitar travamento
+            console.log('Botão confirmar clicado');
+        });
+    </script>
+}

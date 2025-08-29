@@ -59,7 +59,8 @@ namespace EcommercePWA.Controllers
                 var sessionId = GetSessionId();
                 var cart = _cartService.GetCart(sessionId);
                 
-                if (!ModelState.IsValid)
+                // Validação customizada baseada no método de pagamento
+                if (!ValidatePaymentMethod(model))
                 {
                     var cartViewModel = new CartViewModel
                     {
@@ -97,6 +98,22 @@ namespace EcommercePWA.Controllers
                     return View("Index", model);
                 }
 
+                // Se for PIX e requer confirmação, mostrar QR Code
+                if (paymentResult.RequiresPixConfirmation)
+                {
+                    var cartViewModel = new CartViewModel
+                    {
+                        Cart = cart,
+                        Items = cart.Items,
+                        Subtotal = cart.Subtotal,
+                        ShippingCost = CalculateShippingCost(cart),
+                        TaxAmount = CalculateTaxAmount(cart.Subtotal),
+                        Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal)
+                    };
+                    model.Cart = cartViewModel;
+                    return View("PixPayment", model);
+                }
+
                 // Criar pedido
                 var order = await CreateOrder(model, cart, sessionId);
                 
@@ -132,40 +149,62 @@ namespace EcommercePWA.Controllers
             // Simulação de processamento de pagamento
             await Task.Delay(1000); // Simular delay de API
             
-            // Validação básica do cartão
-            if (string.IsNullOrEmpty(model.CardNumber) || model.CardNumber.Length < 13)
+            // Validação baseada no método de pagamento
+            if (model.PaymentMethod == "pix")
             {
-                return new PaymentResult { Success = false, Message = "Número do cartão inválido" };
+                // Para PIX, gerar código e definir expiração
+                model.PixCode = GeneratePixCode();
+                model.PixExpirationTime = DateTime.Now.AddMinutes(5);
+                model.ShowPixQrCode = true;
+                return new PaymentResult { Success = true, Message = "PIX gerado com sucesso", RequiresPixConfirmation = true };
+            }
+            else if (model.PaymentMethod == "boleto")
+            {
+                // Para boleto, apenas aprovar
+                return new PaymentResult { Success = true, Message = "Boleto gerado com sucesso" };
+            }
+            else if (model.PaymentMethod == "credit_card" || model.PaymentMethod == "debit_card")
+            {
+                // Validação básica do cartão
+                if (string.IsNullOrEmpty(model.CardNumber) || model.CardNumber.Length < 13)
+                {
+                    return new PaymentResult { Success = false, Message = "Número do cartão inválido" };
+                }
+
+                if (string.IsNullOrEmpty(model.CardExpiry) || !IsValidExpiry(model.CardExpiry))
+                {
+                    return new PaymentResult { Success = false, Message = "Data de validade inválida" };
+                }
+
+                if (string.IsNullOrEmpty(model.CardCvv) || model.CardCvv.Length < 3)
+                {
+                    return new PaymentResult { Success = false, Message = "CVV inválido" };
+                }
+
+                // Simular falha aleatória (5% de chance)
+                var random = new Random();
+                if (random.Next(100) < 5)
+                {
+                    return new PaymentResult { Success = false, Message = "Pagamento recusado. Tente novamente." };
+                }
+
+                return new PaymentResult { Success = true, Message = "Pagamento aprovado" };
             }
 
-            if (string.IsNullOrEmpty(model.CardExpiry) || !IsValidExpiry(model.CardExpiry))
-            {
-                return new PaymentResult { Success = false, Message = "Data de validade inválida" };
-            }
-
-            if (string.IsNullOrEmpty(model.CardCvv) || model.CardCvv.Length < 3)
-            {
-                return new PaymentResult { Success = false, Message = "CVV inválido" };
-            }
-
-            // Simular falha aleatória (5% de chance)
-            var random = new Random();
-            if (random.Next(100) < 5)
-            {
-                return new PaymentResult { Success = false, Message = "Pagamento recusado. Tente novamente." };
-            }
-
-            return new PaymentResult { Success = true, Message = "Pagamento aprovado" };
+            return new PaymentResult { Success = false, Message = "Método de pagamento inválido" };
         }
 
         private async Task<Order> CreateOrder(CheckoutViewModel model, Cart cart, string sessionId)
         {
+            var paymentStatus = model.PaymentMethod == "pix" ? "Pending" : "Paid";
+            var orderStatus = model.PaymentMethod == "pix" ? "Awaiting Payment" : "Processing";
+            
             var order = new Order
             {
                 UserId = HttpContext.Session.GetInt32("UserId") ?? 1, // Usar usuário logado
                 OrderNumber = GenerateOrderNumber(),
                 OrderDate = DateTime.Now,
-                Status = "Pending",
+                Status = orderStatus,
                 ShippingAddress = model.ShippingAddress,
                 ShippingCity = model.ShippingCity,
                 ShippingZipCode = model.ShippingZipCode,
@@ -176,7 +215,7 @@ namespace EcommercePWA.Controllers
                 DiscountAmount = 0, // Desconto simulado - será implementado com cupons posteriormente
                 Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal),
                 PaymentMethod = model.PaymentMethod,
-                PaymentStatus = "Paid",
+                PaymentStatus = paymentStatus,
                 Notes = model.Notes
             };
 
@@ -258,11 +297,87 @@ namespace EcommercePWA.Controllers
         {
             return subtotal * 0.10m;
         }
+
+        private bool ValidatePaymentMethod(CheckoutViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.PaymentMethod))
+            {
+                ModelState.AddModelError("PaymentMethod", "Método de pagamento é obrigatório");
+                return false;
+            }
+
+            // Validar campos do cartão apenas se for cartão de crédito ou débito
+            if (model.PaymentMethod == "credit_card" || model.PaymentMethod == "debit_card")
+            {
+                if (string.IsNullOrEmpty(model.CardNumber))
+                {
+                    ModelState.AddModelError("CardNumber", "Número do cartão é obrigatório");
+                    return false;
+                }
+                if (string.IsNullOrEmpty(model.CardName))
+                {
+                    ModelState.AddModelError("CardName", "Nome no cartão é obrigatório");
+                    return false;
+                }
+                if (string.IsNullOrEmpty(model.CardExpiry))
+                {
+                    ModelState.AddModelError("CardExpiry", "Data de validade é obrigatória");
+                    return false;
+                }
+                if (string.IsNullOrEmpty(model.CardCvv))
+                {
+                    ModelState.AddModelError("CardCvv", "CVV é obrigatório");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private string GeneratePixCode()
+        {
+            // Gerar um código PIX simulado
+            var random = new Random();
+            var code = "";
+            for (int i = 0; i < 32; i++)
+            {
+                code += random.Next(0, 10).ToString();
+            }
+            return code;
+        }
+
+        // POST: /Checkout/ConfirmPixPayment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequireAuth]
+        public async Task<IActionResult> ConfirmPixPayment(CheckoutViewModel model)
+        {
+            try
+            {
+                var sessionId = GetSessionId();
+                var cart = _cartService.GetCart(sessionId);
+                
+                // Criar pedido
+                var order = await CreateOrder(model, cart, sessionId);
+                
+                // Limpar carrinho
+                _cartService.ClearCart(sessionId);
+                
+                // Redirecionar para confirmação
+                return RedirectToAction("Confirmation", new { orderId = order.Id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao confirmar pagamento PIX");
+                return Json(new { success = false, message = "Erro ao processar pagamento" });
+            }
+        }
     }
 
     public class PaymentResult
     {
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
+        public bool RequiresPixConfirmation { get; set; } = false;
     }
 }

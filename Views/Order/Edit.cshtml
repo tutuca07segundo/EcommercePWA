@@ -3,12 +3,12 @@
     ViewData["Title"] = "Editar Pedido";
 }
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8">
             <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Editar Status do Pedido #@Model.Id</h4>
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Editar Pedido #@Model.Id - @Model.OrderNumber</h4>
                 </div>
                 <div class="card-body">
                     @if (TempData["SuccessMessage"] != null)
@@ -25,28 +25,171 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     }
-                    <form asp-action="Edit" method="post">
+                    
+                    <form asp-action="UpdateOrder" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@Model.Id" />
-                        <div class="mb-3">
-                            <label class="form-label">Status</label>
-                            <select name="status" class="form-select">
-                                <option value="Pending" selected="@(Model.Status=="Pending")">Pendente</option>
-                                <option value="Processing" selected="@(Model.Status=="Processing")">Processando</option>
-                                <option value="Shipped" selected="@(Model.Status=="Shipped")">A caminho</option>
-                                <option value="Delivered" selected="@(Model.Status=="Delivered")">Entregue</option>
-                                <option value="Cancelled" selected="@(Model.Status=="Cancelled")">Cancelado</option>
-                            </select>
+                        
+                        <!-- Status e Pagamento -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5 class="text-primary mb-3">Status do Pedido</h5>
+                                <div class="mb-3">
+                                    <label class="form-label">Status do Pedido *</label>
+                                    <select name="status" class="form-select" required>
+                                        <option value="Pending" selected="@(Model.Status == "Pending")">Pendente</option>
+                                        <option value="Awaiting Payment" selected="@(Model.Status == "Awaiting Payment")">Aguardando Pagamento</option>
+                                        <option value="Processing" selected="@(Model.Status == "Processing")">Processando</option>
+                                        <option value="Shipped" selected="@(Model.Status == "Shipped")">Enviado</option>
+                                        <option value="Delivered" selected="@(Model.Status == "Delivered")">Entregue</option>
+                                        <option value="Cancelled" selected="@(Model.Status == "Cancelled")">Cancelado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="text-primary mb-3">Status do Pagamento</h5>
+                                <div class="mb-3">
+                                    <label class="form-label">Status do Pagamento *</label>
+                                    <select name="paymentStatus" class="form-select" required>
+                                        <option value="Pending" selected="@(Model.PaymentStatus == "Pending")">Pendente</option>
+                                        <option value="Paid" selected="@(Model.PaymentStatus == "Paid")">Pago</option>
+                                        <option value="Failed" selected="@(Model.PaymentStatus == "Failed")">Falhou</option>
+                                        <option value="Refunded" selected="@(Model.PaymentStatus == "Refunded")">Reembolsado</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informações de Entrega -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3">Informações de Entrega</h5>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Endereço de Entrega</label>
+                                    <input type="text" name="shippingAddress" class="form-control" value="@Model.ShippingAddress" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Cidade</label>
+                                    <input type="text" name="shippingCity" class="form-control" value="@Model.ShippingCity" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">CEP</label>
+                                    <input type="text" name="shippingZipCode" class="form-control" value="@Model.ShippingZipCode" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">País</label>
+                                    <input type="text" name="shippingCountry" class="form-control" value="@Model.ShippingCountry" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Observações -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3">Observações</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Observações do Pedido</label>
+                                <textarea name="notes" class="form-control" rows="3" placeholder="Adicione observações sobre o pedido...">@Model.Notes</textarea>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="@Url.Action("Orders", "Admin")" class="btn btn-outline-secondary">
+                            <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Voltar
                             </a>
                             <button type="submit" class="btn btn-warning">
-                                <i class="fas fa-save me-2"></i>Salvar
+                                <i class="fas fa-save me-2"></i>Salvar Alterações
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar com Informações do Pedido -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Informações do Pedido</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Cliente:</strong><br>
+                        @Model.User?.Name<br>
+                        <small class="text-muted">@Model.User?.Email</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Data do Pedido:</strong><br>
+                        @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Método de Pagamento:</strong><br>
+                        @switch (Model.PaymentMethod)
+                        {
+                            case "credit_card":
+                                <span>Cartão de Crédito</span>
+                                break;
+                            case "debit_card":
+                                <span>Cartão de Débito</span>
+                                break;
+                            case "pix":
+                                <span>PIX</span>
+                                break;
+                            case "boleto":
+                                <span>Boleto Bancário</span>
+                                break;
+                            default:
+                                <span>@Model.PaymentMethod</span>
+                                break;
+                        }
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Total do Pedido:</strong><br>
+                        <span class="h5 text-success">R$ @Model.Total.ToString("N2")</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Itens:</strong><br>
+                        <small>@Model.Items.Count item(s)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações Rápidas -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Ações Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        @if (Model.PaymentStatus == "Pending")
+                        {
+                            <a href="@Url.Action("Process", new { id = Model.Id, status = "Processing" })" class="btn btn-success btn-sm">
+                                <i class="fas fa-check me-2"></i>Confirmar Pagamento
+                            </a>
+                        }
+                        @if (Model.Status == "Processing")
+                        {
+                            <a href="@Url.Action("Process", new { id = Model.Id, status = "Shipped" })" class="btn btn-primary btn-sm">
+                                <i class="fas fa-shipping-fast me-2"></i>Marcar como Enviado
+                            </a>
+                        }
+                        @if (Model.Status == "Shipped")
+                        {
+                            <a href="@Url.Action("Process", new { id = Model.Id, status = "Delivered" })" class="btn btn-info btn-sm">
+                                <i class="fas fa-check-circle me-2"></i>Marcar como Entregue
+                            </a>
+                        }
+                        @if (Model.Status != "Cancelled" && Model.Status != "Delivered")
+                        {
+                            <a href="@Url.Action("Process", new { id = Model.Id, status = "Cancelled" })" class="btn btn-danger btn-sm" 
+                               onclick="return confirm('Tem certeza que deseja cancelar este pedido?')">
+                                <i class="fas fa-times me-2"></i>Cancelar Pedido
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </div>

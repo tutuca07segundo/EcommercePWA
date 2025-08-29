@@ -35,21 +35,22 @@ namespace EcommercePWA.Models
         [Required(ErrorMessage = "Método de pagamento é obrigatório")]
         public string PaymentMethod { get; set; } = string.Empty;
         
-        [Required(ErrorMessage = "Número do cartão é obrigatório")]
         [StringLength(20)]
         public string CardNumber { get; set; } = string.Empty;
         
-        [Required(ErrorMessage = "Nome no cartão é obrigatório")]
         [StringLength(100)]
         public string CardName { get; set; } = string.Empty;
         
-        [Required(ErrorMessage = "Data de validade é obrigatória")]
         [StringLength(5)]
         public string CardExpiry { get; set; } = string.Empty;
         
-        [Required(ErrorMessage = "CVV é obrigatório")]
         [StringLength(4)]
         public string CardCvv { get; set; } = string.Empty;
+        
+        // PIX Information
+        public string? PixCode { get; set; }
+        public DateTime? PixExpirationTime { get; set; }
+        public bool ShowPixQrCode { get; set; } = false;
         
         // Opções
         public bool SavePaymentInfo { get; set; } = false;

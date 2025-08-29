@@ -21,10 +21,71 @@
                             <a href="@Url.Action("Index", "Admin")" class="btn btn-light me-2">
                                 <i class="fas fa-arrow-left me-2"></i>Voltar
                             </a>
-                            <a href="@Url.Action("Index", "Order")" class="btn btn-warning">
+                            <a href="@Url.Action("Reports", "Order")" class="btn btn-warning me-2">
                                 <i class="fas fa-chart-bar me-2"></i>Relatórios
                             </a>
+                            <button type="button" class="btn btn-info" data-bs-toggle="collapse" data-bs-target="#searchFilters">
+                                <i class="fas fa-search me-2"></i>Filtros
+                            </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros de Busca -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="collapse" id="searchFilters">
+                <div class="card">
+                    <div class="card-body">
+                        <form asp-action="Search" asp-controller="Order" method="get">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Buscar</label>
+                                    <input type="text" name="query" class="form-control" placeholder="Cliente, email, número do pedido..." value="@ViewBag.Query">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select name="status" class="form-select">
+                                        <option value="">Todos</option>
+                                        <option value="Pending" selected="@(ViewBag.Status == "Pending")">Pendente</option>
+                                        <option value="Awaiting Payment" selected="@(ViewBag.Status == "Awaiting Payment")">Aguardando Pagamento</option>
+                                        <option value="Processing" selected="@(ViewBag.Status == "Processing")">Processando</option>
+                                        <option value="Shipped" selected="@(ViewBag.Status == "Shipped")">Enviado</option>
+                                        <option value="Delivered" selected="@(ViewBag.Status == "Delivered")">Entregue</option>
+                                        <option value="Cancelled" selected="@(ViewBag.Status == "Cancelled")">Cancelado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Pagamento</label>
+                                    <select name="paymentStatus" class="form-select">
+                                        <option value="">Todos</option>
+                                        <option value="Pending" selected="@(ViewBag.PaymentStatus == "Pending")">Pendente</option>
+                                        <option value="Paid" selected="@(ViewBag.PaymentStatus == "Paid")">Pago</option>
+                                        <option value="Failed" selected="@(ViewBag.PaymentStatus == "Failed")">Falhou</option>
+                                        <option value="Refunded" selected="@(ViewBag.PaymentStatus == "Refunded")">Reembolsado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Data Inicial</label>
+                                    <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Data Final</label>
+                                    <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate">
+                                </div>
+                                <div class="col-md-1 mb-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -60,10 +121,45 @@
                     }
                     else
                     {
+                        <!-- Ações em Lote -->
+                        <div class="mb-3">
+                            <form asp-action="BulkAction" asp-controller="Order" method="post" id="bulkActionForm">
+                                @Html.AntiForgeryToken()
+                                <div class="row align-items-end">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Ação em Lote:</label>
+                                        <select name="action" class="form-select" required>
+                                            <option value="">Selecione uma ação</option>
+                                            <option value="Processing">Marcar como Processando</option>
+                                            <option value="Shipped">Marcar como Enviado</option>
+                                            <option value="Delivered">Marcar como Entregue</option>
+                                            <option value="Cancelled">Cancelar Pedidos</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="submit" class="btn btn-warning" onclick="return confirmBulkAction()">
+                                            <i class="fas fa-cogs me-2"></i>Executar Ação
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary ms-2" onclick="toggleSelectAll()">
+                                            <i class="fas fa-check-square me-2"></i>Selecionar Todos
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6 text-end">
+                                        <small class="text-muted">
+                                            <span id="selectedCount">0</span> pedido(s) selecionado(s)
+                                        </small>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
+                                        <th width="30">
+                                            <input type="checkbox" id="selectAll" class="form-check-input">
+                                        </th>
                                         <th>ID</th>
                                         <th>Cliente</th>
                                         <th>Data</th>
@@ -77,6 +173,9 @@
                                     @foreach (var order in Model)
                                     {
                                         <tr>
+                                            <td>
+                                                <input type="checkbox" name="orderIds" value="@order.Id" class="form-check-input order-checkbox" form="bulkActionForm">
+                                            </td>
                                             <td>
                                                 <strong class="text-primary">#@order.Id</strong>
                                             </td>
@@ -166,3 +265,81 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Seleção em lote
+        let selectAllCheckbox = document.getElementById('selectAll');
+        let orderCheckboxes = document.querySelectorAll('.order-checkbox');
+        let selectedCountSpan = document.getElementById('selectedCount');
+
+        function updateSelectedCount() {
+            let selectedCount = document.querySelectorAll('.order-checkbox:checked').length;
+            selectedCountSpan.textContent = selectedCount;
+        }
+
+        function toggleSelectAll() {
+            let allSelected = selectAllCheckbox.checked;
+            orderCheckboxes.forEach(checkbox => {
+                checkbox.checked = !allSelected;
+            });
+            selectAllCheckbox.checked = !allSelected;
+            updateSelectedCount();
+        }
+
+        selectAllCheckbox.addEventListener('change', function() {
+            orderCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateSelectedCount();
+        });
+
+        orderCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectedCount();
+
+                // Atualizar estado do selectAll
+                let allChecked = Array.from(orderCheckboxes).every(cb => cb.checked);
+                let noneChecked = Array.from(orderCheckboxes).every(cb => !cb.checked);
+
+                if (allChecked) {
+                    selectAllCheckbox.checked = true;
+                    selectAllCheckbox.indeterminate = false;
+                } else if (noneChecked) {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = false;
+                } else {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = true;
+                }
+            });
+        });
+
+        function confirmBulkAction() {
+            let selectedOrders = document.querySelectorAll('.order-checkbox:checked');
+            let action = document.querySelector('select[name="action"]').value;
+
+            if (selectedOrders.length === 0) {
+                alert('Selecione pelo menos um pedido para executar a ação.');
+                return false;
+            }
+
+            if (!action) {
+                alert('Selecione uma ação para executar.');
+                return false;
+            }
+
+            let actionText = {
+                'Processing': 'marcar como processando',
+                'Shipped': 'marcar como enviado',
+                'Delivered': 'marcar como entregue',
+                'Cancelled': 'cancelar'
+            }[action] || action;
+
+            return confirm(`Tem certeza que deseja ${actionText} ${selectedOrders.length} pedido(s)?`);
+        }
+
+        // Inicializar contador
+        updateSelectedCount();
+    </script>
+}

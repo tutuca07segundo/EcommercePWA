@@ -1,0 +1,266 @@
+@model EcommercePWA.Models.CheckoutViewModel
+@{
+    ViewData["Title"] = "Pagamento PIX";
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-qrcode me-2"></i>Pagamento PIX
+                    </h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Escaneie o QR Code abaixo com o app do seu banco para realizar o pagamento</strong>
+                    </div>
+
+                    <!-- QR Code Section -->
+                    <div class="qr-code-section mb-4">
+                        <div class="qr-code-container p-4 border rounded bg-white d-inline-block">
+                            <div id="qrcode"></div>
+                        </div>
+                        <p class="mt-3 text-muted">
+                            <small>Use o aplicativo do seu banco para escanear o código QR</small>
+                        </p>
+                    </div>
+
+                    <!-- PIX Code -->
+                    <div class="pix-code-section mb-4">
+                        <h6>Ou copie o código PIX:</h6>
+                        <div class="input-group">
+                            <input type="text" class="form-control text-center" id="pixCode" value="@Model.PixCode" readonly>
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyPixCode()">
+                                <i class="fas fa-copy"></i> Copiar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Timer -->
+                    <div class="timer-section mb-4">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-clock me-2"></i>
+                            <strong>Tempo restante para pagamento:</strong>
+                            <div class="h4 mt-2" id="countdown">05:00</div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Instructions -->
+                    <div class="payment-instructions mb-4">
+                        <h6>Como pagar com PIX:</h6>
+                        <div class="row text-start">
+                            <div class="col-md-6">
+                                <ol class="list-unstyled">
+                                    <li><i class="fas fa-mobile-alt text-primary me-2"></i>1. Abra o app do seu banco</li>
+                                    <li><i class="fas fa-qrcode text-primary me-2"></i>2. Escaneie o QR Code</li>
+                                    <li><i class="fas fa-check text-primary me-2"></i>3. Confirme o pagamento</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-light">
+                                    <strong>Valor a pagar:</strong><br>
+                                    <span class="h5 text-success">R$ @Model.Cart.Total.ToString("N2")</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="@Url.Action("Index", "Checkout")" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar
+                        </a>
+                        <form asp-action="ConfirmPixPayment" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.ShippingName)
+                            @Html.HiddenFor(m => m.ShippingAddress)
+                            @Html.HiddenFor(m => m.ShippingCity)
+                            @Html.HiddenFor(m => m.ShippingZipCode)
+                            @Html.HiddenFor(m => m.ShippingCountry)
+                            @Html.HiddenFor(m => m.ShippingPhone)
+                            @Html.HiddenFor(m => m.PaymentMethod)
+                            @Html.HiddenFor(m => m.PixCode)
+                            @Html.HiddenFor(m => m.Notes)
+                            <button type="submit" class="btn btn-success btn-lg" id="confirmPayment">
+                                <i class="fas fa-check me-2"></i>Já Paguei - Confirmar Pedido
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Resumo do Pedido</h5>
+                </div>
+                <div class="card-body">
+                    <div class="order-summary">
+                        <!-- Itens do Carrinho -->
+                        <div class="cart-items mb-3">
+                            @foreach (var item in Model.Cart.Items)
+                            {
+                                <div class="cart-item d-flex justify-content-between align-items-center mb-2">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center">
+                                            <img src="@(string.IsNullOrEmpty(item.Product.ImageUrl) ? "/images/placeholder.jpg" : item.Product.ImageUrl)" 
+                                                 class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                            <div>
+                                                <small class="d-block">@item.Product.Name</small>
+                                                <small class="text-muted">Qtd: @item.Quantity</small>
+                                                @if (item.ProductVariation != null)
+                                                {
+                                                    <small class="text-muted d-block">@item.ProductVariation.Name</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="text-end">R$ @item.Total.ToString("N2")</span>
+                                </div>
+                            }
+                        </div>
+
+                        <hr>
+
+                        <!-- Totais -->
+                        <div class="totals">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>R$ @Model.Cart.Subtotal.ToString("N2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Frete:</span>
+                                <span>R$ @Model.Cart.ShippingCost.ToString("N2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Impostos:</span>
+                                <span>R$ @Model.Cart.TaxAmount.ToString("N2")</span>
+                            </div>
+                            
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong>Total:</strong>
+                                <strong class="h5 text-success mb-0">R$ @Model.Cart.Total.ToString("N2")</strong>
+                            </div>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <div class="payment-method mt-3">
+                            <div class="alert alert-success">
+                                <i class="fas fa-credit-card me-2"></i>
+                                <small>
+                                    <strong>Método de Pagamento:</strong><br>
+                                    PIX - Pagamento Instantâneo
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        // Gerar QR Code
+        document.addEventListener('DOMContentLoaded', function() {
+            const pixCode = '@Model.PixCode';
+            const qrCodeElement = document.getElementById('qrcode');
+            
+            QRCode.toCanvas(qrCodeElement, pixCode, {
+                width: 200,
+                height: 200,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function (error) {
+                if (error) {
+                    console.error('Erro ao gerar QR Code:', error);
+                    qrCodeElement.innerHTML = '<div class="alert alert-danger">Erro ao gerar QR Code</div>';
+                }
+            });
+        });
+
+        // Timer countdown
+        let timeLeft = 5 * 60; // 5 minutos em segundos
+        const countdownElement = document.getElementById('countdown');
+        const confirmButton = document.getElementById('confirmPayment');
+
+        function updateCountdown() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            
+            countdownElement.textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                countdownElement.textContent = '00:00';
+                countdownElement.parentElement.className = 'alert alert-danger';
+                countdownElement.parentElement.innerHTML = 
+                    '<i class="fas fa-exclamation-triangle me-2"></i><strong>Tempo esgotado!</strong><br>' +
+                    '<div class="h4 mt-2">00:00</div>';
+                confirmButton.disabled = true;
+                confirmButton.innerHTML = '<i class="fas fa-times me-2"></i>Tempo Esgotado';
+                clearInterval(timer);
+                
+                // Mostrar opção para gerar novo PIX
+                setTimeout(() => {
+                    if (confirm('O tempo para pagamento expirou. Deseja gerar um novo código PIX?')) {
+                        window.location.href = '@Url.Action("Index", "Checkout")';
+                    }
+                }, 1000);
+            } else {
+                timeLeft--;
+            }
+        }
+
+        const timer = setInterval(updateCountdown, 1000);
+        updateCountdown(); // Executar imediatamente
+
+        // Função para copiar código PIX
+        function copyPixCode() {
+            const pixCodeInput = document.getElementById('pixCode');
+            pixCodeInput.select();
+            pixCodeInput.setSelectionRange(0, 99999); // Para dispositivos móveis
+            
+            try {
+                document.execCommand('copy');
+                
+                // Feedback visual
+                const button = event.target.closest('button');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                button.className = 'btn btn-success';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.className = 'btn btn-outline-secondary';
+                }, 2000);
+            } catch (err) {
+                alert('Erro ao copiar código. Tente selecionar e copiar manualmente.');
+            }
+        }
+
+        // Simular confirmação automática de pagamento (para demonstração)
+        // Em um sistema real, isso seria feito via webhook do provedor de pagamento
+        let autoConfirmTimer = setTimeout(() => {
+            if (confirm('Pagamento detectado! Deseja confirmar o pedido automaticamente?')) {
+                document.querySelector('form[asp-action="ConfirmPixPayment"]').submit();
+            }
+        }, 30000); // 30 segundos para demonstração
+
+        // Cancelar auto-confirmação se usuário confirmar manualmente
+        confirmButton.addEventListener('click', () => {
+            clearTimeout(autoConfirmTimer);
+        });
+    </script>
+}

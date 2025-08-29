@@ -7,6 +7,7 @@ using EcommercePWA.Services;
 //Pedidos: /Admin/Orders
 //Usuários: /Admin/Users
 //Categorias: /Admin/Categories
+//taskkill /F /IM dotnet.exe ---> finaliza processo que ja esta rodando
 
 namespace EcommercePWA.Controllers
 {

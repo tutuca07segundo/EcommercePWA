@@ -1,0 +1,115 @@
+@model EcommercePWA.Models.Subcategory
+
+@{
+    ViewData["Title"] = "Criar Subcategoria";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus me-2"></i>Criar Nova Subcategoria
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                        
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                <h6>Erros de validação encontrados:</h6>
+                                <ul class="mb-0">
+                                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                    {
+                                        <li>@error.ErrorMessage</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Name" class="form-label">Nome da Subcategoria</label>
+                                    <input asp-for="Name" class="form-control" placeholder="Ex: Razer, Logitech, Redragon" autocomplete="off" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="CategoryId" class="form-label">Categoria Principal</label>
+                                    <select asp-for="CategoryId" class="form-select" required name="CategoryId" id="CategoryId">
+                                        <option value="">Selecione uma categoria</option>
+                                        @if (ViewBag.Categories != null)
+                                        {
+                                            @foreach (var category in ViewBag.Categories as List<EcommercePWA.Models.Category>)
+                                            {
+                                                <option value="@category.Id">@category.Name (ID: @category.Id)</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                                    
+                                    <!-- Debug: Mostrar valor selecionado -->
+                                    <small class="text-muted">Valor selecionado: <span id="selectedValue">Nenhum</span></small>
+                                </div>
+                                
+                                <script>
+                                document.getElementById('CategoryId').addEventListener('change', function() {
+                                    document.getElementById('selectedValue').textContent = this.value || 'Nenhum';
+                                });
+                                </script>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Descrição</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" 
+                                      placeholder="Descrição da subcategoria (opcional)" autocomplete="off"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="DisplayOrder" class="form-label">Ordem de Exibição</label>
+                                    <input asp-for="DisplayOrder" class="form-control" type="number" min="0" value="0" autocomplete="off" />
+                                    <small class="form-text text-muted">Menor número aparece primeiro</small>
+                                    <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch mt-4">
+                                        <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                                        <label asp-for="IsActive" class="form-check-label">
+                                            Subcategoria Ativa
+                                        </label>
+                                    </div>
+                                    <small class="form-text text-muted">Subcategorias inativas não aparecem no site</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Voltar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-1"></i>Criar Subcategoria
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

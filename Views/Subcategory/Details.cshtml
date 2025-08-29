@@ -1,0 +1,107 @@
+@model EcommercePWA.Models.Subcategory
+
+@{
+    ViewData["Title"] = "Detalhes da Subcategoria";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Detalhes da Subcategoria
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Informações Básicas</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>ID:</strong></td>
+                                    <td>@Model.Id</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Nome:</strong></td>
+                                    <td>@Model.Name</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Categoria:</strong></td>
+                                    <td><span class="badge bg-primary">@Model.Category.Name</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Descrição:</strong></td>
+                                    <td>@Model.Description</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ordem:</strong></td>
+                                    <td><span class="badge bg-secondary">@Model.DisplayOrder</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td>
+                                        @if (Model.IsActive)
+                                        {
+                                            <span class="badge bg-success">Ativo</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Inativo</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Produtos Associados</h5>
+                            @if (Model.Products.Any())
+                            {
+                                <div class="list-group">
+                                    @foreach (var product in Model.Products.Take(10))
+                                    {
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>@product.Name</strong>
+                                                <br>
+                                                <small class="text-muted">R$ @product.Price.ToString("N2")</small>
+                                            </div>
+                                            <span class="badge bg-info">@product.StockQuantity em estoque</span>
+                                        </div>
+                                    }
+                                    @if (Model.Products.Count > 10)
+                                    {
+                                        <div class="list-group-item text-center">
+                                            <small class="text-muted">E mais @(Model.Products.Count - 10) produto(s)...</small>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Nenhum produto associado a esta subcategoria.
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Voltar
+                        </a>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+                                <i class="fas fa-edit me-1"></i>Editar
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                                <i class="fas fa-trash me-1"></i>Excluir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

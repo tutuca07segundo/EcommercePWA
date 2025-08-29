@@ -49,14 +49,23 @@
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label asp-for="Category" class="form-label">Categoria *</label>
-                                    <select asp-for="Category" class="form-select">
+                                    <select asp-for="Category" class="form-select" id="categorySelect">
                                         <option value="">Selecione uma categoria</option>
                                         @foreach (var category in ViewBag.Categories)
                                         {
-                                            <option value="@category.Name">@category.Name</option>
+                                            <option value="@category.Name" data-category-id="@category.Id">@category.Name</option>
                                         }
                                     </select>
                                     <span asp-validation-for="Category" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="SubcategoryId" class="form-label">Subcategoria (Marca)</label>
+                                    <select asp-for="SubcategoryId" class="form-select" id="subcategorySelect" disabled>
+                                        <option value="">Primeiro selecione uma categoria</option>
+                                    </select>
+                                    <span asp-validation-for="SubcategoryId" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -140,6 +149,8 @@
         // Converter string de tags para array e vice-versa
         document.addEventListener('DOMContentLoaded', function() {
             const tagsInput = document.querySelector('input[name="Tags"]');
+            const categorySelect = document.getElementById('categorySelect');
+            const subcategorySelect = document.getElementById('subcategorySelect');
             
             // Converter array para string ao carregar
             if (tagsInput.value && tagsInput.value.startsWith('[')) {
@@ -150,6 +161,39 @@
                     console.log('Tags já estão em formato string');
                 }
             }
+
+            // Carregar subcategorias quando categoria for selecionada
+            categorySelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const categoryId = selectedOption.getAttribute('data-category-id');
+                
+                if (categoryId) {
+                    // Habilitar select de subcategoria
+                    subcategorySelect.disabled = false;
+                    subcategorySelect.innerHTML = '<option value="">Carregando...</option>';
+                    
+                    // Buscar subcategorias via AJAX
+                    fetch(`/Subcategory/GetByCategory?categoryId=${categoryId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            subcategorySelect.innerHTML = '<option value="">Selecione uma subcategoria (opcional)</option>';
+                            data.forEach(subcategory => {
+                                const option = document.createElement('option');
+                                option.value = subcategory.id;
+                                option.textContent = subcategory.name;
+                                subcategorySelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Erro ao carregar subcategorias:', error);
+                            subcategorySelect.innerHTML = '<option value="">Erro ao carregar subcategorias</option>';
+                        });
+                } else {
+                    // Desabilitar select de subcategoria
+                    subcategorySelect.disabled = true;
+                    subcategorySelect.innerHTML = '<option value="">Primeiro selecione uma categoria</option>';
+                }
+            });
         });
     </script>
 }

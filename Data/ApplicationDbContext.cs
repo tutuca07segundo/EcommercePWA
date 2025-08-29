@@ -14,6 +14,7 @@ namespace EcommercePWA.Data
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Subcategory> Subcategories { get; set; }
         public DbSet<ProductVariation> ProductVariations { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Order> Orders { get; set; }
@@ -93,6 +94,20 @@ namespace EcommercePWA.Data
             modelBuilder.Entity<PasswordResetRequest>()
                 .Property(p => p.Code)
                 .HasMaxLength(6);
+
+            // Configuração dos relacionamentos de Subcategory
+            modelBuilder.Entity<Subcategory>()
+                .HasOne(s => s.Category)
+                .WithMany(c => c.Subcategories)
+                .HasForeignKey(s => s.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configuração do relacionamento Product -> Subcategory
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Subcategory)
+                .WithMany(s => s.Products)
+                .HasForeignKey(p => p.SubcategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

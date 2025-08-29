@@ -1,4 +1,4 @@
-﻿@model EcommercePWA.Models.ProductViewModel
+@model EcommercePWA.Models.ProductViewModel
 @{
     ViewData["Title"] = "Kaboom - E-commerce de Periféricos e Peças";
 }
@@ -200,7 +200,7 @@
                 @foreach (var product in Model.Products)
                 {
                     <div class="col">
-                        <div class="card h-100 product-card">
+                        <div class="card h-100 product-card position-relative" style="cursor: pointer;" onclick="navigateToProduct(@product.Id, event)">
                             <div class="position-relative">
                                 <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/placeholder.jpg" : product.ImageUrl)" 
                                      class="card-img-top" alt="@product.Name" 
@@ -227,10 +227,8 @@
                                 <div class="mb-2">
                                     <small class="text-muted">@product.Brand</small>
                                 </div>
-                                <h6 class="card-title">
-                                    <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="text-decoration-none text-dark">
-                                        @product.Name
-                                    </a>
+                                <h6 class="card-title text-dark">
+                                    @product.Name
                                 </h6>
                                 <p class="card-text text-muted small flex-grow-1">@product.Description</p>
                                 
@@ -266,19 +264,16 @@
                                     <div class="d-grid gap-2">
                                         @if (Context.Session.GetInt32("UserId").HasValue)
                                         {
-                                            <button class="btn btn-warning btn-sm" onclick="addToCartFromHome(@product.Id)">
+                                            <button class="btn btn-warning btn-sm" onclick="addToCartFromHome(@product.Id); event.stopPropagation();">
                                                 <i class="fas fa-shopping-cart me-1"></i>Adicionar ao Carrinho
                                             </button>
                                         }
                                         else
                                         {
-                                            <button type="button" class="btn btn-warning btn-sm" onclick="redirectToLogin()">
+                                            <button type="button" class="btn btn-warning btn-sm" onclick="redirectToLogin(); event.stopPropagation();">
                                                 <i class="fas fa-sign-in-alt me-1"></i>Fazer Login para Comprar
                                             </button>
                                         }
-                                        <button class="btn btn-outline-secondary btn-sm" onclick="addToWishlist(@product.Id)">
-                                            <i class="fas fa-heart me-1"></i>Favoritar
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -383,6 +378,16 @@
                 window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
             }
 
+            function navigateToProduct(productId, event) {
+                // Verifica se o clique foi em um botão ou elemento interativo
+                if (event.target.closest('button') || event.target.closest('a')) {
+                    return; // Não navega se clicou em um botão
+                }
+                
+                // Navega para a página de detalhes do produto
+                window.location.href = '@Url.Action("Details", "Product")?id=' + productId;
+            }
+
         // Funcionalidade da Sidebar
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
@@ -417,9 +422,6 @@
             // Funcionalidade do carrossel de categorias
             const categoryCarousel = document.querySelector('.category-carousel');
 
-            function addToWishlist(productId) {
-                showAlert('info', 'Funcionalidade em desenvolvimento');
-            }
 
             if (categoryCarousel) {
                 let isDown = false;

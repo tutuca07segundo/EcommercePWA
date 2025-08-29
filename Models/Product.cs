@@ -25,6 +25,8 @@ namespace EcommercePWA.Models
         [StringLength(50)]
         public string Brand { get; set; } = string.Empty;
         
+        public int? SubcategoryId { get; set; }
+        
         [StringLength(500)]
         public string ImageUrl { get; set; } = string.Empty;
         
@@ -47,6 +49,7 @@ namespace EcommercePWA.Models
         public List<ProductVariation> Variations { get; set; } = new List<ProductVariation>();
         
         // Relacionamentos
+        public Subcategory? Subcategory { get; set; }
         public List<Review> Reviews { get; set; } = new List<Review>();
         public List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public List<CartItem> CartItems { get; set; } = new List<CartItem>();

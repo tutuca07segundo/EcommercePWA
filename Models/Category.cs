@@ -9,5 +9,8 @@ namespace EcommercePWA.Models
         public string Color { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
         public int DisplayOrder { get; set; }
+        
+        // Relacionamentos
+        public List<Subcategory> Subcategories { get; set; } = new List<Subcategory>();
     }
 }

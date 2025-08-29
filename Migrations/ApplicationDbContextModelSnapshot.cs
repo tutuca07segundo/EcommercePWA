@@ -15,7 +15,7 @@ namespace EcommercePWA.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.8");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
             modelBuilder.Entity("EcommercePWA.Models.Cart", b =>
                 {
@@ -417,6 +417,9 @@ namespace EcommercePWA.Migrations
                     b.Property<int>("StockQuantity")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("SubcategoryId")
+                        .HasColumnType("INTEGER");
+
                     b.PrimitiveCollection<string>("Tags")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -427,6 +430,8 @@ namespace EcommercePWA.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SubcategoryId");
 
                     b.ToTable("Products");
                 });
@@ -529,6 +534,38 @@ namespace EcommercePWA.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Reviews");
+                });
+
+            modelBuilder.Entity("EcommercePWA.Models.Subcategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Subcategories");
                 });
 
             modelBuilder.Entity("EcommercePWA.Models.User", b =>
@@ -689,6 +726,16 @@ namespace EcommercePWA.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("EcommercePWA.Models.Product", b =>
+                {
+                    b.HasOne("EcommercePWA.Models.Subcategory", "Subcategory")
+                        .WithMany("Products")
+                        .HasForeignKey("SubcategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Subcategory");
+                });
+
             modelBuilder.Entity("EcommercePWA.Models.ProductVariation", b =>
                 {
                     b.HasOne("EcommercePWA.Models.Product", "Product")
@@ -717,6 +764,17 @@ namespace EcommercePWA.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("EcommercePWA.Models.Subcategory", b =>
+                {
+                    b.HasOne("EcommercePWA.Models.Category", "Category")
+                        .WithMany("Subcategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("EcommercePWA.Models.WishlistItem", b =>
@@ -749,6 +807,11 @@ namespace EcommercePWA.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("EcommercePWA.Models.Category", b =>
+                {
+                    b.Navigation("Subcategories");
+                });
+
             modelBuilder.Entity("EcommercePWA.Models.Coupon", b =>
                 {
                     b.Navigation("Orders");
@@ -772,6 +835,11 @@ namespace EcommercePWA.Migrations
                     b.Navigation("Variations");
 
                     b.Navigation("WishlistItems");
+                });
+
+            modelBuilder.Entity("EcommercePWA.Models.Subcategory", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("EcommercePWA.Models.User", b =>

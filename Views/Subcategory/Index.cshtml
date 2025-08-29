@@ -1,0 +1,117 @@
+@model IEnumerable<EcommercePWA.Models.Subcategory>
+
+@{
+    ViewData["Title"] = "Gerenciar Subcategorias";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center">
+                    <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary me-3">
+                        <i class="fas fa-arrow-left me-1"></i>Voltar ao Admin
+                    </a>
+                    <h2 class="mb-0">
+                        <i class="fas fa-tags me-2"></i>Gerenciar Subcategorias
+                    </h2>
+                </div>
+                <a asp-action="Create" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i>Nova Subcategoria
+                </a>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-body">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nome</th>
+                                        <th>Categoria</th>
+                                        <th>Descrição</th>
+                                        <th>Ordem</th>
+                                        <th>Status</th>
+                                        <th>Produtos</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@item.Id</td>
+                                            <td>
+                                                <strong>@item.Name</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">@item.Category.Name</span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">@item.Description</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">@item.DisplayOrder</span>
+                                            </td>
+                                            <td>
+                                                @if (item.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Ativo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Inativo</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">@item.Products.Count</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@item.Id" 
+                                                       class="btn btn-sm btn-outline-info" title="Detalhes">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@item.Id" 
+                                                       class="btn btn-sm btn-outline-warning" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@item.Id" 
+                                                       class="btn btn-sm btn-outline-danger" title="Excluir">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">Nenhuma subcategoria encontrada</h4>
+                            <p class="text-muted">Comece criando sua primeira subcategoria.</p>
+                            <a asp-action="Create" class="btn btn-success">
+                                <i class="fas fa-plus me-1"></i>Criar Primeira Subcategoria
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

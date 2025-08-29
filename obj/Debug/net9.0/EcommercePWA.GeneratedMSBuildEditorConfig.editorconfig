@@ -172,6 +172,26 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Pedro/Desktop/a/EcommercePWA/Views/Subcategory/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViY2F0ZWdvcnlcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Pedro/Desktop/a/EcommercePWA/Views/Subcategory/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViY2F0ZWdvcnlcRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Pedro/Desktop/a/EcommercePWA/Views/Subcategory/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViY2F0ZWdvcnlcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Pedro/Desktop/a/EcommercePWA/Views/Subcategory/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViY2F0ZWdvcnlcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Pedro/Desktop/a/EcommercePWA/Views/Subcategory/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViY2F0ZWdvcnlcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Pedro/Desktop/a/EcommercePWA/Views/User/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 

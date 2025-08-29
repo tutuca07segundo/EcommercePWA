@@ -13,6 +13,7 @@ builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<DataSeederService>();
 
 // Add session support
 builder.Services.AddDistributedMemoryCache();
@@ -55,10 +56,15 @@ using (var scope = app.Services.CreateScope())
         // Inicializar cupons
         await couponService.InitializeDatabaseAsync();
         
+        // Inicializar subcategorias
+        var dataSeeder = services.GetRequiredService<DataSeederService>();
+        await dataSeeder.SeedSubcategoriesAsync();
+        
         Console.WriteLine("✅ Banco de dados inicializado com sucesso!");
         Console.WriteLine("👤 Usuário admin: admin@kaboom.com / admin123");
         Console.WriteLine("📦 Produtos e categorias carregados");
         Console.WriteLine("🎫 Cupons carregados");
+        Console.WriteLine("🏷️ Subcategorias carregadas");
     }
     catch (Exception ex)
     {

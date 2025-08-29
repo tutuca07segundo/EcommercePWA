@@ -222,20 +222,53 @@ namespace EcommercePWA.Controllers
             try
             {
                 var processedCount = 0;
-                foreach (var orderId in orderIds)
+                
+                if (action == "Delete")
                 {
-                    try
+                    // Exclusão de pedidos
+                    foreach (var orderId in orderIds)
                     {
-                        await _orderService.UpdateOrderStatus(orderId, action);
-                        processedCount++;
+                        try
+                        {
+                            var order = await _context.Orders
+                                .Include(o => o.Items)
+                                .FirstOrDefaultAsync(o => o.Id == orderId);
+                            
+                            if (order != null)
+                            {
+                                _context.OrderItems.RemoveRange(order.Items);
+                                _context.Orders.Remove(order);
+                                processedCount++;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Erro ao excluir pedido {OrderId}", orderId);
+                        }
                     }
-                    catch (Exception ex)
+                    
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = $"{processedCount} pedido(s) excluído(s) com sucesso";
+                }
+                else
+                {
+                    // Outras ações (status)
+                    foreach (var orderId in orderIds)
                     {
-                        _logger.LogError(ex, "Erro ao processar pedido {OrderId} na ação em lote", orderId);
+                        try
+                        {
+                            await _orderService.UpdateOrderStatus(orderId, action);
+                            processedCount++;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Erro ao processar pedido {OrderId} na ação em lote", orderId);
+                        }
                     }
+                    
+                    TempData["SuccessMessage"] = $"{processedCount} pedido(s) processado(s) com sucesso";
                 }
                 
-                TempData["SuccessMessage"] = $"{processedCount} pedido(s) processado(s) com sucesso";
                 if (processedCount < orderIds.Length)
                 {
                     TempData["WarningMessage"] = $"{orderIds.Length - processedCount} pedido(s) não puderam ser processados";
@@ -295,6 +328,46 @@ namespace EcommercePWA.Controllers
             ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             
             return View("Index", orders);
+        }
+
+        // POST: /Order/Delete - Excluir pedido individual
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequireAuth]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (HttpContext.Session.GetString("UserRole") != "Admin")
+                return Forbid();
+
+            try
+            {
+                var order = await _context.Orders
+                    .Include(o => o.Items)
+                    .FirstOrDefaultAsync(o => o.Id == id);
+
+                if (order == null)
+                {
+                    TempData["ErrorMessage"] = "Pedido não encontrado";
+                    return RedirectToAction("Orders", "Admin");
+                }
+
+                // Remover itens do pedido primeiro
+                _context.OrderItems.RemoveRange(order.Items);
+                
+                // Remover o pedido
+                _context.Orders.Remove(order);
+                
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Pedido #{order.Id} excluído com sucesso";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir pedido {OrderId}", id);
+                TempData["ErrorMessage"] = "Erro ao excluir pedido";
+            }
+
+            return RedirectToAction("Orders", "Admin");
         }
     }
 

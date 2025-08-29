@@ -134,6 +134,7 @@
                                             <option value="Shipped">Marcar como Enviado</option>
                                             <option value="Delivered">Marcar como Entregue</option>
                                             <option value="Cancelled">Cancelar Pedidos</option>
+                                            <option value="Delete">Excluir Pedidos</option>
                                         </select>
                                     </div>
                                     <div class="col-md-3">
@@ -252,6 +253,9 @@
                                                     <a class="btn btn-outline-success btn-sm" href="@Url.Action("Process", "Order", new { id = order.Id })" title="Processar">
                                                         <i class="fas fa-check"></i>
                                                     </a>
+                                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteOrder(@order.Id)" title="Excluir Pedido">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -333,10 +337,38 @@
                 'Processing': 'marcar como processando',
                 'Shipped': 'marcar como enviado',
                 'Delivered': 'marcar como entregue',
-                'Cancelled': 'cancelar'
+                'Cancelled': 'cancelar',
+                'Delete': 'excluir permanentemente'
             }[action] || action;
 
             return confirm(`Tem certeza que deseja ${actionText} ${selectedOrders.length} pedido(s)?`);
+        }
+
+        // Função para excluir pedido individual
+        function deleteOrder(orderId) {
+            if (confirm('Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.')) {
+                // Criar form dinâmico para enviar POST
+                let form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("Delete", "Order")';
+                
+                // Token antiforgery
+                let token = document.createElement('input');
+                token.type = 'hidden';
+                token.name = '__RequestVerificationToken';
+                token.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                form.appendChild(token);
+                
+                // ID do pedido
+                let idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = orderId;
+                form.appendChild(idInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
 
         // Inicializar contador

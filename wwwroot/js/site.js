@@ -134,48 +134,92 @@ function initializeProductCards() {
 
 // Adicionar ao carrinho
 function addToCart(button) {
+    const productCard = button.closest('.product-card, .product-detail');
+    const productId = button.dataset.productId;
+    const productName = productCard.querySelector('.product-title, h1')?.textContent || 'Produto';
+    
+    // Obter preço base do produto
+    const priceElement = document.getElementById('unitPrice') || document.querySelector('.product-price, .price');
+    const productPrice = priceElement ? 
+        parseFloat(priceElement.textContent.replace(/[^0-9,-]+/g, '').replace('.', '').replace(',', '.')) : 0;
+    
+    // Obter quantidade (usar o valor do input de quantidade ou 1 como padrão)
+    const quantityInput = document.getElementById('quantity');
+    const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+    
+    // Obter variação selecionada, se houver
+    const variationSelect = document.querySelector('input[name="variationId"]:checked');
+    const variationId = variationSelect ? parseInt(variationSelect.value) : null;
+    const variationName = variationSelect ? 
+        variationSelect.parentElement.textContent.trim() : null;
+    
+    // Verificar se o usuário está logado
+    const isLoggedIn = document.body.getAttribute('data-user-authenticated') === 'True';
+    
+    // Mostrar loading no botão
     const originalText = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Adicionando...';
     button.disabled = true;
-    button.classList.add('loading');
-
-    // Obter o ID do produto e da variação
-    const productId = button.getAttribute('data-product-id');
-    const variationId = button.getAttribute('data-variation-id');
-    const quantity = document.getElementById('quantity')?.value || 1;
-
-    // Dados para envio
-    const data = {
-        productId: productId,
-        variationId: variationId || null,
-        quantity: parseInt(quantity) || 1
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Adicionando...';
+    button.classList.remove('btn-warning');
+    button.classList.add('btn-success', 'loading');
+    
+    // Preparar dados do produto para adicionar ao carrinho
+    const productData = {
+        productId: parseInt(productId),
+        variationId: variationId,
+        quantity: quantity,
+        productName: productName,
+        productPrice: productPrice,
+        variationName: variationName,
+        returnUrl: window.location.pathname + window.location.search
     };
-
-    // Enviar para o servidor
+    
+    if (!isLoggedIn) {
+        // Armazenar os dados do produto para adicionar após o login
+        sessionStorage.setItem('pendingAddToCart', JSON.stringify(productData));
+        
+        // Redirecionar para a página de login
+        window.location.href = '/Auth/Login?returnUrl=' + encodeURIComponent(productData.returnUrl);
+        return;
+    }
+    
+    // Adicionar ao carrinho via AJAX
     fetch('/Cart/AddToCart', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify({
+            productId: parseInt(productId),
+            variationId: variationId,
+            quantity: quantity
+        })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.message || 'Erro ao adicionar ao carrinho');
+            });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             // Atualizar contador do carrinho
-            const cartCount = document.getElementById('cartCount');
-            if (cartCount) {
-                const currentCount = parseInt(cartCount.textContent) || 0;
-                cartCount.textContent = currentCount + (parseInt(quantity) || 1);
+            updateCartCount(data.cartItemCount);
+            
+            // Mostrar notificação com detalhes da variação, se houver
+            let message = 'Produto adicionado ao carrinho!';
+            if (variationName) {
+                message += ` (${variationName})`;
             }
+            showNotification(message, 'success');
             
-            button.innerHTML = '<i class="fas fa-check me-1"></i>Adicionado!';
-            button.classList.remove('btn-warning', 'loading');
-            button.classList.add('btn-success');
-            
-            // Mostrar notificação
-            showNotification(data.message || 'Produto adicionado ao carrinho!', 'success');
+            // Atualizar o carrinho na interface, se necessário
+            if (typeof updateCartTotals === 'function') {
+                updateCartTotals(data);
+            }
         } else {
             throw new Error(data.message || 'Erro ao adicionar ao carrinho');
         }

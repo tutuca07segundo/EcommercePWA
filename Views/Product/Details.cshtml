@@ -497,24 +497,31 @@
     });
 
              function addToCartFromHome(productId) {
-                @if (!Context.Session.GetInt32("UserId").HasValue)
-                {
-                    <text>
-                    const returnUrl = window.location.pathname + window.location.search;
-                    window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
-                    return;
-                    </text>
-                }
-                // Se logado, segue fluxo normal
-                let qt = document.getElementById("quantity").value
-                if (qt <= 0){
-                    qt = 0
-                }
-                const data = {
-                    productId: productId,
-                    variationId: null,
-                    quantity: qt
-                };
+               @if (!Context.Session.GetInt32("UserId").HasValue)
+               {
+                   <text>
+                   const returnUrl = window.location.pathname + window.location.search;
+                   window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
+                   return;
+                   </text>
+               }
+               // Se logado, segue fluxo normal
+               let qt = document.getElementById("quantity").value
+               if (qt <= 0){
+                   qt = 0
+               }
+               
+               // Obter a variação selecionada, se houver
+               const variationSelect = document.querySelector('input[name="variationId"]:checked');
+               const variationId = variationSelect ? parseInt(variationSelect.value) : null;
+               
+               const data = {
+                   productId: productId,
+                   variationId: variationId,
+                   quantity: qt
+               };
+               
+               console.log('Dados do carrinho:', data);
 
                 fetch('@Url.Action("AddToCart", "Cart")', {
                     method: 'POST',

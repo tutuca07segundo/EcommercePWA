@@ -27,7 +27,7 @@ namespace EcommercePWA.Controllers
                 var sessionId = GetSessionId();
                 var cart = _cartService.GetCart(sessionId);
                 
-                // Carregar dados completos dos produtos
+                // Carregar dados completos dos produtos e atualizar preços
                 var cartItems = new List<CartItem>();
                 foreach (var item in cart.Items)
                 {
@@ -38,6 +38,19 @@ namespace EcommercePWA.Controllers
                         if (item.ProductVariationId.HasValue)
                         {
                             item.ProductVariation = product.Variations.FirstOrDefault(v => v.Id == item.ProductVariationId);
+                            // Atualizar o preço unitário com base na variação
+                            if (item.ProductVariation?.PriceModifier.HasValue == true)
+                            {
+                                item.UnitPrice = product.Price + item.ProductVariation.PriceModifier.Value;
+                            }
+                            else
+                            {
+                                item.UnitPrice = product.Price;
+                            }
+                        }
+                        else
+                        {
+                            item.UnitPrice = product.Price;
                         }
                     }
                     cartItems.Add(item);

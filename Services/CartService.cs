@@ -54,6 +54,11 @@ namespace EcommercePWA.Services
                     _context.Carts.Add(cart);
                     _context.SaveChanges();
                 }
+                else
+                {
+                    // Atualizar preços com base nas variações
+                    UpdateCartPrices(cart);
+                }
 
                 return cart;
             }
@@ -136,6 +141,30 @@ namespace EcommercePWA.Services
                 }
                 else
                 {
+                    // Obter o produto e a variação para garantir que o preço esteja correto
+                    var product = _productService.GetProductByIdAsync(item.ProductId).Result;
+                    if (product != null)
+                    {
+                        item.Product = product;
+                        if (item.ProductVariationId.HasValue)
+                        {
+                            item.ProductVariation = product.Variations.FirstOrDefault(v => v.Id == item.ProductVariationId);
+                            // Atualizar o preço unitário com base na variação
+                            if (item.ProductVariation?.PriceModifier.HasValue == true)
+                            {
+                                item.UnitPrice = product.Price + item.ProductVariation.PriceModifier.Value;
+                            }
+                            else
+                            {
+                                item.UnitPrice = product.Price;
+                            }
+                        }
+                        else
+                        {
+                            item.UnitPrice = product.Price;
+                        }
+                    }
+                    
                     item.Quantity = quantity;
                     cart.LastUpdated = DateTime.Now;
                     _context.SaveChanges();
@@ -292,6 +321,30 @@ namespace EcommercePWA.Services
                 }
             }
             return product.Price;
+        }
+
+        private void UpdateCartPrices(Cart cart)
+        {
+            bool needsSave = false;
+            
+            foreach (var item in cart.Items)
+            {
+                if (item.Product != null)
+                {
+                    decimal newPrice = GetItemPrice(item.Product, item.ProductVariationId);
+                    if (item.UnitPrice != newPrice)
+                    {
+                        item.UnitPrice = newPrice;
+                        needsSave = true;
+                    }
+                }
+            }
+            
+            if (needsSave)
+            {
+                cart.LastUpdated = DateTime.Now;
+                _context.SaveChanges();
+            }
         }
     }
 }

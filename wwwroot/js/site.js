@@ -1,4 +1,4 @@
-﻿// Funcionalidades do E-commerce Kaboom
+// Funcionalidades do E-commerce Kaboom
 
 // Função para inicializar todas as funcionalidades
 document.addEventListener('DOMContentLoaded', function() {
@@ -139,23 +139,60 @@ function addToCart(button) {
     button.disabled = true;
     button.classList.add('loading');
 
-    // Simular adição ao carrinho
-    setTimeout(() => {
-        button.innerHTML = '<i class="fas fa-check me-1"></i>Adicionado!';
-        button.classList.remove('btn-warning', 'loading');
-        button.classList.add('btn-success');
-        
-        // Mostrar notificação
-        showNotification('Produto adicionado ao carrinho!', 'success');
-        
+    // Obter o ID do produto e da variação
+    const productId = button.getAttribute('data-product-id');
+    const variationId = button.getAttribute('data-variation-id');
+    const quantity = document.getElementById('quantity')?.value || 1;
+
+    // Dados para envio
+    const data = {
+        productId: productId,
+        variationId: variationId || null,
+        quantity: parseInt(quantity) || 1
+    };
+
+    // Enviar para o servidor
+    fetch('/Cart/AddToCart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Atualizar contador do carrinho
+            const cartCount = document.getElementById('cartCount');
+            if (cartCount) {
+                const currentCount = parseInt(cartCount.textContent) || 0;
+                cartCount.textContent = currentCount + (parseInt(quantity) || 1);
+            }
+            
+            button.innerHTML = '<i class="fas fa-check me-1"></i>Adicionado!';
+            button.classList.remove('btn-warning', 'loading');
+            button.classList.add('btn-success');
+            
+            // Mostrar notificação
+            showNotification(data.message || 'Produto adicionado ao carrinho!', 'success');
+        } else {
+            throw new Error(data.message || 'Erro ao adicionar ao carrinho');
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showNotification(error.message || 'Erro ao adicionar ao carrinho', 'danger');
+    })
+    .finally(() => {
         // Resetar botão após 2 segundos
         setTimeout(() => {
             button.innerHTML = originalText;
             button.disabled = false;
-            button.classList.remove('btn-success');
+            button.classList.remove('btn-success', 'loading');
             button.classList.add('btn-warning');
         }, 2000);
-    }, 1000);
+    });
 }
 
 // Toggle favorito
@@ -413,31 +450,151 @@ function shareProduct(productName, productUrl) {
 // ===== Produto: Preço dinâmico por variação/quantidade =====
 function updatePrices(basePrice, variationPriceModifier) {
     try {
+        console.log('updatePrices - Entrada - basePrice:', basePrice, 'type:', typeof basePrice, '| modifier:', variationPriceModifier, 'type:', typeof variationPriceModifier);
+        
         const qtyInput = document.getElementById('quantity');
         const qty = Math.max(1, parseInt(qtyInput?.value || '1'));
-        const unit = (parseFloat(basePrice) + (parseFloat(variationPriceModifier) || 0));
+        
+        // Garantir que basePrice seja um número
+        let base = 0;
+        if (typeof basePrice === 'number') {
+            base = basePrice;
+        } else if (typeof basePrice === 'string') {
+            // Se for string, converter para número
+            base = parseFloat(basePrice.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+        
+        // Garantir que o modificador seja um número
+        let modifier = 0;
+        if (typeof variationPriceModifier === 'number') {
+            modifier = variationPriceModifier;
+        } else if (typeof variationPriceModifier === 'string') {
+            modifier = parseFloat(variationPriceModifier.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+        
+        console.log('DEBUG - Valores processados - Base:', base, '| Modificador:', modifier);
+        
+        // Calcular preço unitário (preço base + modificador)
+        const unitPrice = parseFloat((base + modifier).toFixed(2));
+        console.log('DEBUG - Preço unitário calculado:', unitPrice);
+        const totalPrice = unitPrice * qty;
+        
+        // Formatando para o padrão brasileiro (R$ 1.234,56)
+        const formatCurrency = (value) => {
+            return 'R$ ' + value.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        };
+        
+        // Atualizar os elementos na página
         const unitSpan = document.getElementById('unitPrice');
         const totalSpan = document.getElementById('totalPrice');
-        if (unitSpan) unitSpan.textContent = unit.toFixed(2).replace('.', ',');
-        if (totalSpan) totalSpan.textContent = (unit * qty).toFixed(2).replace('.', ',');
+        const priceElement = document.querySelector('.product-price');
+        
+        if (unitSpan) unitSpan.textContent = formatCurrency(unitPrice);
+        if (totalSpan) totalSpan.textContent = formatCurrency(totalPrice);
+        if (priceElement) priceElement.textContent = formatCurrency(unitPrice);
+        
     } catch (e) {
         console.error('Falha ao atualizar preços', e);
     }
 }
 
+// Armazenar o preço base como uma variável no escopo do módulo
+let _basePrice = 0;
+let _isBasePriceInitialized = false;
+
 function bindVariationAndQuantityHandlers(basePrice) {
+    console.log('bindVariationAndQuantityHandlers - Preço base recebido:', basePrice, 'Tipo:', typeof basePrice);
+    
     const qtyInput = document.getElementById('quantity');
     const radios = document.querySelectorAll('input[name="variationId"]');
+    
+    // Atualizar o preço base apenas se for um número válido e não for zero
+    if (basePrice !== undefined && basePrice !== null && basePrice !== 0) {
+        const newBasePrice = parseFloat(basePrice);
+        if (!isNaN(newBasePrice)) {
+            _basePrice = newBasePrice;
+            _isBasePriceInitialized = true;
+            console.log('Preço base definido para:', _basePrice);
+        }
+    }
+    
+    // Se o preço base não foi inicializado, tentar obter do elemento HTML
+    if (!_isBasePriceInitialized) {
+        const priceElement = document.querySelector('.product-price');
+        if (priceElement) {
+            const priceText = priceElement.textContent.replace(/[^0-9,-]/g, '').replace(',', '.');
+            const priceFromElement = parseFloat(priceText);
+            if (!isNaN(priceFromElement) && priceFromElement > 0) {
+                _basePrice = priceFromElement;
+                _isBasePriceInitialized = true;
+                console.log('Preço base obtido do elemento HTML:', _basePrice);
+            }
+        }
+    }
+    
+    // Função para obter o modificador de preço da variação selecionada
     const getSelectedModifier = () => {
         const selected = document.querySelector('input[name="variationId"]:checked');
-        const modifier = selected?.getAttribute('data-modifier') || '0';
-        return parseFloat(modifier) || 0;
+        if (!selected) return 0;
+        
+        const modifier = selected.getAttribute('data-modifier');
+        if (!modifier || modifier.trim() === '') return 0;
+        
+        // Converte o modificador para número, tratando vírgula como separador decimal
+        const modifierStr = modifier.toString().replace(/\./g, '').replace(',', '.');
+        const modifierValue = parseFloat(modifierStr);
+        
+        console.log('Selected variation modifier:', modifier, 'Parsed:', modifierValue);
+        return isNaN(modifierValue) ? 0 : modifierValue;
     };
+    
+    // Função para atualizar a exibição do preço
+    const updatePriceDisplay = () => {
+        // Garantir que temos um preço base válido
+        const currentBasePrice = _isBasePriceInitialized ? _basePrice : 0;
+        
+        console.log('updatePriceDisplay - Preço base atual:', currentBasePrice, 'Tipo:', typeof currentBasePrice);
+        
+        const modifier = getSelectedModifier();
+        console.log('updatePriceDisplay - Modificador:', modifier, 'Tipo:', typeof modifier);
+        
+        // Atualizar os preços com o preço base atual
+        updatePrices(currentBasePrice, modifier);
+        
+        // Atualizar o botão de adicionar ao carrinho com o ID da variação
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        if (addToCartBtn) {
+            const selectedVariation = document.querySelector('input[name="variationId"]:checked');
+            if (selectedVariation) {
+                addToCartBtn.setAttribute('data-variation-id', selectedVariation.value);
+            } else {
+                addToCartBtn.removeAttribute('data-variation-id');
+            }
+        }
+    };
+    
+    // Adicionar eventos de mudança
     if (qtyInput) {
-        qtyInput.addEventListener('input', () => updatePrices(basePrice, getSelectedModifier()));
+        qtyInput.addEventListener('input', updatePriceDisplay);
     }
-    radios.forEach(r => r.addEventListener('change', () => updatePrices(basePrice, getSelectedModifier())));
-    updatePrices(basePrice, getSelectedModifier());
+    
+    // Adicionar eventos para as variações
+    if (radios.length > 0) {
+        radios.forEach(radio => {
+            radio.addEventListener('change', updatePriceDisplay);
+        });
+        
+        // Selecionar a primeira variação por padrão se nenhuma estiver selecionada
+        if (!document.querySelector('input[name="variationId"]:checked') && radios.length > 0) {
+            radios[0].checked = true;
+        }
+    }
+    
+    // Atualizar preço inicial
+    updatePriceDisplay();
 }
 
 // Função para comparar produtos

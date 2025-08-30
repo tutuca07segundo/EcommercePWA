@@ -145,7 +145,8 @@
                             {
                                 <div class="variation-item">
                                     <input type="radio" class="btn-check" name="variationId" 
-                                           id="variation_@variation.Id" value="@variation.Id" data-modifier="@variation.PriceModifier"
+                                           id="variation_@variation.Id" value="@variation.Id" 
+                                           data-modifier="@(variation.PriceModifier?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "0")"
                                            @(variation.Id == Model.Variations.First().Id ? "checked" : "")>
                                     <label class="btn btn-outline-primary" for="variation_@variation.Id">
                                         @variation.Name
@@ -478,8 +479,21 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const base = parseFloat('@Model.Product.Price'.replace(',', '.'));
-        bindVariationAndQuantityHandlers(base);
+        // Obter o preço diretamente do modelo como número
+        const basePrice = @Json.Serialize(Model.Product.Price);
+        console.log('Preço base carregado do modelo:', basePrice, 'Tipo:', typeof basePrice);
+        
+        // Garantir que o preço base seja um número válido
+        if (isNaN(basePrice)) {
+            console.error('Erro: Preço base inválido');
+            return;
+        }
+        
+        // Inicializar os manipuladores com o preço base
+        // Usando setTimeout para garantir que o DOM esteja totalmente carregado
+        setTimeout(() => {
+            bindVariationAndQuantityHandlers(basePrice);
+        }, 100);
     });
 
              function addToCartFromHome(productId) {

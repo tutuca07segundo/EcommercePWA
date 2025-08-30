@@ -5,6 +5,7 @@ using EcommercePWA.Attributes;
 
 namespace EcommercePWA.Controllers
 {
+    [RequireAdmin]
     public class UserController : Controller
     {
         private readonly IAuthService _authService;
@@ -16,21 +17,15 @@ namespace EcommercePWA.Controllers
             _logger = logger;
         }
 
-        [RequireAuth]
         public async Task<IActionResult> Details(int id)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-                return Forbid();
             var user = await _authService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
             return View(user);
         }
 
-        [RequireAuth]
         public async Task<IActionResult> Edit(int id)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-                return Forbid();
             var user = await _authService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
             user.Password = string.Empty; // não exibir hash
@@ -39,11 +34,8 @@ namespace EcommercePWA.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [RequireAuth]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Password")] User user)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-                return Forbid();
             if (id != user.Id) return NotFound();
 
             var updated = await _authService.UpdateUserAsync(user);
@@ -56,11 +48,8 @@ namespace EcommercePWA.Controllers
             return RedirectToAction("Users", "Admin");
         }
 
-        [RequireAuth]
         public async Task<IActionResult> Delete(int id)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-                return Forbid();
             var user = await _authService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
             return View(user);
@@ -68,21 +57,15 @@ namespace EcommercePWA.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [RequireAuth]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-                return Forbid();
             var ok = await _authService.SoftDeleteUserAsync(id);
             TempData[ok ? "SuccessMessage" : "ErrorMessage"] = ok ? "Usuário excluído com sucesso" : "Erro ao excluir usuário";
             return RedirectToAction("Users", "Admin");
         }
 
-        [RequireAuth]
         public async Task<IActionResult> ToggleAdmin(int id)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-                return Forbid();
             var ok = await _authService.PromoteToAdminAsync(id);
             TempData[ok ? "SuccessMessage" : "ErrorMessage"] = ok ? "Usuário promovido a administrador" : "Erro ao promover usuário";
             return RedirectToAction("Users", "Admin");

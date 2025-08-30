@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
+using EcommercePWA.Attributes;
 //Dashboard: /Admin
 //Produtos: /Admin/Products
 //Cupons: /Admin/Coupons
@@ -11,6 +12,7 @@ using EcommercePWA.Services;
 
 namespace EcommercePWA.Controllers
 {
+    [RequireAdmin]
     public class AdminController : Controller
     {
         private readonly IProductService _productService;

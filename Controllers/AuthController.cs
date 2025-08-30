@@ -150,7 +150,7 @@ namespace EcommercePWA.Controllers
                     return View();
                 }
 
-                // Criar sessão do usuário
+                // Criar sessão
                 HttpContext.Session.SetInt32("UserId", user.Id);
                 HttpContext.Session.SetString("UserName", user.Name);
                 HttpContext.Session.SetString("UserEmail", user.Email);

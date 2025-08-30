@@ -19,6 +19,9 @@
             </a>
             
             <div class="navbar-nav ms-auto">
+                <a href="@Url.Action("Index", "Tracking")" class="btn btn-outline-success btn-sm me-2">
+                    <i class="fas fa-search-location"></i> Rastrear
+                </a>
                 @if (Context.Session.GetInt32("UserId").HasValue)
                 {
                     <span class="navbar-text me-3">

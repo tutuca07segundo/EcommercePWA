@@ -208,6 +208,13 @@
                                         <i class="fas fa-truck fa-2x text-info mb-2"></i>
                                         <h6>Rastreamento</h6>
                                         <small class="text-muted">Receberá atualizações sobre o status da entrega</small>
+                                        <div class="mt-2">
+                                            <a href="@Url.Action("Details", "Tracking", new { orderId = Model.Id })" 
+                                               class="btn btn-info btn-sm">
+                                                <i class="fas fa-search-location me-1"></i>
+                                                Rastrear Pedido
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -216,6 +223,10 @@
 
                     <!-- Botões de Ação -->
                     <div class="text-center">
+                        <a href="@Url.Action("Details", "Tracking", new { orderId = Model.Id })" 
+                           class="btn btn-success btn-lg me-3">
+                            <i class="fas fa-search-location me-2"></i>Rastrear Pedido
+                        </a>
                         <a href="@Url.Action("Index", "Home")" class="btn btn-warning btn-lg me-3">
                             <i class="fas fa-shopping-bag me-2"></i>Continuar Comprando
                         </a>

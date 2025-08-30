@@ -1,0 +1,210 @@
+@model TrackingViewModel
+@{
+    ViewData["Title"] = $"Rastreamento - {Model.Order.OrderNumber}";
+}
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Informações do Pedido -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow border-0 h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informações do Pedido
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Número do Pedido:</strong>
+                        <p class="mb-1 font-monospace text-primary">@Model.Order.OrderNumber</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Código de Rastreamento:</strong>
+                        <p class="mb-1 font-monospace text-success">@Model.TrackingCode</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Data do Pedido:</strong>
+                        <p class="mb-1">@Model.Order.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Status Atual:</strong>
+                        <span class="badge bg-@GetStatusColor(Model.CurrentStatus) fs-6">
+                            @GetStatusText(Model.CurrentStatus)
+                        </span>
+                    </div>
+                    
+                    @if (Model.EstimatedDeliveryDate.HasValue)
+                    {
+                        <div class="mb-3">
+                            <strong>Previsão de Entrega:</strong>
+                            <p class="mb-1 text-warning">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                @Model.EstimatedDeliveryDate.Value.ToString("dd/MM/yyyy")
+                            </p>
+                        </div>
+                    }
+                    
+                    <div class="mb-3">
+                        <strong>Total do Pedido:</strong>
+                        <p class="mb-1 h5 text-success">@Model.Order.Total.ToString("C")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Endereço de Entrega:</strong>
+                        <p class="mb-1 small">
+                            @Model.Order.ShippingAddress<br>
+                            @Model.Order.ShippingCity - @Model.Order.ShippingZipCode<br>
+                            @Model.Order.ShippingCountry
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Timeline de Rastreamento -->
+        <div class="col-lg-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-route me-2"></i>
+                        Acompanhamento do Pedido
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="tracking-timeline">
+                        @for (int i = 0; i < Model.TrackingSteps.Count; i++)
+                        {
+                            var step = Model.TrackingSteps[i];
+                            var isLast = i == Model.TrackingSteps.Count - 1;
+                            
+                            <div class="timeline-item @(step.IsCompleted ? "completed" : "") @(step.IsActive ? "active" : "")">
+                                <div class="timeline-marker">
+                                    <div class="timeline-icon bg-@step.Color">
+                                        <i class="@step.Icon"></i>
+                                    </div>
+                                    @if (!isLast)
+                                    {
+                                        <div class="timeline-line @(step.IsCompleted ? "completed" : "")"></div>
+                                    }
+                                </div>
+                                
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <h6 class="timeline-title mb-1">@step.Title</h6>
+                                        @if (step.CompletedDate.HasValue)
+                                        {
+                                            <small class="text-muted">
+                                                <i class="fas fa-clock me-1"></i>
+                                                @step.CompletedDate.Value.ToString("dd/MM/yyyy HH:mm")
+                                            </small>
+                                        }
+                                        else if (step.IsActive)
+                                        {
+                                            <small class="text-warning">
+                                                <i class="fas fa-spinner fa-spin me-1"></i>
+                                                Em andamento
+                                            </small>
+                                        }
+                                    </div>
+                                    <p class="timeline-description mb-0">@step.Description</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Produtos do Pedido -->
+            <div class="card shadow border-0 mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-box me-2"></i>
+                        Produtos do Pedido
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @foreach (var item in Model.Order.Items)
+                    {
+                        <div class="row align-items-center border-bottom py-3">
+                            <div class="col-md-2">
+                                <img src="@(item.Product?.ImageUrl ?? "/images/placeholder.jpg")" 
+                                     alt="@item.ProductName" 
+                                     class="img-fluid rounded" 
+                                     style="max-height: 80px;">
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="mb-1">@item.ProductName</h6>
+                                @if (!string.IsNullOrEmpty(item.VariationName))
+                                {
+                                    <small class="text-muted">Variação: @item.VariationName</small>
+                                }
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <span class="badge bg-secondary">Qtd: @item.Quantity</span>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <strong>@((item.UnitPrice * item.Quantity).ToString("C"))</strong>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ações -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="@Url.Action("Index", "Tracking")" class="btn btn-outline-primary me-2">
+                <i class="fas fa-search me-1"></i>
+                Rastrear Outro Pedido
+            </a>
+            
+            @if (Context.Session.GetInt32("UserId").HasValue)
+            {
+                <a href="@Url.Action("Index", "Order")" class="btn btn-outline-success me-2">
+                    <i class="fas fa-list me-1"></i>
+                    Meus Pedidos
+                </a>
+            }
+            
+            <button class="btn btn-outline-info" onclick="window.print()">
+                <i class="fas fa-print me-1"></i>
+                Imprimir
+            </button>
+        </div>
+    </div>
+</div>
+
+
+@functions {
+    private string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "Pending" => "warning",
+            "Processing" => "info",
+            "Shipped" => "primary",
+            "Delivered" => "success",
+            "Cancelled" => "danger",
+            _ => "secondary"
+        };
+    }
+
+    private string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "Pending" => "Aguardando Pagamento",
+            "Processing" => "Em Preparação",
+            "Shipped" => "Enviado",
+            "Delivered" => "Entregue",
+            "Cancelled" => "Cancelado",
+            _ => status
+        };
+    }
+}

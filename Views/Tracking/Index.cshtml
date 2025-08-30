@@ -1,0 +1,189 @@
+@{
+    ViewData["Title"] = "Rastrear Pedido";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-search-location me-2"></i>
+                        Rastrear Pedido
+                    </h2>
+                    <p class="mb-0 mt-2">Digite o número do seu pedido para acompanhar o status</p>
+                </div>
+                
+                <div class="card-body p-5">
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="Search" method="post" class="mb-4">
+                        @Html.AntiForgeryToken()
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-barcode text-primary"></i>
+                            </span>
+                            <input type="text" 
+                                   name="orderNumber" 
+                                   class="form-control" 
+                                   placeholder="Ex: ORD-20250830-ABC12345"
+                                   required
+                                   autocomplete="off">
+                            <button type="submit" class="btn btn-primary btn-lg px-4">
+                                <i class="fas fa-search me-2"></i>
+                                Rastrear
+                            </button>
+                        </div>
+                        <div class="form-text mt-2">
+                            <i class="fas fa-info-circle me-1"></i>
+                            O número do pedido foi enviado por email após a confirmação da compra
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="row text-center">
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <i class="fas fa-user-circle fa-2x text-primary mb-3"></i>
+                                    <h5>Meus Pedidos</h5>
+                                    <p class="text-muted small">Acesse todos os seus pedidos</p>
+                                    @if (Context.Session.GetInt32("UserId").HasValue)
+                                    {
+                                        <a href="@Url.Action("Index", "Order")" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-list me-1"></i>
+                                            Ver Pedidos
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("Login", "Auth")" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-sign-in-alt me-1"></i>
+                                            Fazer Login
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <i class="fas fa-headset fa-2x text-success mb-3"></i>
+                                    <h5>Precisa de Ajuda?</h5>
+                                    <p class="text-muted small">Entre em contato conosco</p>
+                                    <button class="btn btn-outline-success btn-sm" onclick="showSupportInfo()">
+                                        <i class="fas fa-phone me-1"></i>
+                                        Suporte
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-question-circle me-2"></i>
+                            Como funciona o rastreamento?
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled small">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>Pedido Realizado:</strong> Pedido recebido
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-credit-card text-info me-2"></i>
+                                        <strong>Pagamento Confirmado:</strong> Em preparação
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled small">
+                                    <li class="mb-2">
+                                        <i class="fas fa-truck text-warning me-2"></i>
+                                        <strong>Produto Enviado:</strong> A caminho
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Entregue:</strong> Pedido finalizado
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Suporte -->
+<div class="modal fade" id="supportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-headset me-2"></i>
+                    Suporte Kaboom
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-phone-alt fa-3x text-success mb-3"></i>
+                    <h6>Entre em contato conosco</h6>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 text-center mb-3">
+                        <i class="fas fa-phone text-success"></i>
+                        <strong>Telefone</strong>
+                        <p class="mb-0">(11) 1234-5678</p>
+                    </div>
+                    <div class="col-md-6 text-center mb-3">
+                        <i class="fas fa-envelope text-primary"></i>
+                        <strong>Email</strong>
+                        <p class="mb-0">suporte@kaboom.com</p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <i class="fas fa-clock text-warning"></i>
+                    <strong>Horário de Atendimento</strong>
+                    <p class="mb-0">Segunda a Sexta: 8h às 18h</p>
+                    <p class="mb-0">Sábado: 8h às 12h</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showSupportInfo() {
+            var supportModal = new bootstrap.Modal(document.getElementById('supportModal'));
+            supportModal.show();
+        }
+
+        // Auto-focus no campo de busca
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('input[name="orderNumber"]').focus();
+        });
+
+        // Formatar número do pedido enquanto digita
+        document.querySelector('input[name="orderNumber"]').addEventListener('input', function(e) {
+            let value = e.target.value.toUpperCase();
+            e.target.value = value;
+        });
+    </script>
+}

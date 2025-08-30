@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "hcTY8g9Gw14=",
+  "dgSpecHash": "ZuFCApa0m8Q=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Pedro\\Desktop\\esse\\EcommercePWA\\EcommercePWA.csproj",
+  "projectFilePath": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\EcommercePWA.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Pedro\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Pedro\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\7.0.0\\microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",

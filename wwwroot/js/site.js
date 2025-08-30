@@ -134,6 +134,11 @@ function initializeProductCards() {
 
 // Adicionar ao carrinho
 function addToCart(button) {
+    // Prevenir múltiplos cliques
+    if (button.disabled) {
+        return;
+    }
+    
     const productCard = button.closest('.product-card, .product-detail');
     const productId = button.dataset.productId;
     const productName = productCard.querySelector('.product-title, h1')?.textContent || 'Produto';
@@ -155,6 +160,15 @@ function addToCart(button) {
     
     // Verificar se o usuário está logado
     const isLoggedIn = document.body.getAttribute('data-user-authenticated') === 'True';
+    
+    // Debug - verificar estado da autenticação
+    console.log('Debug Auth:', {
+        isLoggedIn: isLoggedIn,
+        dataUserAuth: document.body.getAttribute('data-user-authenticated'),
+        dataUserId: document.body.getAttribute('data-user-id'),
+        dataUserEmail: document.body.getAttribute('data-user-email'),
+        dataDebug: document.body.getAttribute('data-debug')
+    });
     
     // Mostrar loading no botão
     const originalText = button.innerHTML;
@@ -196,14 +210,7 @@ function addToCart(button) {
             quantity: quantity
         })
     })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(err => {
-                throw new Error(err.message || 'Erro ao adicionar ao carrinho');
-            });
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         if (data.success) {
             // Atualizar contador do carrinho
@@ -221,7 +228,12 @@ function addToCart(button) {
                 updateCartTotals(data);
             }
         } else {
-            throw new Error(data.message || 'Erro ao adicionar ao carrinho');
+            // Verificar se precisa fazer login
+            if (data.requireLogin) {
+                window.location.href = '/Auth/Login?returnUrl=' + encodeURIComponent(data.returnUrl || window.location.pathname);
+                return;
+            }
+            showNotification(data.message || 'Erro ao adicionar ao carrinho', 'danger');
         }
     })
     .catch(error => {
@@ -229,13 +241,11 @@ function addToCart(button) {
         showNotification(error.message || 'Erro ao adicionar ao carrinho', 'danger');
     })
     .finally(() => {
-        // Resetar botão após 2 segundos
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.disabled = false;
-            button.classList.remove('btn-success', 'loading');
-            button.classList.add('btn-warning');
-        }, 2000);
+        // Resetar botão imediatamente
+        button.innerHTML = originalText;
+        button.disabled = false;
+        button.classList.remove('btn-success', 'loading');
+        button.classList.add('btn-warning');
     });
 }
 
@@ -440,8 +450,42 @@ function addBackToTop() {
     }, 100));
 }
 
-// Inicializar botão "Voltar ao topo"
-document.addEventListener('DOMContentLoaded', addBackToTop);
+// Inicializar funcionalidades
+document.addEventListener('DOMContentLoaded', function() {
+    addBackToTop();
+    loadCartCount();
+});
+
+// Carregar contagem inicial do carrinho
+function loadCartCount() {
+    const isLoggedIn = document.body.getAttribute('data-user-authenticated') === 'True';
+    
+    if (isLoggedIn) {
+        fetch('/Cart/GetCartCount', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateCartCount(data.count);
+            }
+        })
+        .catch(error => {
+            console.log('Erro ao carregar contagem do carrinho:', error);
+        });
+    }
+}
+
+// Função global para atualizar contador do carrinho
+function updateCartCount(count) {
+    const cartCountElement = document.querySelector('.cart-count');
+    if (cartCountElement) {
+        cartCountElement.textContent = count || 0;
+    }
+}
 
 // Função para salvar preferências do usuário
 function saveUserPreferences(preferences) {

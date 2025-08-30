@@ -353,6 +353,33 @@ namespace EcommercePWA.Controllers
             // Imposto simples de 10%
             return subtotal * 0.10m;
         }
+
+        // GET: /Cart/GetCartCount
+        [HttpGet]
+        public IActionResult GetCartCount()
+        {
+            try
+            {
+                var userId = HttpContext.Session.GetInt32("UserId");
+                if (!userId.HasValue)
+                {
+                    return Json(new { success = false, count = 0 });
+                }
+
+                var sessionId = GetSessionId();
+                var cart = _cartService.GetCart(sessionId);
+                
+                return Json(new { 
+                    success = true, 
+                    count = cart.ItemCount 
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter contagem do carrinho");
+                return Json(new { success = false, count = 0 });
+            }
+        }
     }
 
     public class AddToCartRequest

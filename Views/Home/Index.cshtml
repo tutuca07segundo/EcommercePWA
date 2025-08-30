@@ -264,7 +264,7 @@
                                     <div class="d-grid gap-2">
                                         @if (Context.Session.GetInt32("UserId").HasValue)
                                         {
-                                            <button class="btn btn-warning btn-sm" onclick="addToCartFromHome(@product.Id); event.stopPropagation();">
+                                            <button class="btn btn-warning btn-sm" data-product-id="@product.Id" onclick="addToCart(this); event.stopPropagation();">
                                                 <i class="fas fa-shopping-cart me-1"></i>Adicionar ao Carrinho
                                             </button>
                                         }
@@ -326,17 +326,11 @@
                 .then(data => {
                     if (data.success) {
                         updateCartCount(data.cartItemCount);
-                        showAlert('success', data.message);
-                        
-                       
+                        showAlert('success', 'Produto adicionado ao carrinho!');
                     } else {
                         if (data.requireLogin) {
-                            showAlert('warning', 'Faça login para continuar comprando');
-                            // Redirecionar para login após 2 segundos
-                            setTimeout(() => {
-                                const returnUrl = window.location.pathname + window.location.search;
-                                window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
-                            }, 2000);
+                            const returnUrl = window.location.pathname + window.location.search;
+                            window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
                         } else {
                             showAlert('danger', data.message);
                         }
@@ -344,7 +338,7 @@
                 })
                 .catch(error => {
                     console.error('Erro:', error);
-                    showAlert('danger', 'Erro ao adicionar ao carrinho');
+                    showAlert('danger', 'Erro de conexão ao adicionar ao carrinho');
                 });
             }
 

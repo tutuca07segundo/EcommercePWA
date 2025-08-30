@@ -534,17 +534,11 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showAlert('success', data.message);
-                        
-                       
+                        showAlert('success', 'Produto adicionado ao carrinho!');
                     } else {
                         if (data.requireLogin) {
-                            showAlert('warning', 'Faça login para continuar comprando');
-                            // Redirecionar para login após 2 segundos
-                            setTimeout(() => {
-                                const returnUrl = window.location.pathname + window.location.search;
-                                window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
-                            }, 2000);
+                            const returnUrl = window.location.pathname + window.location.search;
+                            window.location.href = '@Url.Action("Login", "Auth")?mustLoginToBuy=1&returnUrl=' + encodeURIComponent(returnUrl);
                         } else {
                             showAlert('danger', data.message);
                         }
@@ -552,7 +546,7 @@
                 })
                 .catch(error => {
                     console.error('Erro:', error);
-                    showAlert('danger', 'Erro ao adicionar ao carrinho');
+                    showAlert('danger', 'Erro de conexão ao adicionar ao carrinho');
                 });
             }
 </script>

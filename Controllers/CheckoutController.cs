@@ -9,12 +9,14 @@ namespace EcommercePWA.Controllers
     {
         private readonly ICartService _cartService;
         private readonly IOrderService _orderService;
+        private readonly IEmailService _emailService;
         private readonly ILogger<CheckoutController> _logger;
 
-        public CheckoutController(ICartService cartService, IOrderService orderService, ILogger<CheckoutController> logger)
+        public CheckoutController(ICartService cartService, IOrderService orderService, IEmailService emailService, ILogger<CheckoutController> logger)
         {
             _cartService = cartService;
             _orderService = orderService;
+            _emailService = emailService;
             _logger = logger;
         }
 
@@ -166,6 +168,43 @@ namespace EcommercePWA.Controllers
             }
 
             return View(order);
+        }
+
+        // POST: /Checkout/SendConfirmationEmail
+        [HttpPost]
+        [RequireAuth]
+        public async Task<IActionResult> SendConfirmationEmail(int orderId)
+        {
+            try
+            {
+                var order = await _orderService.GetOrderById(orderId);
+                if (order == null)
+                {
+                    return Json(new { success = false, message = "Pedido não encontrado" });
+                }
+
+                var userEmail = HttpContext.Session.GetString("UserEmail");
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    return Json(new { success = false, message = "Email do usuário não encontrado" });
+                }
+
+                var emailSent = await _emailService.SendOrderConfirmationAsync(userEmail, order);
+                
+                if (emailSent)
+                {
+                    return Json(new { success = true, message = "Comprovante enviado para o email!" });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Erro ao enviar email. Tente novamente." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao enviar confirmação por email para pedido {OrderId}", orderId);
+                return Json(new { success = false, message = "Erro interno. Tente novamente." });
+            }
         }
 
         private async Task<PaymentResult> ProcessPayment(CheckoutViewModel model)
@@ -466,5 +505,10 @@ namespace EcommercePWA.Controllers
         public string Message { get; set; } = string.Empty;
         public bool RequiresPixConfirmation { get; set; } = false;
         public bool RequiresCardConfirmation { get; set; } = false;
+    }
+
+    public class SendEmailRequest
+    {
+        public int OrderId { get; set; }
     }
 }

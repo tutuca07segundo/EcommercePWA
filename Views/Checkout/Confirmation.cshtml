@@ -199,6 +199,17 @@
                                         <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
                                         <h6>Confirmação por Email</h6>
                                         <small class="text-muted">Você receberá um email com os detalhes do pedido</small>
+                                        <div class="mt-3">
+                                            @using (Html.BeginForm("SendConfirmationEmail", "Checkout", new { orderId = Model.Id }, FormMethod.Post, true, new { @id = "emailForm" }))
+                                            {
+                                                @Html.AntiForgeryToken()
+                                                <button id="sendEmailBtn" type="button" class="btn btn-primary btn-sm" onclick="sendConfirmationEmail(@Model.Id)">
+                                                    <i class="fas fa-paper-plane me-1"></i>
+                                                    Enviar Comprovante
+                                                </button>
+                                            }
+                                        </div>
+                                        <div id="emailStatus" class="mt-2"></div>
                                     </div>
                                 </div>
                             </div>
@@ -239,6 +250,46 @@
         </div>
     </div>
 </div>
+
+<script>
+async function sendConfirmationEmail(orderId) {
+    const btn = document.getElementById('sendEmailBtn');
+    const status = document.getElementById('emailStatus');
+    
+    // Desabilitar botão e mostrar loading
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Enviando...';
+    status.innerHTML = '';
+    
+    try {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        
+        const response = await fetch(`/Checkout/SendConfirmationEmail?orderId=${orderId}`, {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': token
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            status.innerHTML = '<div class="alert alert-success alert-sm mt-2 mb-0"><i class="fas fa-check-circle me-1"></i>' + result.message + '</div>';
+            btn.innerHTML = '<i class="fas fa-check me-1"></i>Enviado!';
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-success');
+        } else {
+            status.innerHTML = '<div class="alert alert-danger alert-sm mt-2 mb-0"><i class="fas fa-exclamation-triangle me-1"></i>' + result.message + '</div>';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Enviar Comprovante';
+        }
+    } catch (error) {
+        status.innerHTML = '<div class="alert alert-danger alert-sm mt-2 mb-0"><i class="fas fa-exclamation-triangle me-1"></i>Erro de conexão. Tente novamente.</div>';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Enviar Comprovante';
+    }
+}
+</script>
 
 <style>
     .status-timeline {

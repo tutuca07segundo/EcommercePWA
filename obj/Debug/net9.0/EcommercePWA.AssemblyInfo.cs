@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EcommercePWA")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+669175c3e5016690249c7aeb658740d33ce904e6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eafdf9a8fae1c5ed2324da5d66b14b5ca164a3a3")]
 [assembly: System.Reflection.AssemblyProductAttribute("EcommercePWA")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EcommercePWA")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

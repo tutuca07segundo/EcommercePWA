@@ -658,4 +658,4 @@ C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\EcommercePWA.genruntim
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\ref\EcommercePWA.dll
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\compressed\332b2lwu4r-zqm7aryl9d.gz
 C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\332b2lwu4r-zqm7aryl9d.gz
-C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\okohksbcf5-4ke2fjmvul.gz
+C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\okohksbcf5-nvh65sr6oy.gz

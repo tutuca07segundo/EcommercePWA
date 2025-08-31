@@ -204,6 +204,69 @@ namespace EcommercePWA.Controllers
             return View("~/Views/Admin/Orders.cshtml", orders);
         }
 
+        // GET: /Order/MyOrders - Lista pedidos do usuário logado
+        [RequireAuth]
+        public async Task<IActionResult> MyOrders()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            try
+            {
+                var orders = await _context.Orders
+                    .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Product)
+                    .Where(o => o.UserId == userId.Value)
+                    .OrderByDescending(o => o.OrderDate)
+                    .ToListAsync();
+
+                return View(orders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar pedidos do usuário {UserId}", userId.Value);
+                TempData["ErrorMessage"] = "Erro ao carregar seus pedidos. Tente novamente.";
+                return View(new List<Order>());
+            }
+        }
+
+        // GET: /Order/MyOrderDetails/5 - Detalhes do pedido para usuário comum
+        [RequireAuth]
+        public async Task<IActionResult> MyOrderDetails(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            try
+            {
+                var order = await _context.Orders
+                    .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Product)
+                    .Include(o => o.User)
+                    .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId.Value);
+
+                if (order == null)
+                {
+                    TempData["ErrorMessage"] = "Pedido não encontrado.";
+                    return RedirectToAction("MyOrders");
+                }
+
+                return View(order);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar detalhes do pedido {OrderId} para usuário {UserId}", id, userId.Value);
+                TempData["ErrorMessage"] = "Erro ao carregar detalhes do pedido.";
+                return RedirectToAction("MyOrders");
+            }
+        }
+
         // POST: /Order/BulkAction - Ações em lote
         [HttpPost]
         [ValidateAntiForgeryToken]

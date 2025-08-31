@@ -149,5 +149,13 @@ namespace EcommercePWA.Services
                 _logger.LogInformation($"Status de pagamento do pedido {orderId} atualizado para: {paymentStatus}");
             }
         }
+
+        public async Task<Order> UpdateOrder(Order order)
+        {
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+            _logger.LogInformation($"Pedido {order.Id} atualizado com sucesso");
+            return order;
+        }
     }
 }

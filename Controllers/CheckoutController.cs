@@ -752,8 +752,16 @@ namespace EcommercePWA.Controllers
                 
                 var sessionId = GetSessionId();
                 
-                // Confirmar o pedido existente
+                // Confirmar o pedido existente e atualizar pagamento
                 await _orderService.UpdateOrderStatus(pendingOrderId.Value, "Confirmado");
+                
+                // Atualizar status do pagamento para Paid
+                var order = await _orderService.GetOrderById(pendingOrderId.Value);
+                if (order != null)
+                {
+                    order.PaymentStatus = "Paid";
+                    await _orderService.UpdateOrder(order);
+                }
                 
                 // Limpar carrinho
                 _cartService.ClearCart(sessionId);
@@ -787,8 +795,16 @@ namespace EcommercePWA.Controllers
                 
                 var sessionId = GetSessionId();
                 
-                // Confirmar o pedido existente
+                // Confirmar o pedido existente e atualizar pagamento
                 await _orderService.UpdateOrderStatus(pendingOrderId.Value, "Confirmado");
+                
+                // Atualizar status do pagamento para Paid
+                var order = await _orderService.GetOrderById(pendingOrderId.Value);
+                if (order != null)
+                {
+                    order.PaymentStatus = "Paid";
+                    await _orderService.UpdateOrder(order);
+                }
                 
                 // Limpar carrinho
                 _cartService.ClearCart(sessionId);

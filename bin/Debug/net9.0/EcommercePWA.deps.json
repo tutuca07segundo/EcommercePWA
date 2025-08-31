@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v9.0": {
       "EcommercePWA/1.0.0": {
         "dependencies": {
+          "MercadoPago": "1.0.4477.31589",
           "Microsoft.EntityFrameworkCore": "9.0.0",
           "Microsoft.EntityFrameworkCore.Design": "9.0.0",
           "Microsoft.EntityFrameworkCore.Sqlite": "9.0.0",
@@ -25,6 +26,17 @@
           "lib/net6.0/Humanizer.dll": {
             "assemblyVersion": "2.14.0.0",
             "fileVersion": "2.14.1.48190"
+          }
+        }
+      },
+      "MercadoPago/1.0.4477.31589": {
+        "dependencies": {
+          "RestSharp": "110.2.0"
+        },
+        "runtime": {
+          "lib/MercadoPago.dll": {
+            "assemblyVersion": "1.0.4477.31589",
+            "fileVersion": "1.0.4477.31589"
           }
         }
       },
@@ -815,6 +827,13 @@
       "sha512": "sha512-lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
       "path": "humanizer.core/2.14.1",
       "hashPath": "humanizer.core.2.14.1.nupkg.sha512"
+    },
+    "MercadoPago/1.0.4477.31589": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-GX1NSZaDdUcxmBkCEmaoCkJo/+FtZy0RmKbV2Yw9UBf9+2O2kULDhKWEdpWH23zsUoJunXb3taAlmqi5nMWEBw==",
+      "path": "mercadopago/1.0.4477.31589",
+      "hashPath": "mercadopago.1.0.4477.31589.nupkg.sha512"
     },
     "Microsoft.Bcl.AsyncInterfaces/7.0.0": {
       "type": "package",

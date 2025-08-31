@@ -15,6 +15,18 @@
           }
         }
       },
+      "MercadoPago/1.0.4477.31589": {
+        "type": "package",
+        "dependencies": {
+          "RestSharp": "102.7.0"
+        },
+        "compile": {
+          "lib/MercadoPago.dll": {}
+        },
+        "runtime": {
+          "lib/MercadoPago.dll": {}
+        }
+      },
       "Microsoft.Bcl.AsyncInterfaces/7.0.0": {
         "type": "package",
         "compile": {
@@ -1253,6 +1265,19 @@
         "lib/netstandard2.0/Humanizer.dll",
         "lib/netstandard2.0/Humanizer.xml",
         "logo.png"
+      ]
+    },
+    "MercadoPago/1.0.4477.31589": {
+      "sha512": "GX1NSZaDdUcxmBkCEmaoCkJo/+FtZy0RmKbV2Yw9UBf9+2O2kULDhKWEdpWH23zsUoJunXb3taAlmqi5nMWEBw==",
+      "type": "package",
+      "path": "mercadopago/1.0.4477.31589",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "content/README-MercadoPago.html",
+        "lib/MercadoPago.dll",
+        "mercadopago.1.0.4477.31589.nupkg.sha512",
+        "mercadopago.nuspec"
       ]
     },
     "Microsoft.Bcl.AsyncInterfaces/7.0.0": {
@@ -3679,6 +3704,7 @@
   },
   "projectFileDependencyGroups": {
     "net9.0": [
+      "MercadoPago >= 1.0.4477.31589",
       "Microsoft.EntityFrameworkCore >= 9.0.0",
       "Microsoft.EntityFrameworkCore.Design >= 9.0.0",
       "Microsoft.EntityFrameworkCore.Sqlite >= 9.0.0",
@@ -3731,6 +3757,10 @@
       "net9.0": {
         "targetAlias": "net9.0",
         "dependencies": {
+          "MercadoPago": {
+            "target": "Package",
+            "version": "[1.0.4477.31589, )"
+          },
           "Microsoft.EntityFrameworkCore": {
             "target": "Package",
             "version": "[9.0.0, )"
@@ -3792,6 +3822,16 @@
       "warningLevel": 1,
       "message": "O pacote 'RestSharp' 110.2.0 tem uma moderado vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-4rr6-2v9v-wcpc",
       "libraryId": "RestSharp",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "O pacote 'MercadoPago 1.0.4477.31589' foi restaurado usando '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' em vez da estrutura de destino do projeto 'net9.0'. Esse pacote pode não ser totalmente compatível com o seu projeto.",
+      "libraryId": "MercadoPago",
       "targetGraphs": [
         "net9.0"
       ]

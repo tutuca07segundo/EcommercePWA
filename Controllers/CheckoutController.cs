@@ -10,13 +10,15 @@ namespace EcommercePWA.Controllers
         private readonly ICartService _cartService;
         private readonly IOrderService _orderService;
         private readonly IEmailService _emailService;
+        private readonly IMercadoPagoService _mercadoPagoService;
         private readonly ILogger<CheckoutController> _logger;
 
-        public CheckoutController(ICartService cartService, IOrderService orderService, IEmailService emailService, ILogger<CheckoutController> logger)
+        public CheckoutController(ICartService cartService, IOrderService orderService, IEmailService emailService, IMercadoPagoService mercadoPagoService, ILogger<CheckoutController> logger)
         {
             _cartService = cartService;
             _orderService = orderService;
             _emailService = emailService;
+            _mercadoPagoService = mercadoPagoService;
             _logger = logger;
         }
 
@@ -82,18 +84,35 @@ namespace EcommercePWA.Controllers
                     return RedirectToAction("Index", "Cart");
                 }
 
-                // Processar pagamento (simulado)
-                var paymentResult = await ProcessPayment(model);
+                // Primeiro criar o pedido temporário
+                var order = await CreateTemporaryOrder(model, cart, sessionId);
                 
-                // Debug: Log do resultado do pagamento
-                Console.WriteLine($"PaymentResult - Success: {paymentResult.Success}");
-                Console.WriteLine($"PaymentResult - RequiresPixConfirmation: {paymentResult.RequiresPixConfirmation}");
-                Console.WriteLine($"PaymentResult - RequiresCardConfirmation: {paymentResult.RequiresCardConfirmation}");
-                Console.WriteLine($"PaymentMethod: {model.PaymentMethod}");
+                // Tentar processar via Mercado Pago
+                var paymentResult = await ProcessMercadoPagoPayment(model, cart, order.Id);
                 
-                if (!paymentResult.Success)
+                if (paymentResult.Success && !string.IsNullOrEmpty(paymentResult.RedirectUrl))
                 {
-                    ModelState.AddModelError("", paymentResult.Message);
+                    // Redirecionar para Mercado Pago
+                    return Redirect(paymentResult.RedirectUrl);
+                }
+                
+                // Se MP falhar, usar simulação local
+                _logger.LogWarning("Mercado Pago falhou, usando simulação local");
+                var simulationResult = await ProcessPaymentSimulation(model);
+                
+                if (!simulationResult.Success)
+                {
+                    // Cancelar pedido temporário
+                    await _orderService.UpdateOrderStatus(order.Id, "Cancelado");
+                    
+                    // Verificar se é uma requisição AJAX
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || 
+                        Request.ContentType?.Contains("application/json") == true)
+                    {
+                        return Json(new { success = false, message = simulationResult.Message });
+                    }
+                    
+                    ModelState.AddModelError("", simulationResult.Message);
                     var cartViewModel = new CartViewModel
                     {
                         Cart = cart,
@@ -107,8 +126,8 @@ namespace EcommercePWA.Controllers
                     return View("Index", model);
                 }
 
-                // Se for PIX e requer confirmação, mostrar QR Code
-                if (paymentResult.RequiresPixConfirmation)
+                // Se for PIX, mostrar QR Code
+                if (simulationResult.RequiresPixConfirmation)
                 {
                     var cartViewModel = new CartViewModel
                     {
@@ -120,13 +139,13 @@ namespace EcommercePWA.Controllers
                         Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal)
                     };
                     model.Cart = cartViewModel;
+                    HttpContext.Session.SetInt32("PendingOrderId", order.Id);
                     return View("PixPayment", model);
                 }
 
-                // Se for cartão de crédito ou débito, mostrar tela de confirmação
-                if (paymentResult.RequiresCardConfirmation)
+                // Se for cartão, mostrar tela de confirmação
+                if (simulationResult.RequiresCardConfirmation)
                 {
-                    Console.WriteLine("Redirecionando para CardPayment view");
                     var cartViewModel = new CartViewModel
                     {
                         Cart = cart,
@@ -137,16 +156,14 @@ namespace EcommercePWA.Controllers
                         Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal)
                     };
                     model.Cart = cartViewModel;
+                    HttpContext.Session.SetInt32("PendingOrderId", order.Id);
                     return View("CardPayment", model);
                 }
 
-                // Criar pedido
-                var order = await CreateOrder(model, cart, sessionId);
-                
-                // Limpar carrinho
+                // Confirmar pedido e limpar carrinho
+                await _orderService.UpdateOrderStatus(order.Id, "Confirmado");
                 _cartService.ClearCart(sessionId);
-                
-                // Redirecionar para confirmação
+                HttpContext.Session.SetInt32("LastOrderId", order.Id);
                 return RedirectToAction("Confirmation", new { orderId = order.Id });
             }
             catch (Exception ex)
@@ -207,15 +224,86 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        private async Task<PaymentResult> ProcessPayment(CheckoutViewModel model)
+        private async Task<PaymentResult> ProcessMercadoPagoPayment(CheckoutViewModel model, Cart cart, int orderId)
         {
-            // Simulação de processamento de pagamento
-            await Task.Delay(1000); // Simular delay de API
+            try
+            {
+                var userEmail = HttpContext.Session.GetString("UserEmail") ?? "";
+
+                // Criar preferência no Mercado Pago
+                var preference = new MercadoPagoPreferenceRequest
+                {
+                    ExternalReference = orderId.ToString(),
+                    Items = cart.Items.Select(item => new MercadoPagoItem
+                    {
+                        Id = item.ProductId.ToString(),
+                        Title = item.Product.Name,
+                        Description = item.Product.Name,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        CurrencyId = "BRL"
+                    }).ToList(),
+                    Payer = new MercadoPagoPayer
+                    {
+                        Name = model.FirstName ?? "",
+                        Surname = model.LastName ?? "",
+                        Email = userEmail,
+                        Phone = new MercadoPagoPhone
+                        {
+                            AreaCode = model.Phone?.Substring(0, 2) ?? "",
+                            Number = model.Phone?.Substring(2) ?? ""
+                        },
+                        Address = new MercadoPagoAddress
+                        {
+                            StreetName = model.Address ?? "",
+                            StreetNumber = model.AddressNumber ?? "",
+                            ZipCode = model.ZipCode ?? ""
+                        }
+                    },
+                    BackUrls = new MercadoPagoUrls
+                    {
+                        Success = $"{Request.Scheme}://{Request.Host}/Checkout/PaymentSuccess",
+                        Failure = $"{Request.Scheme}://{Request.Host}/Checkout/PaymentFailure",
+                        Pending = $"{Request.Scheme}://{Request.Host}/Checkout/PaymentPending"
+                    }
+                };
+
+                // Criar preferência no Mercado Pago
+                var mpPreference = await _mercadoPagoService.CreatePreferenceAsync(preference);
+                
+                if (mpPreference != null)
+                {
+                    // Armazenar dados na sessão
+                    HttpContext.Session.SetInt32("LastOrderId", orderId);
+                    HttpContext.Session.SetString("MercadoPagoPreferenceId", mpPreference.Id);
+                    
+                    var checkoutUrl = _mercadoPagoService.GetCheckoutUrl(mpPreference.Id);
+                    
+                    return new PaymentResult 
+                    { 
+                        Success = true, 
+                        Message = "Redirecionando para o Mercado Pago...",
+                        RedirectUrl = checkoutUrl,
+                        OrderId = orderId
+                    };
+                }
+                
+                return new PaymentResult { Success = false, Message = "Erro ao criar preferência no Mercado Pago" };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao processar pagamento com Mercado Pago");
+                return new PaymentResult { Success = false, Message = "Erro na integração com Mercado Pago" };
+            }
+        }
+
+        private async Task<PaymentResult> ProcessPaymentSimulation(CheckoutViewModel model)
+        {
+            // Simulação com validação real de cartão
+            await Task.Delay(1000);
             
-            // Validação baseada no método de pagamento
             if (model.PaymentMethod == "pix")
             {
-                // Para PIX, gerar código e definir expiração
                 model.PixCode = GeneratePixCode();
                 model.PixExpirationTime = DateTime.Now.AddMinutes(5);
                 model.ShowPixQrCode = true;
@@ -223,43 +311,57 @@ namespace EcommercePWA.Controllers
             }
             else if (model.PaymentMethod == "boleto")
             {
-                // Para boleto, apenas aprovar
                 return new PaymentResult { Success = true, Message = "Boleto gerado com sucesso" };
             }
             else if (model.PaymentMethod == "credit_card" || model.PaymentMethod == "debit_card")
             {
-                // Debug: Log dos dados do cartão
-                Console.WriteLine($"CardNumber: '{model.CardNumber}'");
-                Console.WriteLine($"CardName: '{model.CardName}'");
-                Console.WriteLine($"CardExpiry: '{model.CardExpiry}'");
-                Console.WriteLine($"CardCvv: '{model.CardCvv}'");
-
-                // Validação básica do cartão
-                var cardNumber = model.CardNumber?.Replace(" ", "");
-                if (string.IsNullOrEmpty(cardNumber) || cardNumber.Length < 13)
+                // Validação rigorosa de cartão
+                var validationResult = ValidateCardDetails(model);
+                if (!validationResult.IsValid)
                 {
-                    Console.WriteLine("Falha: Número do cartão inválido");
-                    return new PaymentResult { Success = false, Message = "Número do cartão inválido" };
+                    return new PaymentResult { Success = false, Message = validationResult.ErrorMessage };
                 }
 
-                if (string.IsNullOrEmpty(model.CardExpiry) || !IsValidExpiry(model.CardExpiry))
+                // Simular processamento real com possibilidade de negação
+                var isApproved = SimulateCardProcessing(model.CardNumber);
+                if (!isApproved)
                 {
-                    Console.WriteLine("Falha: Data de validade inválida");
-                    return new PaymentResult { Success = false, Message = "Data de validade inválida" };
+                    return new PaymentResult { Success = false, Message = "Cartão recusado. Verifique os dados ou tente outro cartão." };
                 }
 
-                if (string.IsNullOrEmpty(model.CardCvv) || model.CardCvv.Length < 3)
-                {
-                    Console.WriteLine("Falha: CVV inválido");
-                    return new PaymentResult { Success = false, Message = "CVV inválido" };
-                }
-
-                // Simular processamento bem-sucedido para cartão
-                Console.WriteLine("Cartão validado com sucesso!");
                 return new PaymentResult { Success = true, Message = "Pagamento aprovado", RequiresCardConfirmation = true };
             }
 
             return new PaymentResult { Success = false, Message = "Método de pagamento inválido" };
+        }
+
+        private async Task<Order> CreateTemporaryOrder(CheckoutViewModel model, Cart cart, string sessionId)
+        {
+            var order = new Order
+            {
+                UserId = HttpContext.Session.GetInt32("UserId") ?? 0,
+                OrderNumber = GenerateOrderNumber(),
+                OrderDate = DateTime.Now,
+                Status = "Aguardando Pagamento",
+                PaymentMethod = GetPaymentMethodName(model.PaymentMethod),
+                PaymentStatus = "Pendente",
+                Subtotal = cart.Subtotal,
+                ShippingCost = CalculateShippingCost(cart),
+                TaxAmount = CalculateTaxAmount(cart.Subtotal),
+                Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal),
+                ShippingAddress = $"{model.ShippingAddress ?? model.Address}, {model.AddressNumber} - {model.ShippingCity ?? model.City}, {model.State} - {model.ShippingZipCode ?? model.ZipCode}",
+                Items = cart.Items.Select(item => new OrderItem
+                {
+                    ProductId = item.ProductId,
+                    ProductVariationId = item.ProductVariationId,
+                    ProductName = item.Product.Name,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    VariationName = item.ProductVariation?.Name
+                }).ToList()
+            };
+
+            return await _orderService.CreateOrder(order);
         }
 
         private async Task<Order> CreateOrder(CheckoutViewModel model, Cart cart, string sessionId)
@@ -303,6 +405,108 @@ namespace EcommercePWA.Controllers
             }
 
             return await _orderService.CreateOrder(order);
+        }
+
+        private (bool IsValid, string ErrorMessage) ValidateCardDetails(CheckoutViewModel model)
+        {
+            var cardNumber = model.CardNumber?.Replace(" ", "").Replace("-", "");
+            
+            // Validar número do cartão
+            if (string.IsNullOrEmpty(cardNumber))
+                return (false, "Número do cartão é obrigatório");
+            
+            if (cardNumber.Length < 13 || cardNumber.Length > 19)
+                return (false, "Número do cartão deve ter entre 13 e 19 dígitos");
+            
+            if (!cardNumber.All(char.IsDigit))
+                return (false, "Número do cartão deve conter apenas dígitos");
+            
+            // Algoritmo de Luhn para validar cartão
+            if (!IsValidLuhn(cardNumber))
+                return (false, "Número do cartão inválido");
+            
+            // Validar data de validade
+            if (string.IsNullOrEmpty(model.CardExpiry) || !IsValidExpiry(model.CardExpiry))
+                return (false, "Data de validade inválida");
+            
+            // Validar CVV
+            if (string.IsNullOrEmpty(model.CardCvv) || model.CardCvv.Length < 3 || model.CardCvv.Length > 4)
+                return (false, "CVV deve ter 3 ou 4 dígitos");
+            
+            if (!model.CardCvv.All(char.IsDigit))
+                return (false, "CVV deve conter apenas dígitos");
+            
+            // Validar nome no cartão
+            if (string.IsNullOrEmpty(model.CardName) || model.CardName.Length < 2)
+                return (false, "Nome no cartão é obrigatório");
+            
+            return (true, string.Empty);
+        }
+
+        private bool IsValidLuhn(string cardNumber)
+        {
+            int sum = 0;
+            bool alternate = false;
+            
+            for (int i = cardNumber.Length - 1; i >= 0; i--)
+            {
+                int digit = int.Parse(cardNumber[i].ToString());
+                
+                if (alternate)
+                {
+                    digit *= 2;
+                    if (digit > 9)
+                        digit = (digit % 10) + 1;
+                }
+                
+                sum += digit;
+                alternate = !alternate;
+            }
+            
+            return sum % 10 == 0;
+        }
+
+        private bool SimulateCardProcessing(string cardNumber)
+        {
+            var cleanCardNumber = cardNumber?.Replace(" ", "").Replace("-", "") ?? "";
+            
+            // Cartões que sempre são negados (para teste)
+            var deniedCards = new[]
+            {
+                "4000000000000002", // Visa sempre negado
+                "5555555555554444", // Mastercard sempre negado
+                "4000000000000069", // Visa expirado
+                "4000000000000127", // Visa CVV incorreto
+                "5105105105105100"  // Mastercard sempre negado
+            };
+            
+            if (deniedCards.Contains(cleanCardNumber))
+            {
+                _logger.LogInformation($"Cartão {cleanCardNumber} foi negado (simulação)");
+                return false;
+            }
+            
+            // Cartões válidos do Mercado Pago (sempre aprovados)
+            var approvedCards = new[]
+            {
+                "4509953566233704", // Visa teste MP
+                "5031755734530604", // Mastercard teste MP
+                "4000000000000010", // Visa genérico aprovado
+                "5555555555554448"  // Mastercard genérico aprovado
+            };
+            
+            if (approvedCards.Contains(cleanCardNumber))
+            {
+                _logger.LogInformation($"Cartão {cleanCardNumber} foi aprovado (simulação)");
+                return true;
+            }
+            
+            // Para outros cartões, simular 80% de aprovação
+            var random = new Random();
+            var isApproved = random.Next(1, 101) <= 80;
+            
+            _logger.LogInformation($"Cartão {cleanCardNumber} - Resultado simulado: {(isApproved ? "Aprovado" : "Negado")}");
+            return isApproved;
         }
 
         private string GenerateOrderNumber()
@@ -437,6 +641,101 @@ namespace EcommercePWA.Controllers
             return code;
         }
 
+        private string GetPaymentMethodName(string paymentMethod)
+        {
+            return paymentMethod switch
+            {
+                "credit_card" => "Cartão de Crédito",
+                "debit_card" => "Cartão de Débito",
+                "pix" => "PIX",
+                "boleto" => "Boleto",
+                _ => "Outros"
+            };
+        }
+
+        // Endpoints de retorno do Mercado Pago
+        public async Task<IActionResult> PaymentSuccess(string collection_id, string collection_status, string payment_id, string status, string external_reference, string payment_type, string merchant_order_id, string preference_id)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(external_reference) && int.TryParse(external_reference, out int orderId))
+                {
+                    var order = await _orderService.GetOrderById(orderId);
+                    if (order != null)
+                    {
+                        await _orderService.UpdateOrderStatus(orderId, "Confirmado");
+                        return RedirectToAction("Confirmation", new { orderId = orderId });
+                    }
+                }
+                
+                // Fallback - tentar usar o último pedido da sessão
+                var lastOrderId = HttpContext.Session.GetInt32("LastOrderId");
+                if (lastOrderId.HasValue)
+                {
+                    await _orderService.UpdateOrderStatus(lastOrderId.Value, "Confirmado");
+                    return RedirectToAction("Confirmation", new { orderId = lastOrderId.Value });
+                }
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao processar retorno de sucesso do Mercado Pago");
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        public async Task<IActionResult> PaymentFailure(string collection_id, string collection_status, string payment_id, string status, string external_reference, string payment_type, string merchant_order_id, string preference_id)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(external_reference) && int.TryParse(external_reference, out int orderId))
+                {
+                    await _orderService.UpdateOrderStatus(orderId, "Cancelado");
+                }
+
+                TempData["ErrorMessage"] = "Pagamento não foi aprovado. Tente novamente.";
+                return RedirectToAction("Index", "Cart");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao processar retorno de falha do Mercado Pago");
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        public async Task<IActionResult> PaymentPending(string collection_id, string collection_status, string payment_id, string status, string external_reference, string payment_type, string merchant_order_id, string preference_id)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(external_reference) && int.TryParse(external_reference, out int orderId))
+                {
+                    var order = await _orderService.GetOrderById(orderId);
+                    if (order != null)
+                    {
+                        await _orderService.UpdateOrderStatus(orderId, "Aguardando Pagamento");
+                        return RedirectToAction("Confirmation", new { orderId = orderId });
+                    }
+                }
+
+                var lastOrderId = HttpContext.Session.GetInt32("LastOrderId");
+                if (lastOrderId.HasValue)
+                {
+                    await _orderService.UpdateOrderStatus(lastOrderId.Value, "Aguardando Pagamento");
+                    return RedirectToAction("Confirmation", new { orderId = lastOrderId.Value });
+                }
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao processar retorno de pendência do Mercado Pago");
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        // Webhook removido - usar apenas MercadoPagoWebhookController
+
         // POST: /Checkout/ConfirmPixPayment
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -445,17 +744,25 @@ namespace EcommercePWA.Controllers
         {
             try
             {
-                var sessionId = GetSessionId();
-                var cart = _cartService.GetCart(sessionId);
+                var pendingOrderId = HttpContext.Session.GetInt32("PendingOrderId");
+                if (!pendingOrderId.HasValue)
+                {
+                    return Json(new { success = false, message = "Pedido não encontrado" });
+                }
                 
-                // Criar pedido
-                var order = await CreateOrder(model, cart, sessionId);
+                var sessionId = GetSessionId();
+                
+                // Confirmar o pedido existente
+                await _orderService.UpdateOrderStatus(pendingOrderId.Value, "Confirmado");
                 
                 // Limpar carrinho
                 _cartService.ClearCart(sessionId);
                 
-                // Redirecionar para confirmação
-                return RedirectToAction("Confirmation", new { orderId = order.Id });
+                // Limpar sessão temporária
+                HttpContext.Session.Remove("PendingOrderId");
+                HttpContext.Session.SetInt32("LastOrderId", pendingOrderId.Value);
+                
+                return Json(new { success = true, redirectUrl = Url.Action("Confirmation", new { orderId = pendingOrderId.Value }) });
             }
             catch (Exception ex)
             {
@@ -472,27 +779,28 @@ namespace EcommercePWA.Controllers
         {
             try
             {
-                Console.WriteLine("ConfirmCardPayment chamado");
+                var pendingOrderId = HttpContext.Session.GetInt32("PendingOrderId");
+                if (!pendingOrderId.HasValue)
+                {
+                    return Json(new { success = false, message = "Pedido não encontrado" });
+                }
+                
                 var sessionId = GetSessionId();
-                var cart = _cartService.GetCart(sessionId);
                 
-                Console.WriteLine($"Cart items: {cart.Items.Count}");
-                
-                // Criar pedido
-                var order = await CreateOrder(model, cart, sessionId);
-                Console.WriteLine($"Pedido criado com ID: {order.Id}");
+                // Confirmar o pedido existente
+                await _orderService.UpdateOrderStatus(pendingOrderId.Value, "Confirmado");
                 
                 // Limpar carrinho
                 _cartService.ClearCart(sessionId);
-                Console.WriteLine("Carrinho limpo");
                 
-                // Redirecionar para confirmação
-                Console.WriteLine("Redirecionando para Confirmation");
-                return RedirectToAction("Confirmation", new { orderId = order.Id });
+                // Limpar sessão temporária
+                HttpContext.Session.Remove("PendingOrderId");
+                HttpContext.Session.SetInt32("LastOrderId", pendingOrderId.Value);
+                
+                return Json(new { success = true, redirectUrl = Url.Action("Confirmation", new { orderId = pendingOrderId.Value }) });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro em ConfirmCardPayment: {ex.Message}");
                 _logger.LogError(ex, "Erro ao confirmar pagamento com cartão");
                 return Json(new { success = false, message = "Erro ao processar pagamento" });
             }
@@ -505,6 +813,8 @@ namespace EcommercePWA.Controllers
         public string Message { get; set; } = string.Empty;
         public bool RequiresPixConfirmation { get; set; } = false;
         public bool RequiresCardConfirmation { get; set; } = false;
+        public string? RedirectUrl { get; set; }
+        public int OrderId { get; set; }
     }
 
     public class SendEmailRequest

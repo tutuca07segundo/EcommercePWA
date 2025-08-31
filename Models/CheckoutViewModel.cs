@@ -30,6 +30,16 @@ namespace EcommercePWA.Models
         [Required(ErrorMessage = "Telefone é obrigatório")]
         [StringLength(20)]
         public string ShippingPhone { get; set; } = string.Empty;
+
+        // Propriedades adicionais para Mercado Pago
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string AddressNumber { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
+        public string ZipCode { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
         
         // Informações de pagamento
         [Required(ErrorMessage = "Método de pagamento é obrigatório")]

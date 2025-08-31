@@ -10,6 +10,7 @@ namespace EcommercePWA.Services
         Task<List<Order>> GetOrdersByUserId(int userId);
         Task<List<Order>> GetAllOrders();
         Task<Order> UpdateOrderStatus(int orderId, string status);
+        Task UpdatePaymentStatus(int orderId, string paymentStatus);
         Task<OrderNotification> CreateNotification(int orderId, string title, string message, string type);
         Task<List<OrderNotification>> GetNotificationsByOrderId(int orderId);
         Task<List<OrderNotification>> GetUnreadNotificationsByUserId(int userId);

@@ -9,6 +9,15 @@ using EcommercePWA.Attributes;
 //Usuários: /Admin/Users
 //Categorias: /Admin/Categories
 //taskkill /F /IM dotnet.exe ---> finaliza processo que ja esta rodando
+// ✅ Cartão negado 4000 0000 0000 0002  (Visa - sempre negado)
+// CVV: 123
+// Validade: 12/26
+// Nome: Teste Negado
+
+// ✅ Cartão aprovado 4509 9535 6623 3704  (Visa - Mercado Pago)
+// CVV: 123
+// Validade: 11/25
+// Nome: APRO
 
 namespace EcommercePWA.Controllers
 {

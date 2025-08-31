@@ -319,9 +319,114 @@
 
         // Validação do formulário
         document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevenir submit padrão
+            
             const submitButton = document.getElementById('submitOrder');
+            const originalText = submitButton.innerHTML;
             submitButton.disabled = true;
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processando...';
+            
+            // Enviar via AJAX para capturar erros
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    // Se houve redirecionamento, seguir
+                    window.location.href = response.url;
+                    return null;
+                }
+                
+                // Verificar se é JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                }
+                
+                return response.text();
+            })
+            .then(result => {
+                if (!result) return;
+                
+                // Se for JSON (resposta de erro)
+                if (typeof result === 'object' && result.success === false) {
+                    showNotification(result.message || 'Erro no processamento do pagamento', 'danger');
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
+                    return;
+                }
+                
+                // Se for HTML
+                if (typeof result === 'string') {
+                    // Debug: verificar conteúdo da resposta
+                    console.log('Resposta HTML recebida (primeiros 500 chars):', result.substring(0, 500));
+                    
+                    // Verificar se contém ModelState errors ou validation-summary
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(result, 'text/html');
+                    const hasValidationErrors = doc.querySelector('.validation-summary-errors, .field-validation-error');
+                    const hasModelStateErrors = doc.querySelector('.text-danger');
+                    
+                    console.log('Debug - Elementos encontrados:', {
+                        hasValidationErrors: !!hasValidationErrors,
+                        hasModelStateErrors: !!hasModelStateErrors,
+                        includesCartaoRecusado: result.includes('Cartão recusado'),
+                        includesInvalido: result.includes('inválido'),
+                        includesErro: result.includes('erro')
+                    });
+                    
+                    if (hasValidationErrors || hasModelStateErrors || 
+                        result.includes('Cartão recusado') || result.includes('inválido')) {
+                        console.log('Detectado como ERRO - mostrando notificação');
+                        showNotification('Cartão recusado. Verifique os dados ou tente outro cartão.', 'danger');
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalText;
+                    } else {
+                        console.log('Detectado como SUCESSO - recarregando página');
+                        // Se não há erros, recarregar página com o resultado
+                        document.open();
+                        document.write(result);
+                        document.close();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erro no checkout:', error);
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+                showNotification('Erro ao processar pagamento. Tente novamente.', 'danger');
+            });
         });
+        
+        // Função para mostrar notificações
+        function showNotification(message, type = 'info') {
+            // Remover notificações existentes
+            const existingNotifications = document.querySelectorAll('.checkout-notification');
+            existingNotifications.forEach(n => n.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed checkout-notification`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 500px;';
+            
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remover após 8 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 8000);
+        }
     </script>
 }

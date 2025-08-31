@@ -2,11 +2,18 @@ using EcommercePWA.Services;
 using EcommercePWA.Data;
 using Microsoft.EntityFrameworkCore;
 using EcommercePWA.Models;
+using Microsoft.AspNetCore.HttpOverrides;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ✅ Registre os serviços ANTES de builder.Build()
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
@@ -14,7 +21,19 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ITrackingService, TrackingService>();
+builder.Services.AddScoped<IMercadoPagoService, MercadoPagoService>();
 builder.Services.AddScoped<DataSeederService>();
+
+// Configure MercadoPago settings
+builder.Services.Configure<MercadoPagoSettings>(
+    builder.Configuration.GetSection("MercadoPago"));
+
+// Add HttpClient for MercadoPago service with proper configuration
+builder.Services.AddHttpClient<IMercadoPagoService, MercadoPagoService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.mercadopago.com");
+    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+});
 
 // Add session support
 builder.Services.AddDistributedMemoryCache();
@@ -53,7 +72,18 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
+// Configuração para suportar proxies reversos
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | 
+                              Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // 🛠️ Executa Seed/Migration e inicializa o banco
 using (var scope = app.Services.CreateScope())

@@ -138,5 +138,16 @@ namespace EcommercePWA.Services
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task UpdatePaymentStatus(int orderId, string paymentStatus)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+            if (order != null)
+            {
+                order.PaymentStatus = paymentStatus;
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"Status de pagamento do pedido {orderId} atualizado para: {paymentStatus}");
+            }
+        }
     }
 }

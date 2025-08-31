@@ -590,8 +590,10 @@ function updatePrices(basePrice, variationPriceModifier) {
 }
 
 // Armazenar o preço base como uma variável no escopo do módulo
-let _basePrice = 0;
-let _isBasePriceInitialized = false;
+if (typeof _basePrice === 'undefined') {
+    var _basePrice = 0;
+    var _isBasePriceInitialized = false;
+}
 
 function bindVariationAndQuantityHandlers(basePrice) {
     console.log('bindVariationAndQuantityHandlers - Preço base recebido:', basePrice, 'Tipo:', typeof basePrice);

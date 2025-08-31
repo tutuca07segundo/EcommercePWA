@@ -1,0 +1,214 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EcommercePWA</name>
+    </assembly>
+    <members>
+        <member name="T:EcommercePWA.Controllers.Api.AuthApiController">
+            <summary>
+            API para autenticação e gerenciamento de usuários
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.AuthApiController.Login(EcommercePWA.Controllers.Api.LoginRequest)">
+            <summary>
+            Realiza login do usuário
+            </summary>
+            <param name="request">Credenciais de login</param>
+            <returns>Dados do usuário autenticado</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.AuthApiController.Register(EcommercePWA.Controllers.Api.RegisterRequest)">
+            <summary>
+            Registra um novo usuário
+            </summary>
+            <param name="request">Dados do novo usuário</param>
+            <returns>Status do registro</returns>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.LoginRequest">
+            <summary>
+            Modelo para requisição de login
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginRequest.Email">
+            <summary>Email do usuário</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginRequest.Password">
+            <summary>Senha do usuário</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.LoginResponse">
+            <summary>
+            Modelo para resposta de login
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginResponse.UserId">
+            <summary>ID do usuário</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginResponse.Name">
+            <summary>Nome do usuário</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginResponse.Email">
+            <summary>Email do usuário</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginResponse.Role">
+            <summary>Role do usuário (User ou Admin)</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginResponse.Success">
+            <summary>Status do login</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.RegisterRequest">
+            <summary>
+            Modelo para requisição de registro
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.RegisterRequest.Name">
+            <summary>Nome do usuário</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.RegisterRequest.Email">
+            <summary>Email do usuário</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.RegisterRequest.Password">
+            <summary>Senha do usuário</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.RegisterResponse">
+            <summary>
+            Modelo para resposta de registro
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.RegisterResponse.Success">
+            <summary>Status do registro</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.RegisterResponse.Message">
+            <summary>Mensagem de retorno</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.CartApiController">
+            <summary>
+            API para gerenciamento do carrinho de compras
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.CartApiController.AddToCart(EcommercePWA.Controllers.Api.AddToCartRequest)">
+            <summary>
+            Adiciona um produto ao carrinho
+            </summary>
+            <param name="request">Dados do item para adicionar</param>
+            <returns>Status da operação</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.CartApiController.GetCart(System.String)">
+            <summary>
+            Obtém os itens do carrinho por sessão
+            </summary>
+            <param name="sessionId">ID da sessão</param>
+            <returns>Itens do carrinho</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.CartApiController.RemoveFromCart(System.String,System.Int32)">
+            <summary>
+            Remove um item do carrinho
+            </summary>
+            <param name="sessionId">ID da sessão</param>
+            <param name="itemId">ID do item do carrinho</param>
+            <returns>Status da operação</returns>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.AddToCartRequest">
+            <summary>
+            Modelo para requisição de adicionar ao carrinho
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.AddToCartRequest.SessionId">
+            <summary>ID da sessão</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.AddToCartRequest.ProductId">
+            <summary>ID do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.AddToCartRequest.Quantity">
+            <summary>Quantidade do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.AddToCartRequest.VariationId">
+            <summary>ID da variação do produto (opcional)</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.ProductApiController">
+            <summary>
+            API para gerenciamento de produtos do e-commerce Kaboom
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.ProductApiController.GetProducts(System.String,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Obtém todos os produtos do catálogo
+            </summary>
+            <param name="search">Termo de busca opcional</param>
+            <param name="categoryId">ID da categoria para filtrar</param>
+            <param name="sortBy">Ordenação: price_asc, price_desc, name, rating, date</param>
+            <returns>Lista de produtos</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.ProductApiController.GetProduct(System.Int32)">
+            <summary>
+            Obtém um produto específico por ID
+            </summary>
+            <param name="id">ID do produto</param>
+            <returns>Detalhes do produto</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.ProductApiController.GetCategories">
+            <summary>
+            Obtém as categorias disponíveis
+            </summary>
+            <returns>Lista de categorias</returns>
+        </member>
+        <member name="T:EcommercePWA.Migrations.InitialCreate">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:EcommercePWA.Migrations.AddUserAndRelatedTables">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddUserAndRelatedTables.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddUserAndRelatedTables.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddUserAndRelatedTables.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:EcommercePWA.Migrations.IncreaseImageUrlLength">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.IncreaseImageUrlLength.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.IncreaseImageUrlLength.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.IncreaseImageUrlLength.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:EcommercePWA.Migrations.AddPasswordResetRequests">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddPasswordResetRequests.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddPasswordResetRequests.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddPasswordResetRequests.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:EcommercePWA.Migrations.AddSubcategories">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddSubcategories.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddSubcategories.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddSubcategories.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

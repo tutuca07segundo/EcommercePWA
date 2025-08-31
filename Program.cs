@@ -30,7 +30,28 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 );
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Kaboom E-commerce API",
+        Version = "v1",
+        Description = "API REST completa para o e-commerce Kaboom - Periféricos e Peças de Computador",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "Kaboom Team",
+            Email = "admin@kaboom.com"
+        }
+    });
+    
+    // Incluir comentários XML para documentação
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
+});
 
 var app = builder.Build();
 

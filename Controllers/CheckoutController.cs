@@ -234,32 +234,18 @@ namespace EcommercePWA.Controllers
                 var preference = new MercadoPagoPreferenceRequest
                 {
                     ExternalReference = orderId.ToString(),
-                    Items = cart.Items.Select(item => new MercadoPagoItem
-                    {
-                        Id = item.ProductId.ToString(),
-                        Title = item.Product.Name,
-                        Description = item.Product.Name,
-                        Quantity = item.Quantity,
-                        UnitPrice = item.UnitPrice,
-                        CurrencyId = "BRL"
+                    Items = cart.Items.Select(item => {
+                        _logger.LogInformation($"Item: {item.Product.Name}, Quantity: {item.Quantity}, UnitPrice: {item.UnitPrice}");
+                        return new MercadoPagoItem
+                        {
+                            Id = item.ProductId.ToString(),
+                            Title = item.Product.Name,
+                            Description = item.Product.Name,
+                            Quantity = item.Quantity,
+                            UnitPrice = item.UnitPrice,
+                            CurrencyId = "BRL"
+                        };
                     }).ToList(),
-                    Payer = new MercadoPagoPayer
-                    {
-                        Name = model.FirstName ?? "",
-                        Surname = model.LastName ?? "",
-                        Email = userEmail,
-                        Phone = new MercadoPagoPhone
-                        {
-                            AreaCode = model.Phone?.Substring(0, 2) ?? "",
-                            Number = model.Phone?.Substring(2) ?? ""
-                        },
-                        Address = new MercadoPagoAddress
-                        {
-                            StreetName = model.Address ?? "",
-                            StreetNumber = model.AddressNumber ?? "",
-                            ZipCode = model.ZipCode ?? ""
-                        }
-                    },
                     BackUrls = new MercadoPagoUrls
                     {
                         Success = $"{Request.Scheme}://{Request.Host}/Checkout/PaymentSuccess",

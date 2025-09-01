@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace EcommercePWA.Models
 {
@@ -12,24 +13,43 @@ namespace EcommercePWA.Models
 
     public class MercadoPagoPreferenceRequest
     {
+        [JsonProperty("external_reference")]
         public string ExternalReference { get; set; } = string.Empty;
+        
+        [JsonProperty("items")]
         public List<MercadoPagoItem> Items { get; set; } = new();
-        public MercadoPagoPayer Payer { get; set; } = new();
+        
+        [JsonProperty("back_urls")]
         public MercadoPagoUrls BackUrls { get; set; } = new();
+        
+        [JsonProperty("auto_return")]
         public string AutoReturn { get; set; } = "approved";
-        public string PaymentMethods { get; set; } = "credit_card,debit_card,pix";
-        public int Expires { get; set; } = 30; // minutos
     }
 
     public class MercadoPagoItem
     {
+        [JsonProperty("id")]
         public string Id { get; set; } = string.Empty;
+        
+        [JsonProperty("title")]
         public string Title { get; set; } = string.Empty;
+        
+        [JsonProperty("description")]
         public string Description { get; set; } = string.Empty;
+        
+        [JsonProperty("picture_url")]
         public string PictureUrl { get; set; } = string.Empty;
+        
+        [JsonProperty("category_id")]
         public string CategoryId { get; set; } = string.Empty;
+        
+        [JsonProperty("quantity")]
         public int Quantity { get; set; }
+        
+        [JsonProperty("currency_id")]
         public string CurrencyId { get; set; } = "BRL";
+        
+        [JsonProperty("unit_price")]
         public decimal UnitPrice { get; set; }
     }
 
@@ -64,8 +84,13 @@ namespace EcommercePWA.Models
 
     public class MercadoPagoUrls
     {
+        [JsonProperty("success")]
         public string Success { get; set; } = string.Empty;
+        
+        [JsonProperty("failure")]
         public string Failure { get; set; } = string.Empty;
+        
+        [JsonProperty("pending")]
         public string Pending { get; set; } = string.Empty;
     }
 
@@ -84,7 +109,7 @@ namespace EcommercePWA.Models
         public string ApiVersion { get; set; } = string.Empty;
         public MercadoPagoPaymentData Data { get; set; } = new();
         public DateTime DateCreated { get; set; }
-        public long Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         public bool LiveMode { get; set; }
         public string Type { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;

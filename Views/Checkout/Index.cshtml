@@ -66,10 +66,11 @@
                                 <label asp-for="PaymentMethod" class="form-label">Método de Pagamento *</label>
                                 <select asp-for="PaymentMethod" class="form-select" required>
                                     <option value="">Selecione uma opção</option>
-                                    <option value="credit_card">Cartão de Crédito</option>
-                                    <option value="debit_card">Cartão de Débito</option>
-                                    <option value="pix">PIX</option>
-                                    <option value="boleto">Boleto Bancário</option>
+                                    <option value="MercadoPago">Mercado Pago (Cartão/PIX/Boleto)</option>
+                                    <option value="credit_card">Cartão de Crédito (Simulação)</option>
+                                    <option value="debit_card">Cartão de Débito (Simulação)</option>
+                                    <option value="pix">PIX (Simulação)</option>
+                                    <option value="boleto">Boleto Bancário (Simulação)</option>
                                 </select>
                                 <span asp-validation-for="PaymentMethod" class="text-danger"></span>
                             </div>
@@ -318,15 +319,27 @@
         });
 
         // Validação do formulário
-        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevenir submit padrão
+        document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+            // Para Mercado Pago, permitir redirecionamento direto
+            const paymentMethod = document.querySelector('select[name="PaymentMethod"]')?.value;
+            
+            if (paymentMethod === 'MercadoPago') {
+                // Não prevenir o comportamento padrão para Mercado Pago
+                const submitButton = document.getElementById('submitOrder');
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Redirecionando para Mercado Pago...';
+                return; // Deixa o form fazer submit normal
+            }
+            
+            e.preventDefault();
             
             const submitButton = document.getElementById('submitOrder');
             const originalText = submitButton.innerHTML;
+            submitButton.setAttribute('data-original-text', originalText);
             submitButton.disabled = true;
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processando...';
             
-            // Enviar via AJAX para capturar erros
+            // Enviar via AJAX para capturar erros (apenas para outros métodos)
             const formData = new FormData(this);
             
             fetch(this.action, {
@@ -357,8 +370,9 @@
                 // Se for JSON (resposta de erro)
                 if (typeof result === 'object' && result.success === false) {
                     showNotification(result.message || 'Erro no processamento do pagamento', 'danger');
+                    const submitButton = document.getElementById('submitOrder');
                     submitButton.disabled = false;
-                    submitButton.innerHTML = originalText;
+                    submitButton.innerHTML = submitButton.getAttribute('data-original-text') || '<i class="fas fa-lock me-2"></i>Finalizar Pedido';
                     return;
                 }
                 
@@ -385,8 +399,9 @@
                         result.includes('Cartão recusado') || result.includes('inválido')) {
                         console.log('Detectado como ERRO - mostrando notificação');
                         showNotification('Cartão recusado. Verifique os dados ou tente outro cartão.', 'danger');
+                        const submitButton = document.getElementById('submitOrder');
                         submitButton.disabled = false;
-                        submitButton.innerHTML = originalText;
+                        submitButton.innerHTML = submitButton.getAttribute('data-original-text') || '<i class="fas fa-lock me-2"></i>Finalizar Pedido';
                     } else {
                         console.log('Detectado como SUCESSO - recarregando página');
                         // Se não há erros, recarregar página com o resultado
@@ -398,8 +413,9 @@
             })
             .catch(error => {
                 console.error('Erro no checkout:', error);
+                const submitButton = document.getElementById('submitOrder');
                 submitButton.disabled = false;
-                submitButton.innerHTML = originalText;
+                submitButton.innerHTML = submitButton.getAttribute('data-original-text') || '<i class="fas fa-lock me-2"></i>Finalizar Pedido';
                 showNotification('Erro ao processar pagamento. Tente novamente.', 'danger');
             });
         });

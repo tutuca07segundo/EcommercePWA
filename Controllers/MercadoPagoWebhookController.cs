@@ -33,7 +33,7 @@ namespace EcommercePWA.Controllers
             return Ok("Webhook endpoint funcionando");
         }
 
-        [HttpPost]
+        [HttpPost("ReceiveWebhook")]
         public async Task<IActionResult> ReceiveWebhook()
         {
             try
@@ -58,8 +58,8 @@ namespace EcommercePWA.Controllers
                     var signature = signatureHeader.ToString();
                     _logger.LogInformation($"Assinatura recebida: {signature}");
                     
-                    // Validar assinatura apenas se o webhook secret estiver configurado
-                    if (!string.IsNullOrEmpty(_webhookSecret))
+                    // Validar assinatura apenas se o webhook secret estiver configurado e não for placeholder
+                    if (!string.IsNullOrEmpty(_webhookSecret) && _webhookSecret != "your_webhook_secret_here")
                     {
                         var signatureValue = signature.Contains('=') ? signature.Split('=')[1] : signature;
                         if (!IsValidSignature(requestBody, signatureValue, _webhookSecret))
@@ -68,6 +68,10 @@ namespace EcommercePWA.Controllers
                             return Unauthorized("Assinatura inválida");
                         }
                         _logger.LogInformation("Assinatura validada com sucesso");
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Validação de assinatura desabilitada para desenvolvimento");
                     }
                 }
                 else

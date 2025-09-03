@@ -1,0 +1,74 @@
+@model EcommercePWA.Models.Discount
+@{
+    ViewData["Title"] = "Excluir Desconto";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirmar Exclusão
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-warning me-2"></i>
+                        <strong>Atenção!</strong> Esta ação não pode ser desfeita.
+                    </div>
+                    
+                    <p>Tem certeza que deseja excluir este desconto?</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Nome:</strong></td>
+                                    <td>@Model.Name</td>
+                                </tr>
+                                @if (!string.IsNullOrEmpty(Model.Description))
+                                {
+                                    <tr>
+                                        <td><strong>Descrição:</strong></td>
+                                        <td>@Model.Description</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td><strong>Valor:</strong></td>
+                                    <td>
+                                        @if (Model.DiscountAmount.HasValue)
+                                        {
+                                            <span class="text-success fw-bold">R$ @Model.DiscountAmount.Value.ToString("N2")</span>
+                                        }
+                                        else if (Model.DiscountPercentage.HasValue)
+                                        {
+                                            <span class="text-success fw-bold">@Model.DiscountPercentage.Value.ToString("N1")%</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Produtos:</strong></td>
+                                    <td><span class="badge bg-primary">@Model.ProductDiscounts.Count produto(s)</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete" method="post">
+                        <input asp-for="Id" type="hidden">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Sim, Excluir
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

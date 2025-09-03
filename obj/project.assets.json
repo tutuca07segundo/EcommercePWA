@@ -3720,11 +3720,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Pedro\\Desktop\\b\\EcommercePWA\\EcommercePWA.csproj",
+      "projectUniqueName": "C:\\Users\\Pedro\\Desktop\\esse\\EcommercePWA\\EcommercePWA.csproj",
       "projectName": "EcommercePWA",
-      "projectPath": "C:\\Users\\Pedro\\Desktop\\b\\EcommercePWA\\EcommercePWA.csproj",
+      "projectPath": "C:\\Users\\Pedro\\Desktop\\esse\\EcommercePWA\\EcommercePWA.csproj",
       "packagesPath": "C:\\Users\\Pedro\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Pedro\\Desktop\\b\\EcommercePWA\\obj\\",
+      "outputPath": "C:\\Users\\Pedro\\Desktop\\esse\\EcommercePWA\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Pedro\\AppData\\Roaming\\NuGet\\NuGet.Config"

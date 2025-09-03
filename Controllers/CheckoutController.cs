@@ -34,14 +34,20 @@ namespace EcommercePWA.Controllers
                 return RedirectToAction("Index", "Cart");
             }
 
+            var shippingCost = CalculateShippingCost(cart);
+            var taxAmount = CalculateTaxAmount(cart.Subtotal);
+            
             var cartViewModel = new CartViewModel
             {
                 Cart = cart,
                 Items = cart.Items,
                 Subtotal = cart.Subtotal,
-                ShippingCost = CalculateShippingCost(cart),
-                TaxAmount = CalculateTaxAmount(cart.Subtotal),
-                Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal)
+                ShippingCost = shippingCost,
+                TaxAmount = taxAmount,
+                Total = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount,
+                CouponCode = cart.CouponCode,
+                DiscountAmount = cart.DiscountAmount,
+                IsCouponValid = !string.IsNullOrEmpty(cart.CouponCode)
             };
 
             var checkoutViewModel = new CheckoutViewModel
@@ -323,6 +329,19 @@ namespace EcommercePWA.Controllers
 
         private async Task<Order> CreateTemporaryOrder(CheckoutViewModel model, Cart cart, string sessionId)
         {
+            // Recuperar cupom aplicado da sessão
+            var couponCode = HttpContext.Session.GetString("CouponCode");
+            decimal discountAmount = 0;
+            
+            if (!string.IsNullOrEmpty(couponCode))
+            {
+                var couponResult = _cartService.ApplyCoupon(sessionId, couponCode);
+                if (couponResult.IsValid)
+                {
+                    discountAmount = couponResult.DiscountAmount;
+                }
+            }
+            
             var order = new Order
             {
                 UserId = HttpContext.Session.GetInt32("UserId") ?? 0,
@@ -334,7 +353,9 @@ namespace EcommercePWA.Controllers
                 Subtotal = cart.Subtotal,
                 ShippingCost = CalculateShippingCost(cart),
                 TaxAmount = CalculateTaxAmount(cart.Subtotal),
-                Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal),
+                DiscountAmount = discountAmount,
+                CouponCode = couponCode,
+                Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal) - discountAmount,
                 ShippingAddress = $"{model.ShippingAddress ?? model.Address}, {model.AddressNumber} - {model.ShippingCity ?? model.City}, {model.State} - {model.ShippingZipCode ?? model.ZipCode}",
                 Items = cart.Items.Select(item => new OrderItem
                 {
@@ -355,6 +376,19 @@ namespace EcommercePWA.Controllers
             var paymentStatus = model.PaymentMethod == "pix" ? "Pending" : "Paid";
             var orderStatus = model.PaymentMethod == "pix" ? "Awaiting Payment" : "Processing";
             
+            // Recuperar cupom aplicado da sessão
+            var couponCode = HttpContext.Session.GetString("CouponCode");
+            decimal discountAmount = 0;
+            
+            if (!string.IsNullOrEmpty(couponCode))
+            {
+                var couponResult = _cartService.ApplyCoupon(sessionId, couponCode);
+                if (couponResult.IsValid)
+                {
+                    discountAmount = couponResult.DiscountAmount;
+                }
+            }
+            
             var order = new Order
             {
                 UserId = HttpContext.Session.GetInt32("UserId") ?? 1, // Usar usuário logado
@@ -368,8 +402,9 @@ namespace EcommercePWA.Controllers
                 Subtotal = cart.Subtotal,
                 ShippingCost = CalculateShippingCost(cart),
                 TaxAmount = CalculateTaxAmount(cart.Subtotal),
-                DiscountAmount = 0, // Desconto simulado - será implementado com cupons posteriormente
-                Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal),
+                DiscountAmount = discountAmount,
+                CouponCode = couponCode,
+                Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal) - discountAmount,
                 PaymentMethod = model.PaymentMethod,
                 PaymentStatus = paymentStatus,
                 Notes = model.Notes

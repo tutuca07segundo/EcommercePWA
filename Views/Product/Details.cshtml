@@ -224,7 +224,21 @@
                                              class="card-img-top" style="height: 120px; object-fit: cover;">
                                         <div class="card-body">
                                             <h6 class="card-title">@relatedProduct.Name</h6>
-                                                                                         <p class="text-primary fw-bold">R$ @relatedProduct.Price.ToString("N2")</p>
+                                            @if (relatedProduct.HasDiscount && relatedProduct.DiscountedPrice.HasValue)
+                                            {
+                                                <div>
+                                                    <span class="text-muted text-decoration-line-through small">R$ @relatedProduct.Price.ToString("N2")</span>
+                                                    <p class="text-danger fw-bold mb-1">R$ @relatedProduct.DiscountedPrice.Value.ToString("N2")</p>
+                                                    @{
+                                                        var relatedDiscountPercent = Math.Round((1 - (relatedProduct.DiscountedPrice.Value / relatedProduct.Price)) * 100, 0);
+                                                    }
+                                                    <span class="badge bg-danger small">-@(relatedDiscountPercent)%</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-primary fw-bold">R$ @relatedProduct.Price.ToString("N2")</p>
+                                            }
                                             <a href="@Url.Action("Details", "Product", new { id = relatedProduct.Id })" 
                                                class="btn btn-outline-warning btn-sm">Ver Detalhes</a>
                                         </div>
@@ -248,15 +262,30 @@
 
                     <!-- Preços -->
                     <div class="text-center mb-3">
-                        <div class="text-decoration-line-through text-muted">R$ @((Model.Product.Price * 1.1m).ToString("N2"))</div>
-                        <div class="h3 text-warning fw-bold">R$ <span id="unitPrice">@Model.Product.Price.ToString("N2")</span></div>
-                        <div class="small text-muted">Total: R$ <span id="totalPrice">@Model.Product.Price.ToString("N2")</span></div>
+                        @if (Model.Product.HasDiscount && Model.Product.DiscountedPrice.HasValue)
+                        {
+                            var discountPercent = Math.Round((1 - (Model.Product.DiscountedPrice.Value / Model.Product.Price)) * 100, 0);
+                            <div class="text-decoration-line-through text-muted">R$ @Model.Product.Price.ToString("N2")</div>
+                            <div class="h3 text-danger fw-bold">R$ <span id="unitPrice">@Model.Product.DiscountedPrice.Value.ToString("N2")</span></div>
+                            <div class="small text-muted">Total: R$ <span id="totalPrice">@Model.Product.DiscountedPrice.Value.ToString("N2")</span></div>
+                            <span class="badge bg-danger">-@(discountPercent)% de desconto</span>
+                        }
+                        else
+                        {
+                            <div class="h3 text-warning fw-bold">R$ <span id="unitPrice">@Model.Product.Price.ToString("N2")</span></div>
+                            <div class="small text-muted">Total: R$ <span id="totalPrice">@Model.Product.Price.ToString("N2")</span></div>
+                        }
                         <small class="text-success">À vista no PIX com 7% de desconto</small>
                     </div>
 
                     <!-- Parcelamento -->
                     <div class="mb-3">
-                        <p class="mb-1">R$ @((Model.Product.Price * 1.05m).ToString("N2")) em até 10x de R$ @(((Model.Product.Price * 1.05m / 10)).ToString("N2")) sem juros</p>
+                        @{
+                            var installmentPrice = Model.Product.HasDiscount && Model.Product.DiscountedPrice.HasValue ? 
+                                Model.Product.DiscountedPrice.Value * 1.05m : 
+                                Model.Product.Price * 1.05m;
+                        }
+                        <p class="mb-1">R$ @(installmentPrice.ToString("N2")) em até 10x de R$ @((installmentPrice / 10).ToString("N2")) sem juros</p>
                         <small class="text-muted">ou 1x com 7% de desconto no cartão</small>
                         <br>
                         <a href="#" class="text-decoration-none">Ver mais opções de pagamento e parcelamento</a>
@@ -306,11 +335,6 @@
                         }
                     </div>
 
-                    <!-- Oferta Especial -->
-                    <div class="alert alert-info text-center">
-                        <i class="fas fa-star me-2"></i>
-                        <strong>ASSINE PRIME NINJA E PAGUE R$ @((Model.Product.Price * 0.97m).ToString("N2"))</strong>
-                    </div>
 
                     <!-- Frete -->
                     <div class="border-top pt-3">
@@ -480,7 +504,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Obter o preço diretamente do modelo como número
-        const basePrice = @Json.Serialize(Model.Product.Price);
+        const basePrice = @Json.Serialize(Model.Product.HasDiscount && Model.Product.DiscountedPrice.HasValue ? Model.Product.DiscountedPrice.Value : Model.Product.Price);
         console.log('Preço base carregado do modelo:', basePrice, 'Tipo:', typeof basePrice);
         
         // Garantir que o preço base seja um número válido

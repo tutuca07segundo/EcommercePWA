@@ -1,0 +1,135 @@
+@model EcommercePWA.Models.Discount
+@{
+    ViewData["Title"] = "Editar Desconto";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit me-2 text-primary"></i>
+                        Editar Desconto
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input asp-for="Id" type="hidden">
+                        <input asp-for="CreatedAt" type="hidden">
+                        <input asp-for="CreatedByUserId" type="hidden">
+                        
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Name" class="form-label"></label>
+                                    <input asp-for="Name" class="form-control">
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Description" class="form-label"></label>
+                                    <input asp-for="Description" class="form-control">
+                                    <span asp-validation-for="Description" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="DiscountAmount" class="form-label"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">R$</span>
+                                        <input asp-for="DiscountAmount" class="form-control" step="0.01">
+                                    </div>
+                                    <span asp-validation-for="DiscountAmount" class="text-danger"></span>
+                                    <small class="form-text text-muted">Deixe em branco se usar percentual</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="DiscountPercentage" class="form-label"></label>
+                                    <div class="input-group">
+                                        <input asp-for="DiscountPercentage" class="form-control" step="0.1" max="100">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
+                                    <small class="form-text text-muted">Deixe em branco se usar valor fixo</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ValidFrom" class="form-label"></label>
+                                    <input asp-for="ValidFrom" class="form-control" type="datetime-local">
+                                    <span asp-validation-for="ValidFrom" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ValidUntil" class="form-label"></label>
+                                    <input asp-for="ValidUntil" class="form-control" type="datetime-local">
+                                    <span asp-validation-for="ValidUntil" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox">
+                                <label asp-for="IsActive" class="form-check-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Salvar Alterações
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Validação de campos mutuamente exclusivos
+            const discountAmountInput = document.querySelector('input[name="DiscountAmount"]');
+            const discountPercentageInput = document.querySelector('input[name="DiscountPercentage"]');
+
+            function checkInputs() {
+                if (discountAmountInput.value) {
+                    discountPercentageInput.disabled = true;
+                } else {
+                    discountPercentageInput.disabled = false;
+                }
+
+                if (discountPercentageInput.value) {
+                    discountAmountInput.disabled = true;
+                } else {
+                    discountAmountInput.disabled = false;
+                }
+            }
+
+            // Verificar estado inicial
+            checkInputs();
+
+            discountAmountInput.addEventListener('input', checkInputs);
+            discountPercentageInput.addEventListener('input', checkInputs);
+        });
+    </script>
+}

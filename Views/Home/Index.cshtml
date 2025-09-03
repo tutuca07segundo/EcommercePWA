@@ -257,7 +257,25 @@
 
                                 <div class="mt-auto">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="h5 text-primary mb-0">R$ @product.Price.ToString("N2")</span>
+                                        <div>
+                                            @if (product.HasDiscount && product.DiscountedPrice.HasValue)
+                                            {
+                                                <div>
+                                                    <span class="h6 text-muted text-decoration-line-through mb-0">R$ @product.Price.ToString("N2")</span>
+                                                    <span class="h5 text-danger mb-0 ms-2">R$ @product.DiscountedPrice.Value.ToString("N2")</span>
+                                                    <span class="badge bg-danger ms-1">
+                                                        @{
+                                                            var discountPercent = Math.Round((1 - (product.DiscountedPrice.Value / product.Price)) * 100, 0);
+                                                        }
+                                                        -@(discountPercent)%
+                                                    </span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="h5 text-primary mb-0">R$ @product.Price.ToString("N2")</span>
+                                            }
+                                        </div>
                                         <small class="text-muted">@product.StockQuantity em estoque</small>
                                     </div>
                                     

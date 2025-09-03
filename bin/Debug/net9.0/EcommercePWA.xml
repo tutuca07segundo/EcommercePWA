@@ -210,5 +210,29 @@
         <member name="M:EcommercePWA.Migrations.AddSubcategories.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:EcommercePWA.Migrations.AddDiscountTables">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddDiscountTables.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddDiscountTables.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddDiscountTables.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:EcommercePWA.Migrations.AddCouponToCart">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddCouponToCart.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddCouponToCart.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddCouponToCart.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
     </members>
 </doc>

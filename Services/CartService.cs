@@ -9,13 +9,15 @@ namespace EcommercePWA.Services
         private readonly ApplicationDbContext _context;
         private readonly IProductService _productService;
         private readonly ICouponService _couponService;
+        private readonly IDiscountService _discountService;
         private readonly ILogger<CartService> _logger;
 
-        public CartService(ApplicationDbContext context, IProductService productService, ICouponService couponService, ILogger<CartService> logger)
+        public CartService(ApplicationDbContext context, IProductService productService, ICouponService couponService, IDiscountService discountService, ILogger<CartService> logger)
         {
             _context = context;
             _productService = productService;
             _couponService = couponService;
+            _discountService = discountService;
             _logger = logger;
         }
 
@@ -276,6 +278,12 @@ namespace EcommercePWA.Services
                     discountAmount = coupon.DiscountAmount;
                 }
 
+                // Persistir cupom no carrinho
+                cart.CouponCode = couponCode;
+                cart.DiscountAmount = discountAmount;
+                cart.LastUpdated = DateTime.Now;
+                _context.SaveChanges();
+
                 return new CouponValidationResult
                 {
                     IsValid = true,
@@ -299,7 +307,8 @@ namespace EcommercePWA.Services
             try
             {
                 var cart = GetCart(sessionId);
-                // Implementar remoção de cupom se necessário
+                cart.CouponCode = null;
+                cart.DiscountAmount = null;
                 cart.LastUpdated = DateTime.Now;
                 _context.SaveChanges();
             }
@@ -310,17 +319,49 @@ namespace EcommercePWA.Services
             }
         }
 
-        private decimal GetItemPrice(Product product, int? variationId)
+        private async Task<decimal> GetItemPriceAsync(Product product, int? variationId)
         {
+            // Apply discount to base price
+            var discount = await _discountService.GetActiveDiscountForProductAsync(product.Id);
+            decimal basePrice = product.Price;
+            
+            if (discount != null)
+            {
+                basePrice = _discountService.CalculateDiscountedPrice(product.Price, discount);
+            }
+            
+            // Apply variation modifier to discounted price
             if (variationId.HasValue)
             {
                 var variation = product.Variations.FirstOrDefault(v => v.Id == variationId);
                 if (variation?.PriceModifier.HasValue == true)
                 {
-                    return product.Price + variation.PriceModifier.Value;
+                    return basePrice + variation.PriceModifier.Value;
                 }
             }
-            return product.Price;
+            return basePrice;
+        }
+
+        private decimal GetItemPrice(Product product, int? variationId)
+        {
+            // Synchronous version for backward compatibility
+            var discount = _discountService.GetActiveDiscountForProductAsync(product.Id).Result;
+            decimal basePrice = product.Price;
+            
+            if (discount != null)
+            {
+                basePrice = _discountService.CalculateDiscountedPrice(product.Price, discount);
+            }
+            
+            if (variationId.HasValue)
+            {
+                var variation = product.Variations.FirstOrDefault(v => v.Id == variationId);
+                if (variation?.PriceModifier.HasValue == true)
+                {
+                    return basePrice + variation.PriceModifier.Value;
+                }
+            }
+            return basePrice;
         }
 
         private void UpdateCartPrices(Cart cart)

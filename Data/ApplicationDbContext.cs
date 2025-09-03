@@ -20,6 +20,8 @@ namespace EcommercePWA.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
+        public DbSet<Discount> Discounts { get; set; }
+        public DbSet<ProductDiscount> ProductDiscounts { get; set; }
         public DbSet<WishlistItem> WishlistItems { get; set; }
         public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
         
@@ -108,6 +110,31 @@ namespace EcommercePWA.Data
                 .WithMany(s => s.Products)
                 .HasForeignKey(p => p.SubcategoryId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // Configuração do Discount
+            modelBuilder.Entity<Discount>()
+                .Property(d => d.DiscountAmount)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Discount>()
+                .Property(d => d.DiscountPercentage)
+                .HasColumnType("decimal(5,2)");
+
+            // Configuração do relacionamento ProductDiscount (Many-to-Many)
+            modelBuilder.Entity<ProductDiscount>()
+                .HasKey(pd => new { pd.ProductId, pd.DiscountId });
+
+            modelBuilder.Entity<ProductDiscount>()
+                .HasOne(pd => pd.Product)
+                .WithMany(p => p.ProductDiscounts)
+                .HasForeignKey(pd => pd.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProductDiscount>()
+                .HasOne(pd => pd.Discount)
+                .WithMany(d => d.ProductDiscounts)
+                .HasForeignKey(pd => pd.DiscountId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

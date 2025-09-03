@@ -577,7 +577,6 @@ C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\EcommercePWA.sourcelin
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\scopedcss\bundle\EcommercePWA.styles.css
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\scopedcss\projectbundle\EcommercePWA.bundle.scp.css
-C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\compressed\okohksbcf5-h0uv9mu19n.gz
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\compressed\xymgwf927v-61n19gt1b8.gz
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\compressed\h7d4mamtp1-q9sf6zxzf5.gz
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\compressed\r7vsoiabmv-t1cqhe9u97.gz
@@ -656,7 +655,6 @@ C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\refint\EcommercePWA.dl
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\EcommercePWA.pdb
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\EcommercePWA.genruntimeconfig.cache
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\ref\EcommercePWA.dll
-C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\compressed\332b2lwu4r-zqm7aryl9d.gz
 C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\okohksbcf5-nvh65sr6oy.gz
 C:\Users\Pedro\Desktop\a\EcommercePWA\bin\Debug\net9.0\EcommercePWA.xml
 C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\EcommercePWA.xml
@@ -887,3 +885,8 @@ C:\Users\Pedro\Desktop\b\EcommercePWA\obj\Debug\net9.0\EcommercePWA.xml
 C:\Users\Pedro\Desktop\b\EcommercePWA\obj\Debug\net9.0\EcommercePWA.pdb
 C:\Users\Pedro\Desktop\b\EcommercePWA\obj\Debug\net9.0\EcommercePWA.genruntimeconfig.cache
 C:\Users\Pedro\Desktop\b\EcommercePWA\obj\Debug\net9.0\ref\EcommercePWA.dll
+C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\EcommercePWA.xml
+C:\Users\Pedro\Desktop\esse\EcommercePWA\bin\Debug\net9.0\EcommercePWA.xml
+C:\Users\Pedro\Desktop\esse\EcommercePWA\bin\Debug\net9.0\MercadoPago.dll
+C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\compressed\okohksbcf5-nvh65sr6oy.gz
+C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\compressed\332b2lwu4r-yf47ooc04d.gz

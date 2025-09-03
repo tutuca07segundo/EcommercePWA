@@ -9,11 +9,13 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IProductService _productService;
+    private readonly IDiscountService _discountService;
 
-    public HomeController(ILogger<HomeController> logger, IProductService productService)
+    public HomeController(ILogger<HomeController> logger, IProductService productService, IDiscountService discountService)
     {
         _logger = logger;
         _productService = productService;
+        _discountService = discountService;
     }
 
     // GET: /Home
@@ -42,6 +44,9 @@ public class HomeController : Controller
             }
 
             var categories = await _productService.GetAllCategoriesAsync();
+
+            // Apply discounts to products
+            await ApplyDiscountsToProducts(products);
 
             var viewModel = new ProductViewModel
             {
@@ -76,6 +81,9 @@ public class HomeController : Controller
             var products = await _productService.SearchProductsAsync(q);
             var categories = await _productService.GetAllCategoriesAsync();
 
+            // Apply discounts to products
+            await ApplyDiscountsToProducts(products);
+
             var viewModel = new ProductViewModel
             {
                 Products = products,
@@ -100,6 +108,9 @@ public class HomeController : Controller
         {
             var products = await _productService.GetProductsByCategoryAsync(name);
             var categories = await _productService.GetAllCategoriesAsync();
+
+            // Apply discounts to products
+            await ApplyDiscountsToProducts(products);
 
             var viewModel = new ProductViewModel
             {
@@ -127,6 +138,9 @@ public class HomeController : Controller
             var sortedProducts = _productService.SortProducts(products, order);
             var categories = await _productService.GetAllCategoriesAsync();
 
+            // Apply discounts to products
+            await ApplyDiscountsToProducts(sortedProducts);
+
             var viewModel = new ProductViewModel
             {
                 Products = sortedProducts,
@@ -152,5 +166,23 @@ public class HomeController : Controller
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+    private async Task ApplyDiscountsToProducts(List<Product> products)
+    {
+        foreach (var product in products)
+        {
+            var discount = await _discountService.GetActiveDiscountForProductAsync(product.Id);
+            if (discount != null)
+            {
+                product.DiscountedPrice = _discountService.CalculateDiscountedPrice(product.Price, discount);
+                product.HasDiscount = true;
+            }
+            else
+            {
+                product.DiscountedPrice = null;
+                product.HasDiscount = false;
+            }
+        }
     }
 }

@@ -8,11 +8,13 @@ namespace EcommercePWA.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
+        private readonly IDiscountService _discountService;
         private readonly ILogger<ProductController> _logger;
 
-        public ProductController(IProductService productService, ILogger<ProductController> logger)
+        public ProductController(IProductService productService, IDiscountService discountService, ILogger<ProductController> logger)
         {
             _productService = productService;
+            _discountService = discountService;
             _logger = logger;
         }
 
@@ -27,7 +29,27 @@ namespace EcommercePWA.Controllers
                     return NotFound();
                 }
 
+                // Apply discount to main product
+                var discount = await _discountService.GetActiveDiscountForProductAsync(product.Id);
+                if (discount != null)
+                {
+                    product.DiscountedPrice = _discountService.CalculateDiscountedPrice(product.Price, discount);
+                    product.HasDiscount = true;
+                }
+
                 var relatedProducts = await _productService.GetRelatedProductsAsync(product, 4);
+                
+                // Apply discounts to related products
+                foreach (var relatedProduct in relatedProducts)
+                {
+                    var relatedDiscount = await _discountService.GetActiveDiscountForProductAsync(relatedProduct.Id);
+                    if (relatedDiscount != null)
+                    {
+                        relatedProduct.DiscountedPrice = _discountService.CalculateDiscountedPrice(relatedProduct.Price, relatedDiscount);
+                        relatedProduct.HasDiscount = true;
+                    }
+                }
+
                 var variations = await _productService.GetProductVariationsAsync(id);
 
                 var viewModel = new ProductDetailViewModel

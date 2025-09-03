@@ -17,6 +17,7 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
+builder.Services.AddScoped<IDiscountService, DiscountService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();

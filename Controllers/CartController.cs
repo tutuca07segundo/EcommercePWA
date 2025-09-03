@@ -9,12 +9,14 @@ namespace EcommercePWA.Controllers
     {
         private readonly ICartService _cartService;
         private readonly IProductService _productService;
+        private readonly IDiscountService _discountService;
         private readonly ILogger<CartController> _logger;
 
-        public CartController(ICartService cartService, IProductService productService, ILogger<CartController> logger)
+        public CartController(ICartService cartService, IProductService productService, IDiscountService discountService, ILogger<CartController> logger)
         {
             _cartService = cartService;
             _productService = productService;
+            _discountService = discountService;
             _logger = logger;
         }
 
@@ -35,55 +37,49 @@ namespace EcommercePWA.Controllers
                     if (product != null)
                     {
                         item.Product = product;
+                        
+                        // Apply discount to product
+                        var discount = await _discountService.GetActiveDiscountForProductAsync(product.Id);
+                        decimal basePrice = product.Price;
+                        
+                        if (discount != null)
+                        {
+                            basePrice = _discountService.CalculateDiscountedPrice(product.Price, discount);
+                            product.DiscountedPrice = basePrice;
+                            product.HasDiscount = true;
+                        }
+                        
                         if (item.ProductVariationId.HasValue)
                         {
                             item.ProductVariation = product.Variations.FirstOrDefault(v => v.Id == item.ProductVariationId);
-                            // Atualizar o preço unitário com base na variação
+                            // Atualizar o preço unitário com base na variação e desconto
                             if (item.ProductVariation?.PriceModifier.HasValue == true)
                             {
-                                item.UnitPrice = product.Price + item.ProductVariation.PriceModifier.Value;
+                                item.UnitPrice = basePrice + item.ProductVariation.PriceModifier.Value;
                             }
                             else
                             {
-                                item.UnitPrice = product.Price;
+                                item.UnitPrice = basePrice;
                             }
                         }
                         else
                         {
-                            item.UnitPrice = product.Price;
+                            item.UnitPrice = basePrice;
                         }
                     }
                     cartItems.Add(item);
                 }
                 
-                // Verificar se há cupom aplicado na sessão
-                var couponCode = HttpContext.Session.GetString("CouponCode");
-                decimal discountAmount = 0;
+                // Usar dados do cupom persistidos no carrinho
                 string couponMessage = "";
-                bool isCouponValid = false;
-                
-                if (!string.IsNullOrEmpty(couponCode))
+                if (!string.IsNullOrEmpty(cart.CouponCode) && cart.DiscountAmount.HasValue)
                 {
-                    var couponResult = _cartService.ApplyCoupon(sessionId, couponCode);
-                    if (couponResult.IsValid)
-                    {
-                        discountAmount = couponResult.DiscountAmount;
-                        couponMessage = couponResult.Message;
-                        isCouponValid = true;
-                        // Atualizar sessão com novo valor
-                        HttpContext.Session.SetString("DiscountAmount", discountAmount.ToString());
-                    }
-                    else
-                    {
-                        // Cupom inválido, remover da sessão
-                        HttpContext.Session.Remove("CouponCode");
-                        HttpContext.Session.Remove("DiscountAmount");
-                    }
+                    couponMessage = $"Cupom {cart.CouponCode} aplicado! Desconto: R$ {cart.DiscountAmount.Value:N2}";
                 }
                 
                 var shippingCost = CalculateShippingCost(cart);
                 var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Total + shippingCost + taxAmount - discountAmount;
+                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount;
                 
                 var viewModel = new CartViewModel
                 {
@@ -93,10 +89,10 @@ namespace EcommercePWA.Controllers
                     ShippingCost = shippingCost,
                     TaxAmount = taxAmount,
                     Total = finalTotal,
-                    CouponCode = couponCode,
-                    DiscountAmount = discountAmount > 0 ? discountAmount : null,
+                    CouponCode = cart.CouponCode,
+                    DiscountAmount = cart.DiscountAmount,
                     CouponMessage = couponMessage,
-                    IsCouponValid = isCouponValid
+                    IsCouponValid = !string.IsNullOrEmpty(cart.CouponCode)
                 };
 
                 return View(viewModel);
@@ -198,15 +194,19 @@ namespace EcommercePWA.Controllers
                         discountAmount = couponResult.DiscountAmount;
                 }
                 
+                var shippingCost = CalculateShippingCost(cart);
+                var taxAmount = CalculateTaxAmount(cart.Subtotal);
+                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount;
+                
                 return Json(new {
                     success = true,
                     itemId = request.ItemId,
                     itemTotal = item?.Total ?? 0,
                     subtotal = cart.Subtotal,
-                    shippingCost = CalculateShippingCost(cart),
-                    taxAmount = CalculateTaxAmount(cart.Subtotal),
-                    discountAmount = discountAmount,
-                    total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal) - discountAmount,
+                    shippingCost = shippingCost,
+                    taxAmount = taxAmount,
+                    discountAmount = cart.DiscountAmount ?? 0,
+                    total = finalTotal,
                     cartItemCount = cart.ItemCount
                 });
             }
@@ -262,7 +262,7 @@ namespace EcommercePWA.Controllers
                     var cart = _cartService.GetCart(sessionId);
                     var shippingCost = CalculateShippingCost(cart);
                     var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                    var finalTotal = cart.Total + shippingCost + taxAmount - result.DiscountAmount;
+                    var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount;
                     
                     return Json(new { 
                         success = true, 
@@ -294,15 +294,19 @@ namespace EcommercePWA.Controllers
         {
             try
             {
+                var sessionId = GetSessionId();
+                
+                // Remover cupom do carrinho no banco de dados
+                _cartService.RemoveCoupon(sessionId);
+                
                 // Remover cupom da sessão
                 HttpContext.Session.Remove("CouponCode");
                 HttpContext.Session.Remove("DiscountAmount");
                 
-                var sessionId = GetSessionId();
                 var cart = _cartService.GetCart(sessionId);
                 var shippingCost = CalculateShippingCost(cart);
                 var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Total + shippingCost + taxAmount;
+                var finalTotal = cart.Subtotal + shippingCost + taxAmount;
                 
                 return Json(new { 
                     success = true, 
@@ -310,7 +314,8 @@ namespace EcommercePWA.Controllers
                     subtotal = cart.Subtotal,
                     shippingCost = shippingCost,
                     taxAmount = taxAmount,
-                    total = finalTotal
+                    total = finalTotal,
+                    discountAmount = 0
                 });
             }
             catch (Exception ex)

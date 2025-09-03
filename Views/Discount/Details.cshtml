@@ -1,0 +1,175 @@
+@model EcommercePWA.Models.Discount
+@{
+    ViewData["Title"] = "Detalhes do Desconto";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-percentage me-2 text-warning"></i>
+                        @Model.Name
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Informações Gerais</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Nome:</strong></td>
+                                    <td>@Model.Name</td>
+                                </tr>
+                                @if (!string.IsNullOrEmpty(Model.Description))
+                                {
+                                    <tr>
+                                        <td><strong>Descrição:</strong></td>
+                                        <td>@Model.Description</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td><strong>Tipo:</strong></td>
+                                    <td>
+                                        @if (Model.DiscountAmount.HasValue)
+                                        {
+                                            <span class="badge bg-info">Valor Fixo</span>
+                                        }
+                                        else if (Model.DiscountPercentage.HasValue)
+                                        {
+                                            <span class="badge bg-success">Percentual</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Valor:</strong></td>
+                                    <td>
+                                        @if (Model.DiscountAmount.HasValue)
+                                        {
+                                            <span class="text-success fw-bold">R$ @Model.DiscountAmount.Value.ToString("N2")</span>
+                                        }
+                                        else if (Model.DiscountPercentage.HasValue)
+                                        {
+                                            <span class="text-success fw-bold">@Model.DiscountPercentage.Value.ToString("N1")%</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td>
+                                        @if (Model.IsActive && Model.ValidFrom <= DateTime.Now && Model.ValidUntil >= DateTime.Now)
+                                        {
+                                            <span class="badge bg-success">Ativo</span>
+                                        }
+                                        else if (!Model.IsActive)
+                                        {
+                                            <span class="badge bg-secondary">Inativo</span>
+                                        }
+                                        else if (Model.ValidFrom > DateTime.Now)
+                                        {
+                                            <span class="badge bg-warning">Agendado</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Expirado</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Período de Validade</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Válido de:</strong></td>
+                                    <td>@Model.ValidFrom.ToString("dd/MM/yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Válido até:</strong></td>
+                                    <td>@Model.ValidUntil.ToString("dd/MM/yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Criado em:</strong></td>
+                                    <td>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-boxes me-2"></i>
+                        Produtos com Desconto
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.ProductDiscounts.Any())
+                    {
+                        <p class="mb-3">
+                            <span class="badge bg-primary">@Model.ProductDiscounts.Count produto(s)</span>
+                        </p>
+                        
+                        <div class="list-group list-group-flush">
+                            @foreach (var productDiscount in Model.ProductDiscounts.Take(5))
+                            {
+                                <div class="list-group-item px-0">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">@productDiscount.Product.Name</h6>
+                                            <p class="mb-1 text-muted small">@productDiscount.Product.Brand</p>
+                                            <small class="text-success">R$ @productDiscount.Product.Price.ToString("N2")</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        
+                        @if (Model.ProductDiscounts.Count > 5)
+                        {
+                            <p class="text-muted small mt-2">E mais @(Model.ProductDiscounts.Count - 5) produto(s)...</p>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">Nenhum produto adicionado ainda.</p>
+                    }
+                    
+                    <a asp-action="ManageProducts" asp-route-id="@Model.Id" class="btn btn-outline-success btn-sm w-100">
+                        <i class="fas fa-cog me-2"></i>Gerenciar Produtos
+                    </a>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-tools me-2"></i>
+                        Ações
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Editar Desconto
+                        </a>
+                        <a asp-action="ManageProducts" asp-route-id="@Model.Id" class="btn btn-success">
+                            <i class="fas fa-boxes me-2"></i>Gerenciar Produtos
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Excluir Desconto
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar à Lista
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

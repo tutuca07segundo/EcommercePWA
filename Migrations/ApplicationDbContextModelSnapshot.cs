@@ -23,7 +23,14 @@ namespace EcommercePWA.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("CouponCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("DiscountAmount")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("LastUpdated")
@@ -161,6 +168,47 @@ namespace EcommercePWA.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Coupons");
+                });
+
+            modelBuilder.Entity("EcommercePWA.Models.Discount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("DiscountPercentage")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ValidFrom")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ValidUntil")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Discounts");
                 });
 
             modelBuilder.Entity("EcommercePWA.Models.Order", b =>
@@ -411,9 +459,6 @@ namespace EcommercePWA.Migrations
                     b.Property<decimal>("Rating")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ReviewCount")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("StockQuantity")
                         .HasColumnType("INTEGER");
 
@@ -434,6 +479,24 @@ namespace EcommercePWA.Migrations
                     b.HasIndex("SubcategoryId");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("EcommercePWA.Models.ProductDiscount", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DiscountId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ProductId", "DiscountId");
+
+                    b.HasIndex("DiscountId");
+
+                    b.ToTable("ProductDiscounts");
                 });
 
             modelBuilder.Entity("EcommercePWA.Models.ProductVariation", b =>
@@ -736,6 +799,25 @@ namespace EcommercePWA.Migrations
                     b.Navigation("Subcategory");
                 });
 
+            modelBuilder.Entity("EcommercePWA.Models.ProductDiscount", b =>
+                {
+                    b.HasOne("EcommercePWA.Models.Discount", "Discount")
+                        .WithMany("ProductDiscounts")
+                        .HasForeignKey("DiscountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EcommercePWA.Models.Product", "Product")
+                        .WithMany("ProductDiscounts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Discount");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("EcommercePWA.Models.ProductVariation", b =>
                 {
                     b.HasOne("EcommercePWA.Models.Product", "Product")
@@ -817,6 +899,11 @@ namespace EcommercePWA.Migrations
                     b.Navigation("Orders");
                 });
 
+            modelBuilder.Entity("EcommercePWA.Models.Discount", b =>
+                {
+                    b.Navigation("ProductDiscounts");
+                });
+
             modelBuilder.Entity("EcommercePWA.Models.Order", b =>
                 {
                     b.Navigation("Items");
@@ -829,6 +916,8 @@ namespace EcommercePWA.Migrations
                     b.Navigation("CartItems");
 
                     b.Navigation("OrderItems");
+
+                    b.Navigation("ProductDiscounts");
 
                     b.Navigation("Reviews");
 

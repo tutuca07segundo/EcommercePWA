@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EcommercePWA.Models
 {
@@ -43,16 +44,26 @@ namespace EcommercePWA.Models
         
         public decimal Rating { get; set; } = 0;
         
-        public int ReviewCount { get; set; } = 0;
-        
         // Novos campos para variações de cor
-        public List<ProductVariation> Variations { get; set; } = new List<ProductVariation>();
+        public virtual List<ProductVariation> Variations { get; set; } = new();
         
-        // Relacionamentos
-        public Subcategory? Subcategory { get; set; }
-        public List<Review> Reviews { get; set; } = new List<Review>();
-        public List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-        public List<CartItem> CartItems { get; set; } = new List<CartItem>();
-        public List<WishlistItem> WishlistItems { get; set; } = new List<WishlistItem>();
+        // Navigation properties
+        public virtual List<Review> Reviews { get; set; } = new();
+        public virtual List<ProductDiscount> ProductDiscounts { get; set; } = new();
+        public virtual Subcategory? Subcategory { get; set; }
+        public virtual List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public virtual List<CartItem> CartItems { get; set; } = new List<CartItem>();
+        public virtual List<WishlistItem> WishlistItems { get; set; } = new List<WishlistItem>();
+
+        // Computed properties
+        public double AverageRating => Reviews.Any() ? Reviews.Average(r => r.Rating) : 0;
+        public int ReviewCount => Reviews.Count;
+        
+        // Discount properties (not mapped to database)
+        [NotMapped]
+        public decimal? DiscountedPrice { get; set; }
+        
+        [NotMapped]
+        public bool HasDiscount { get; set; }
     }
 }

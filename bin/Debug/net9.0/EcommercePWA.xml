@@ -234,5 +234,17 @@
         <member name="M:EcommercePWA.Migrations.AddCouponToCart.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:EcommercePWA.Migrations.AddCategoryPromotion">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddCategoryPromotion.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddCategoryPromotion.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddCategoryPromotion.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
     </members>
 </doc>

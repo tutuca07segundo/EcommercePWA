@@ -1,0 +1,113 @@
+@model EcommercePWA.Models.CategoryPromotion
+
+@{
+    ViewData["Title"] = "Excluir Promoção";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirmar Exclusão
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-warning me-2"></i>
+                        <strong>Atenção!</strong> Esta ação não pode ser desfeita. A promoção será permanentemente removida do sistema.
+                    </div>
+
+                    <h5>Tem certeza que deseja excluir esta promoção?</h5>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">@Model.Name</h6>
+                                    @if (!string.IsNullOrEmpty(Model.Description))
+                                    {
+                                        <p class="card-text text-muted">@Model.Description</p>
+                                    }
+                                    
+                                    <div class="mb-2">
+                                        <strong>Categoria:</strong> 
+                                        <span class="badge bg-info">@Model.CategoryName</span>
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <strong>Desconto:</strong>
+                                        @if (Model.DiscountAmount.HasValue)
+                                        {
+                                            <span class="badge bg-success">R$ @Model.DiscountAmount.Value.ToString("F2")</span>
+                                        }
+                                        else if (Model.DiscountPercentage.HasValue)
+                                        {
+                                            <span class="badge bg-warning">@Model.DiscountPercentage.Value.ToString("F1")%</span>
+                                        }
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <strong>Período:</strong><br>
+                                        <small>
+                                            @Model.ValidFrom.ToString("dd/MM/yyyy") até @Model.ValidUntil.ToString("dd/MM/yyyy")
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <strong>Status:</strong>
+                                        @if (Model.IsActive && Model.IsValidNow())
+                                        {
+                                            <span class="badge bg-success">Ativa</span>
+                                        }
+                                        else if (Model.IsActive && Model.ValidFrom > DateTime.Now)
+                                        {
+                                            <span class="badge bg-warning">Agendada</span>
+                                        }
+                                        else if (Model.IsActive && Model.ValidUntil < DateTime.Now)
+                                        {
+                                            <span class="badge bg-secondary">Expirada</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Inativa</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle me-1"></i> Consequências da exclusão:</h6>
+                                <ul class="mb-0">
+                                    <li>A promoção será removida permanentemente</li>
+                                    <li>Produtos da categoria <strong>@Model.CategoryName</strong> não receberão mais este desconto</li>
+                                    <li>Histórico da promoção será perdido</li>
+                                    <li>Esta ação não afeta pedidos já realizados</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        @Html.AntiForgeryToken()
+                        <input asp-for="Id" type="hidden" />
+                        
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-1"></i>
+                                Confirmar Exclusão
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

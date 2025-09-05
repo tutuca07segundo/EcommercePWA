@@ -10,12 +10,14 @@ public class HomeController : Controller
     private readonly ILogger<HomeController> _logger;
     private readonly IProductService _productService;
     private readonly IDiscountService _discountService;
+    private readonly ICategoryPromotionService _categoryPromotionService;
 
-    public HomeController(ILogger<HomeController> logger, IProductService productService, IDiscountService discountService)
+    public HomeController(ILogger<HomeController> logger, IProductService productService, IDiscountService discountService, ICategoryPromotionService categoryPromotionService)
     {
         _logger = logger;
         _productService = productService;
         _discountService = discountService;
+        _categoryPromotionService = categoryPromotionService;
     }
 
     // GET: /Home
@@ -172,10 +174,37 @@ public class HomeController : Controller
     {
         foreach (var product in products)
         {
-            var discount = await _discountService.GetActiveDiscountForProductAsync(product.Id);
-            if (discount != null)
+            decimal bestDiscountedPrice = product.Price;
+            bool hasDiscount = false;
+
+            // Verificar desconto individual do produto
+            var productDiscount = await _discountService.GetActiveDiscountForProductAsync(product.Id);
+            if (productDiscount != null)
             {
-                product.DiscountedPrice = _discountService.CalculateDiscountedPrice(product.Price, discount);
+                var productDiscountedPrice = _discountService.CalculateDiscountedPrice(product.Price, productDiscount);
+                if (productDiscountedPrice < bestDiscountedPrice)
+                {
+                    bestDiscountedPrice = productDiscountedPrice;
+                    hasDiscount = true;
+                }
+            }
+
+            // Verificar promoção da categoria
+            var categoryDiscount = await _categoryPromotionService.CalculateCategoryDiscountAsync(product.Category, product.Price);
+            if (categoryDiscount > 0)
+            {
+                var categoryDiscountedPrice = product.Price - categoryDiscount;
+                if (categoryDiscountedPrice < bestDiscountedPrice)
+                {
+                    bestDiscountedPrice = categoryDiscountedPrice;
+                    hasDiscount = true;
+                }
+            }
+
+            // Aplicar o melhor desconto encontrado
+            if (hasDiscount)
+            {
+                product.DiscountedPrice = bestDiscountedPrice;
                 product.HasDiscount = true;
             }
             else

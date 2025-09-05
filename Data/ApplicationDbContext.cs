@@ -24,6 +24,7 @@ namespace EcommercePWA.Data
         public DbSet<ProductDiscount> ProductDiscounts { get; set; }
         public DbSet<WishlistItem> WishlistItems { get; set; }
         public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
+        public DbSet<CategoryPromotion> CategoryPromotions { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -135,6 +136,15 @@ namespace EcommercePWA.Data
                 .WithMany(d => d.ProductDiscounts)
                 .HasForeignKey(pd => pd.DiscountId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Configuração do CategoryPromotion
+            modelBuilder.Entity<CategoryPromotion>()
+                .Property(cp => cp.DiscountAmount)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<CategoryPromotion>()
+                .Property(cp => cp.DiscountPercentage)
+                .HasColumnType("decimal(5,2)");
         }
     }
 }

@@ -1,0 +1,223 @@
+@model EcommercePWA.Models.CategoryPromotion
+
+@{
+    ViewData["Title"] = "Detalhes da Promoção";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Detalhes da Promoção
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4>@Model.Name</h4>
+                            @if (!string.IsNullOrEmpty(Model.Description))
+                            {
+                                <p class="text-muted">@Model.Description</p>
+                            }
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="fw-bold">Categoria:</label>
+                                        <span class="badge bg-info fs-6">@Model.CategoryName</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="fw-bold">Prioridade:</label>
+                                        <span class="badge bg-primary fs-6">@Model.Priority</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="fw-bold">Tipo de Desconto:</label>
+                                        @if (Model.DiscountAmount.HasValue)
+                                        {
+                                            <div>
+                                                <span class="badge bg-success fs-6">Valor Fixo</span>
+                                                <div class="mt-1">
+                                                    <span class="fs-4 fw-bold text-success">R$ @Model.DiscountAmount.Value.ToString("F2")</span>
+                                                </div>
+                                            </div>
+                                        }
+                                        else if (Model.DiscountPercentage.HasValue)
+                                        {
+                                            <div>
+                                                <span class="badge bg-warning fs-6">Percentual</span>
+                                                <div class="mt-1">
+                                                    <span class="fs-4 fw-bold text-warning">@Model.DiscountPercentage.Value.ToString("F1")%</span>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="fw-bold">Status:</label>
+                                        <div>
+                                            @if (Model.IsActive && Model.IsValidNow())
+                                            {
+                                                <span class="badge bg-success fs-6">
+                                                    <i class="fas fa-check-circle me-1"></i>
+                                                    Ativa
+                                                </span>
+                                            }
+                                            else if (Model.IsActive && Model.ValidFrom > DateTime.Now)
+                                            {
+                                                <span class="badge bg-warning fs-6">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    Agendada
+                                                </span>
+                                            }
+                                            else if (Model.IsActive && Model.ValidUntil < DateTime.Now)
+                                            {
+                                                <span class="badge bg-secondary fs-6">
+                                                    <i class="fas fa-calendar-times me-1"></i>
+                                                    Expirada
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger fs-6">
+                                                    <i class="fas fa-times-circle me-1"></i>
+                                                    Inativa
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="fw-bold">Período de Validade:</label>
+                                        <div>
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            <strong>De:</strong> @Model.ValidFrom.ToString("dd/MM/yyyy HH:mm")
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            <strong>Até:</strong> @Model.ValidUntil.ToString("dd/MM/yyyy HH:mm")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="fw-bold">Criada em:</label>
+                                        <div>
+                                            <i class="fas fa-clock me-1"></i>
+                                            @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-calculator me-1"></i>
+                                        Simulação de Desconto
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Preço Original (R$)</label>
+                                        <input type="number" id="originalPrice" class="form-control" step="0.01" min="0" placeholder="100.00">
+                                    </div>
+                                    <div id="discountResult" class="d-none">
+                                        <div class="alert alert-info">
+                                            <strong>Desconto:</strong> <span id="discountValue"></span><br>
+                                            <strong>Preço Final:</strong> <span id="finalPrice"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Voltar
+                        </a>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary me-2">
+                                <i class="fas fa-edit me-1"></i>
+                                Editar
+                            </a>
+                            <a asp-action="Toggle" asp-route-id="@Model.Id" 
+                               class="btn @(Model.IsActive ? "btn-warning" : "btn-success") me-2">
+                                <i class="fas fa-@(Model.IsActive ? "pause" : "play") me-1"></i>
+                                @(Model.IsActive ? "Desativar" : "Ativar")
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                                <i class="fas fa-trash me-1"></i>
+                                Excluir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const originalPriceInput = document.getElementById('originalPrice');
+            const discountResult = document.getElementById('discountResult');
+            const discountValue = document.getElementById('discountValue');
+            const finalPrice = document.getElementById('finalPrice');
+            
+            const discountAmount = @(Model.DiscountAmount?.ToString("F2") ?? "null");
+            const discountPercentage = @(Model.DiscountPercentage?.ToString("F2") ?? "null");
+
+            originalPriceInput.addEventListener('input', function() {
+                const price = parseFloat(this.value);
+                
+                if (price > 0) {
+                    let discount = 0;
+                    
+                    if (discountAmount !== null) {
+                        discount = Math.min(discountAmount, price);
+                    } else if (discountPercentage !== null) {
+                        discount = price * (discountPercentage / 100);
+                    }
+                    
+                    const final = price - discount;
+                    
+                    discountValue.textContent = 'R$ ' + discount.toFixed(2);
+                    finalPrice.textContent = 'R$ ' + final.toFixed(2);
+                    discountResult.classList.remove('d-none');
+                } else {
+                    discountResult.classList.add('d-none');
+                }
+            });
+        });
+    </script>
+    
+    <style>
+        .info-item {
+            margin-bottom: 1rem;
+        }
+        .info-item label {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+    </style>
+}

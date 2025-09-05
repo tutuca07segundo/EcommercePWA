@@ -9,12 +9,14 @@ namespace EcommercePWA.Controllers
     {
         private readonly IProductService _productService;
         private readonly IDiscountService _discountService;
+        private readonly ICategoryPromotionService _categoryPromotionService;
         private readonly ILogger<ProductController> _logger;
 
-        public ProductController(IProductService productService, IDiscountService discountService, ILogger<ProductController> logger)
+        public ProductController(IProductService productService, IDiscountService discountService, ICategoryPromotionService categoryPromotionService, ILogger<ProductController> logger)
         {
             _productService = productService;
             _discountService = discountService;
+            _categoryPromotionService = categoryPromotionService;
             _logger = logger;
         }
 
@@ -29,25 +31,15 @@ namespace EcommercePWA.Controllers
                     return NotFound();
                 }
 
-                // Apply discount to main product
-                var discount = await _discountService.GetActiveDiscountForProductAsync(product.Id);
-                if (discount != null)
-                {
-                    product.DiscountedPrice = _discountService.CalculateDiscountedPrice(product.Price, discount);
-                    product.HasDiscount = true;
-                }
+                // Apply best discount to main product
+                await ApplyBestDiscount(product);
 
                 var relatedProducts = await _productService.GetRelatedProductsAsync(product, 4);
                 
                 // Apply discounts to related products
                 foreach (var relatedProduct in relatedProducts)
                 {
-                    var relatedDiscount = await _discountService.GetActiveDiscountForProductAsync(relatedProduct.Id);
-                    if (relatedDiscount != null)
-                    {
-                        relatedProduct.DiscountedPrice = _discountService.CalculateDiscountedPrice(relatedProduct.Price, relatedDiscount);
-                        relatedProduct.HasDiscount = true;
-                    }
+                    await ApplyBestDiscount(relatedProduct);
                 }
 
                 var variations = await _productService.GetProductVariationsAsync(id);
@@ -412,6 +404,48 @@ namespace EcommercePWA.Controllers
                 TempData["ErrorMessage"] = "Erro ao remover variação";
             }
             return RedirectToAction("Edit", new { id = productId });
+        }
+
+        private async Task ApplyBestDiscount(Product product)
+        {
+            decimal bestDiscountedPrice = product.Price;
+            bool hasDiscount = false;
+
+            // Verificar desconto individual do produto
+            var productDiscount = await _discountService.GetActiveDiscountForProductAsync(product.Id);
+            if (productDiscount != null)
+            {
+                var productDiscountedPrice = _discountService.CalculateDiscountedPrice(product.Price, productDiscount);
+                if (productDiscountedPrice < bestDiscountedPrice)
+                {
+                    bestDiscountedPrice = productDiscountedPrice;
+                    hasDiscount = true;
+                }
+            }
+
+            // Verificar promoção da categoria
+            var categoryDiscount = await _categoryPromotionService.CalculateCategoryDiscountAsync(product.Category, product.Price);
+            if (categoryDiscount > 0)
+            {
+                var categoryDiscountedPrice = product.Price - categoryDiscount;
+                if (categoryDiscountedPrice < bestDiscountedPrice)
+                {
+                    bestDiscountedPrice = categoryDiscountedPrice;
+                    hasDiscount = true;
+                }
+            }
+
+            // Aplicar o melhor desconto encontrado
+            if (hasDiscount)
+            {
+                product.DiscountedPrice = bestDiscountedPrice;
+                product.HasDiscount = true;
+            }
+            else
+            {
+                product.DiscountedPrice = null;
+                product.HasDiscount = false;
+            }
         }
     }
 }

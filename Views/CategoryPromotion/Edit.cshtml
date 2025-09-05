@@ -1,0 +1,168 @@
+@model EcommercePWA.Models.CategoryPromotion
+
+@{
+    ViewData["Title"] = "Editar Promoção";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Editar Promoção: @Model.Name
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <input asp-for="Id" type="hidden" />
+                        <input asp-for="CreatedAt" type="hidden" />
+                        <input asp-for="CreatedByUserId" type="hidden" />
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Name" class="form-label">Nome da Promoção</label>
+                                    <input asp-for="Name" class="form-control" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="CategoryName" class="form-label">Categoria</label>
+                                    <select asp-for="CategoryName" class="form-select">
+                                        <option value="">Selecione uma categoria</option>
+                                        @foreach (var category in ViewBag.Categories as List<string>)
+                                        {
+                                            <option value="@category" selected="@(category == Model.CategoryName)">@category</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="CategoryName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Descrição</label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo de Desconto</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="discountType" id="percentageType" value="percentage" @(Model.DiscountPercentage.HasValue ? "checked" : "")>
+                                        <label class="form-check-label" for="percentageType">
+                                            Percentual (%)
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="discountType" id="amountType" value="amount" @(Model.DiscountAmount.HasValue ? "checked" : "")>
+                                        <label class="form-check-label" for="amountType">
+                                            Valor Fixo (R$)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3" id="percentageField" style="display: @(Model.DiscountPercentage.HasValue ? "block" : "none")">
+                                    <label asp-for="DiscountPercentage" class="form-label">Percentual de Desconto (%)</label>
+                                    <input asp-for="DiscountPercentage" type="number" class="form-control" step="0.01" min="0" max="100" />
+                                    <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3" id="amountField" style="display: @(Model.DiscountAmount.HasValue ? "block" : "none")">
+                                    <label asp-for="DiscountAmount" class="form-label">Valor do Desconto (R$)</label>
+                                    <input asp-for="DiscountAmount" type="number" class="form-control" step="0.01" min="0" />
+                                    <span asp-validation-for="DiscountAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="ValidFrom" class="form-label">Válido de</label>
+                                    <input asp-for="ValidFrom" type="datetime-local" class="form-control" value="@Model.ValidFrom.ToString("yyyy-MM-ddTHH:mm")" />
+                                    <span asp-validation-for="ValidFrom" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="ValidUntil" class="form-label">Válido até</label>
+                                    <input asp-for="ValidUntil" type="datetime-local" class="form-control" value="@Model.ValidUntil.ToString("yyyy-MM-ddTHH:mm")" />
+                                    <span asp-validation-for="ValidUntil" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="Priority" class="form-label">Prioridade</label>
+                                    <select asp-for="Priority" class="form-select">
+                                        <option value="1">1 - Mais Alta</option>
+                                        <option value="2">2 - Alta</option>
+                                        <option value="3">3 - Média</option>
+                                        <option value="4">4 - Baixa</option>
+                                        <option value="5">5 - Mais Baixa</option>
+                                    </select>
+                                    <span asp-validation-for="Priority" class="text-danger"></span>
+                                    <div class="form-text">Menor número = maior prioridade</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">
+                                    Promoção ativa
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>
+                                Voltar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>
+                                Salvar Alterações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const percentageRadio = document.getElementById('percentageType');
+            const amountRadio = document.getElementById('amountType');
+            const percentageField = document.getElementById('percentageField');
+            const amountField = document.getElementById('amountField');
+            const percentageInput = document.querySelector('input[name="DiscountPercentage"]');
+            const amountInput = document.querySelector('input[name="DiscountAmount"]');
+
+            function toggleFields() {
+                if (percentageRadio.checked) {
+                    percentageField.style.display = 'block';
+                    amountField.style.display = 'none';
+                    amountInput.value = '';
+                } else {
+                    percentageField.style.display = 'none';
+                    amountField.style.display = 'block';
+                    percentageInput.value = '';
+                }
+            }
+
+            percentageRadio.addEventListener('change', toggleFields);
+            amountRadio.addEventListener('change', toggleFields);
+        });
+    </script>
+}

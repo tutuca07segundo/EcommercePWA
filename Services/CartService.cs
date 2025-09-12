@@ -95,8 +95,11 @@ namespace EcommercePWA.Services
                 }
 
                 // Verificar se o item já existe no carrinho
+                // Importante: ProductVariationId null deve ser tratado diferente de qualquer valor não-null
                 var existingItem = cart.Items.FirstOrDefault(i => 
-                    i.ProductId == productId && i.ProductVariationId == variationId);
+                    i.ProductId == productId && 
+                    ((i.ProductVariationId == null && variationId == null) || 
+                     (i.ProductVariationId != null && i.ProductVariationId == variationId)));
 
                 if (existingItem != null)
                 {

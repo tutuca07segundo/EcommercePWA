@@ -93,15 +93,33 @@
                     <div class="cart-summary">
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal:</span>
-                            <span>R$ @Model.Subtotal.ToString("N2")</span>
+                            <span id="subtotalDisplay">R$ @Model.Subtotal.ToString("N2")</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Frete:</span>
-                            <span>R$ @Model.ShippingCost.ToString("N2")</span>
+                        <!-- Seção de Frete -->
+                        <div class="shipping-section mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Frete:</span>
+                                <span id="shippingCostDisplay">R$ @Model.ShippingCost.ToString("N2")</span>
+                            </div>
+                            
+                            <div class="shipping-calculator">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control" id="shippingCep" placeholder="Digite seu CEP" maxlength="9">
+                                    <button type="button" class="btn btn-outline-primary" id="calculateShippingBtn">
+                                        <i class="fas fa-calculator me-1"></i>Calcular
+                                    </button>
+                                </div>
+                                <div id="shippingResult" class="mt-2" style="display: none;">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        <span id="shippingInfo"></span>
+                                    </small>
+                                </div>
+                            </div>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Impostos:</span>
-                            <span>R$ @Model.TaxAmount.ToString("N2")</span>
+                            <span id="taxAmountDisplay">R$ @Model.TaxAmount.ToString("N2")</span>
                         </div>
                         
                         @if (Model.DiscountAmount.HasValue && Model.DiscountAmount.Value > 0)
@@ -120,7 +138,7 @@
                         <hr>
                         <div class="d-flex justify-content-between mb-3">
                             <strong>Total:</strong>
-                            <strong class="h5 text-primary mb-0">R$ @Model.Total.ToString("N2")</strong>
+                            <strong class="h5 text-primary mb-0" id="totalDisplay">R$ @Model.Total.ToString("N2")</strong>
                         </div>
 
                         <!-- Cupom de Desconto -->
@@ -278,9 +296,9 @@
         document.getElementById('couponForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Verificar se já existe um cupom aplicado
-            const existingCoupon = document.querySelector('.coupon-applied');
-            if (existingCoupon) {
+            // Verificar se já existe um cupom aplicado visualmente
+            const existingDiscountRow = document.getElementById('discountRow');
+            if (existingDiscountRow) {
                 showAlert('warning', 'Já existe um cupom aplicado. Remova o cupom atual antes de adicionar outro.');
                 return;
             }
@@ -299,15 +317,9 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Adicionar classe ao elemento do cupom aplicado
-                    const couponElement = document.createElement('div');
-                    couponElement.className = 'coupon-applied';
-                    couponElement.style.display = 'none';
-                    document.body.appendChild(couponElement);
-                    
                     showAlert('success', data.message);
-                    // Atualizar interface com os novos valores
-                    updateCartTotalsWithDiscount(data);
+                    // Recarregar página para mostrar cupom aplicado corretamente
+                    setTimeout(() => location.reload(), 1000);
                 } else {
                     showAlert('danger', data.message);
                 }
@@ -320,12 +332,6 @@
 
         // Remover cupom
         function removeCoupon() {
-            // Remover o marcador de cupom aplicado
-            const existingCoupon = document.querySelector('.coupon-applied');
-            if (existingCoupon) {
-                existingCoupon.remove();
-            }
-            
             if (confirm('Tem certeza que deseja remover o cupom?')) {
                 fetch('@Url.Action("RemoveCoupon", "Cart")', {
                     method: 'POST',
@@ -351,54 +357,6 @@
             }
         }
 
-        // Atualizar totais do carrinho com desconto
-        function updateCartTotalsWithDiscount(data) {
-            // Atualizar resumo do pedido
-            if (data.subtotal !== undefined) {
-                document.querySelector('.cart-summary span:nth-child(2)').textContent = `R$ ${parseFloat(data.subtotal).toFixed(2).replace('.', ',')}`;
-            }
-            if (data.shippingCost !== undefined) {
-                document.querySelector('.cart-summary .d-flex:nth-child(2) span:nth-child(2)').textContent = `R$ ${parseFloat(data.shippingCost).toFixed(2).replace('.', ',')}`;
-            }
-            if (data.taxAmount !== undefined) {
-                document.querySelector('.cart-summary .d-flex:nth-child(3) span:nth-child(2)').textContent = `R$ ${parseFloat(data.taxAmount).toFixed(2).replace('.', ',')}`;
-            }
-            
-            // Adicionar ou atualizar linha de desconto
-            const existingDiscountRow = document.getElementById('discountRow');
-            if (data.discountAmount && data.discountAmount > 0) {
-                if (existingDiscountRow) {
-                    existingDiscountRow.querySelector('span:nth-child(2)').textContent = `-R$ ${parseFloat(data.discountAmount).toFixed(2).replace('.', ',')}`;
-                } else {
-                    // Criar nova linha de desconto
-                    const discountHtml = `
-                        <div class="d-flex justify-content-between mb-2 text-success" id="discountRow">
-                            <span>Desconto (${data.couponCode}):</span>
-                            <div>
-                                <span>-R$ ${parseFloat(data.discountAmount).toFixed(2).replace('.', ',')}</span>
-                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeCoupon()" title="Remover cupom">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="coupon-applied" style="display: none;"></div>
-                    `;
-                    const hrElement = document.querySelector('.cart-summary hr');
-                    hrElement.insertAdjacentHTML('beforebegin', discountHtml);
-                }
-            }
-            
-            // Atualizar total final
-            if (data.total !== undefined) {
-                const totalElement = document.querySelector('.cart-summary strong.h5.text-primary.mb-0');
-                if (totalElement) {
-                    totalElement.textContent = `R$ ${parseFloat(data.total).toFixed(2).replace('.', ',')}`;
-                }
-            }
-            
-            // Limpar campo de cupom
-            document.getElementById('couponCode').value = '';
-        }
 
         // Atualizar totais do carrinho
         function updateCartTotals(data) {
@@ -419,15 +377,24 @@
                 }
             }
 
-            // Atualizar resumo do pedido
+            // Atualizar resumo do pedido usando IDs específicos
             if (data.subtotal !== undefined) {
-                document.querySelector('.cart-summary span:nth-child(2)').textContent = `R$ ${parseFloat(data.subtotal).toFixed(2).replace('.', ',')}`;
+                const subtotalElement = document.getElementById('subtotalDisplay');
+                if (subtotalElement) {
+                    subtotalElement.textContent = `R$ ${parseFloat(data.subtotal).toFixed(2).replace('.', ',')}`;
+                }
             }
             if (data.shippingCost !== undefined) {
-                document.querySelector('.cart-summary .d-flex:nth-child(2) span:nth-child(2)').textContent = `R$ ${parseFloat(data.shippingCost).toFixed(2).replace('.', ',')}`;
+                const shippingElement = document.getElementById('shippingCostDisplay');
+                if (shippingElement) {
+                    shippingElement.textContent = `R$ ${parseFloat(data.shippingCost).toFixed(2).replace('.', ',')}`;
+                }
             }
             if (data.taxAmount !== undefined) {
-                document.querySelector('.cart-summary .d-flex:nth-child(3) span:nth-child(2)').textContent = `R$ ${parseFloat(data.taxAmount).toFixed(2).replace('.', ',')}`;
+                const taxElement = document.getElementById('taxAmountDisplay');
+                if (taxElement) {
+                    taxElement.textContent = `R$ ${parseFloat(data.taxAmount).toFixed(2).replace('.', ',')}`;
+                }
             }
             if (data.discountAmount !== undefined) {
                 const discountDiv = document.querySelector('.cart-summary .text-success span:nth-child(2)');
@@ -436,7 +403,10 @@
                 }
             }
             if (data.total !== undefined) {
-                document.querySelector('.cart-summary strong.h5.text-primary.mb-0').textContent = `R$ ${parseFloat(data.total).toFixed(2).replace('.', ',')}`;
+                const totalElement = document.getElementById('totalDisplay');
+                if (totalElement) {
+                    totalElement.textContent = `R$ ${parseFloat(data.total).toFixed(2).replace('.', ',')}`;
+                }
             }
         }
 
@@ -458,6 +428,93 @@
                 }
             }, 5000);
         }
+
+        // Calcular frete
+        function calculateShipping() {
+            const cep = document.getElementById('shippingCep').value.replace(/\D/g, '');
+            const btn = document.getElementById('calculateShippingBtn');
+            
+            if (cep.length !== 8) {
+                showAlert('warning', 'Por favor, digite um CEP válido com 8 dígitos');
+                return;
+            }
+            
+            // Mostrar loading
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Calculando...';
+            btn.disabled = true;
+            
+            fetch('@Url.Action("CalculateShipping", "Cart")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                },
+                body: JSON.stringify({ cep: cep })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Atualizar valor do frete
+                    document.getElementById('shippingCostDisplay').textContent = `R$ ${parseFloat(data.shippingCost).toFixed(2).replace('.', ',')}`;
+                    
+                    // Mostrar informações do frete
+                    const resultDiv = document.getElementById('shippingResult');
+                    const infoSpan = document.getElementById('shippingInfo');
+                    
+                    if (data.shippingCost === 0) {
+                        infoSpan.innerHTML = '<span class="text-success">Frete grátis!</span>';
+                    } else {
+                        infoSpan.innerHTML = `Entrega para ${data.city || 'sua região'} - ${data.estimatedDays || '5-10'} dias úteis`;
+                    }
+                    
+                    resultDiv.style.display = 'block';
+                    
+                    // Atualizar total geral
+                    if (data.total !== undefined) {
+                        const totalElement = document.getElementById('totalDisplay');
+                        if (totalElement) {
+                            totalElement.textContent = `R$ ${parseFloat(data.total).toFixed(2).replace('.', ',')}`;
+                        }
+                    }
+                    
+                    showAlert('success', 'Frete calculado com sucesso!');
+                } else {
+                    showAlert('danger', data.message || 'Erro ao calcular frete');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                showAlert('danger', 'Erro ao calcular frete. Tente novamente.');
+            })
+            .finally(() => {
+                // Restaurar botão
+                btn.innerHTML = '<i class="fas fa-calculator me-1"></i>Calcular';
+                btn.disabled = false;
+            });
+        }
+        
+        // Formatar CEP enquanto digita
+        function formatCep(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length > 5) {
+                value = value.replace(/^(\d{5})(\d{1,3})$/, '$1-$2');
+            }
+            input.value = value;
+        }
+        
+        // Event listeners
+        document.getElementById('calculateShippingBtn').addEventListener('click', calculateShipping);
+        
+        document.getElementById('shippingCep').addEventListener('input', function() {
+            formatCep(this);
+        });
+        
+        document.getElementById('shippingCep').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                calculateShipping();
+            }
+        });
 
         // Atualizar quantidade ao mudar input
         document.querySelectorAll('.quantity-input').forEach(input => {

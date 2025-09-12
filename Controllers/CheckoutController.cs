@@ -601,12 +601,34 @@ namespace EcommercePWA.Controllers
 
         private decimal CalculateShippingCost(Cart cart)
         {
-            if (cart.Total >= 200)
-                return 0;
-            else if (cart.Total >= 100)
-                return 15;
+            // Calcular o valor total do carrinho considerando cupom aplicado
+            decimal cartTotal = cart.Items.Sum(i => i.Total);
+            
+            // Se há cupom aplicado, subtrair o desconto
+            if (!string.IsNullOrEmpty(cart.CouponCode))
+            {
+                var couponService = HttpContext.RequestServices.GetRequiredService<ICouponService>();
+                var coupon = couponService.GetCouponByCode(cart.CouponCode);
+                if (coupon != null)
+                {
+                    if (coupon.DiscountPercentage.HasValue)
+                    {
+                        cartTotal -= cartTotal * (coupon.DiscountPercentage.Value / 100);
+                    }
+                    else
+                    {
+                        cartTotal -= coupon.DiscountAmount;
+                    }
+                }
+            }
+
+            // Calcular frete baseado no valor final (com desconto aplicado)
+            if (cartTotal >= 5000)
+                return 0; // Frete grátis para pedidos acima de R$ 5.000
+            else if (cartTotal >= 3000)
+                return 15; // R$ 15 para pedidos entre R$ 3.000 e R$ 5.000
             else
-                return 25;
+                return 25; // R$ 25 para pedidos abaixo de R$ 3.000
         }
 
         private decimal CalculateTaxAmount(decimal subtotal)

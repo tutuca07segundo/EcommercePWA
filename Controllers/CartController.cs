@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
 using EcommercePWA.Attributes;
+using System.Text.Json;
 
 namespace EcommercePWA.Controllers
 {
@@ -10,13 +11,15 @@ namespace EcommercePWA.Controllers
         private readonly ICartService _cartService;
         private readonly IProductService _productService;
         private readonly IDiscountService _discountService;
+        private readonly ICouponService _couponService;
         private readonly ILogger<CartController> _logger;
 
-        public CartController(ICartService cartService, IProductService productService, IDiscountService discountService, ILogger<CartController> logger)
+        public CartController(ICartService cartService, IProductService productService, IDiscountService discountService, ICouponService couponService, ILogger<CartController> logger)
         {
             _cartService = cartService;
             _productService = productService;
             _discountService = discountService;
+            _couponService = couponService;
             _logger = logger;
         }
 
@@ -295,33 +298,117 @@ namespace EcommercePWA.Controllers
             try
             {
                 var sessionId = GetSessionId();
-                
-                // Remover cupom do carrinho no banco de dados
-                _cartService.RemoveCoupon(sessionId);
-                
-                // Remover cupom da sessão
-                HttpContext.Session.Remove("CouponCode");
-                HttpContext.Session.Remove("DiscountAmount");
-                
                 var cart = _cartService.GetCart(sessionId);
-                var shippingCost = CalculateShippingCost(cart);
-                var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Subtotal + shippingCost + taxAmount;
-                
+                if (cart == null)
+                {
+                    return Json(new { success = false, message = "Carrinho não encontrado" });
+                }
+
+                // Remover cupom da sessão
+                HttpContext.Session.Remove("AppliedCoupon");
+                _cartService.RemoveCoupon(sessionId);
+
+                // Recalcular totais sem cupom
+                var viewModel = new CartViewModel
+                {
+                    Items = cart.Items,
+                    Subtotal = cart.Items.Sum(i => i.Total),
+                    ShippingCost = CalculateShippingCostFallback(cart),
+                    TaxAmount = CalculateTaxAmount(cart.Items.Sum(i => i.Total)),
+                    DiscountAmount = null,
+                    CouponCode = null,
+                    CouponMessage = null,
+                    IsCouponValid = false
+                };
+
+                viewModel.Total = viewModel.Subtotal + viewModel.ShippingCost + viewModel.TaxAmount - (viewModel.DiscountAmount ?? 0);
+
                 return Json(new { 
                     success = true, 
-                    message = "Cupom removido com sucesso",
-                    subtotal = cart.Subtotal,
-                    shippingCost = shippingCost,
-                    taxAmount = taxAmount,
-                    total = finalTotal,
-                    discountAmount = 0
+                    message = "Cupom removido com sucesso!",
+                    subtotal = viewModel.Subtotal,
+                    shippingCost = viewModel.ShippingCost,
+                    taxAmount = viewModel.TaxAmount,
+                    discountAmount = 0,
+                    total = viewModel.Total
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao remover cupom");
-                return Json(new { success = false, message = "Erro ao remover cupom" });
+                return Json(new { success = false, message = "Erro ao remover cupom: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CalculateShipping([FromBody] CalculateShippingRequest request)
+        {
+            try
+            {
+                var sessionId = GetSessionId();
+                var cart = _cartService.GetCart(sessionId);
+                if (cart == null)
+                {
+                    return Json(new { success = false, message = "Carrinho não encontrado" });
+                }
+
+                if (string.IsNullOrEmpty(request.Cep) || request.Cep.Length != 8)
+                {
+                    return Json(new { success = false, message = "CEP inválido" });
+                }
+
+                // Validar CEP via ViaCEP
+                var cepInfo = await ValidateCepAsync(request.Cep);
+                if (cepInfo == null)
+                {
+                    return Json(new { success = false, message = "CEP não encontrado" });
+                }
+
+                // Calcular frete usando fallback (lógica simples)
+                decimal shippingCost = CalculateShippingCostFallback(cart);
+                string estimatedDays = "5-10";
+
+                // Salvar CEP na sessão para usar no checkout
+                HttpContext.Session.SetString("ShippingCep", request.Cep);
+                HttpContext.Session.SetString("ShippingCost", shippingCost.ToString());
+
+                // Recalcular total
+                var subtotal = cart.Items.Sum(i => i.Total);
+                var taxAmount = CalculateTaxAmount(subtotal);
+                
+                // Aplicar desconto se houver cupom
+                decimal discountAmount = 0;
+                var appliedCoupon = HttpContext.Session.GetString("AppliedCoupon");
+                if (!string.IsNullOrEmpty(appliedCoupon))
+                {
+                    var coupon = _couponService.GetCouponByCode(appliedCoupon);
+                    if (coupon != null && _couponService.ValidateCoupon(appliedCoupon, subtotal))
+                    {
+                        if (coupon.DiscountPercentage.HasValue)
+                        {
+                            discountAmount = subtotal * (coupon.DiscountPercentage.Value / 100);
+                        }
+                        else if (coupon.DiscountAmount > 0)
+                        {
+                            discountAmount = coupon.DiscountAmount;
+                        }
+                    }
+                }
+
+                var total = subtotal + shippingCost + taxAmount - discountAmount;
+
+                return Json(new
+                {
+                    success = true,
+                    shippingCost = shippingCost,
+                    total = total,
+                    city = cepInfo.City,
+                    estimatedDays = estimatedDays,
+                    message = "Frete calculado com sucesso!"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Erro ao calcular frete: " + ex.Message });
             }
         }
 
@@ -342,12 +429,39 @@ namespace EcommercePWA.Controllers
             return sessionId;
         }
 
+        private async Task<decimal> CalculateShippingCostAsync(Cart cart, string? destinationCep = null)
+        {
+            try
+            {
+                // Se não tiver CEP de destino, usar lógica de fallback
+                if (string.IsNullOrEmpty(destinationCep))
+                {
+                    return CalculateShippingCostFallback(cart);
+                }
+
+                // Como não temos mais API de frete, usar lógica simples
+                return CalculateShippingCostFallback(cart);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao calcular frete via API");
+            }
+
+            // Fallback para lógica simples
+            return CalculateShippingCostFallback(cart);
+        }
+
         private decimal CalculateShippingCost(Cart cart)
         {
+            return CalculateShippingCostFallback(cart);
+        }
+
+        private decimal CalculateShippingCostFallback(Cart cart)
+        {
             // Lógica simples de frete baseada no valor do pedido
-            if (cart.Total >= 200)
+            if (cart.Total >= 5000)
                 return 0; // Frete grátis para pedidos acima de R$ 200
-            else if (cart.Total >= 100)
+            else if (cart.Total >= 3000)
                 return 15; // R$ 15 para pedidos entre R$ 100 e R$ 200
             else
                 return 25; // R$ 25 para pedidos abaixo de R$ 100
@@ -385,6 +499,69 @@ namespace EcommercePWA.Controllers
                 return Json(new { success = false, count = 0 });
             }
         }
+
+        private async Task<CepInfo?> ValidateCepAsync(string cep)
+        {
+            try
+            {
+                using var httpClient = new HttpClient();
+                var response = await httpClient.GetAsync($"https://viacep.com.br/ws/{cep}/json/");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var cepData = System.Text.Json.JsonSerializer.Deserialize<dynamic>(content);
+                    
+                    // Verificar se o CEP existe (ViaCEP retorna erro: true quando CEP não existe)
+                    if (content.Contains("\"erro\""))
+                    {
+                        return null;
+                    }
+                    
+                    var cepInfo = System.Text.Json.JsonSerializer.Deserialize<CepInfo>(content, new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
+                    
+                    return new CepInfo
+                    {
+                        Cep = cep,
+                        City = GetJsonProperty(content, "localidade") ?? "Cidade não encontrada",
+                        State = GetJsonProperty(content, "uf") ?? "",
+                        District = GetJsonProperty(content, "bairro") ?? ""
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao validar CEP via ViaCEP");
+            }
+            
+            return null;
+        }
+
+        private string? GetJsonProperty(string json, string propertyName)
+        {
+            try
+            {
+                using var document = JsonDocument.Parse(json);
+                if (document.RootElement.TryGetProperty(propertyName, out var property))
+                {
+                    return property.GetString();
+                }
+            }
+            catch
+            {
+                // Ignorar erros de parsing
+            }
+            return null;
+        }
+
+        private string GetCartId()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            return userId.HasValue ? $"user_{userId.Value}" : GetSessionId();
+        }
     }
 
     public class AddToCartRequest
@@ -413,5 +590,18 @@ namespace EcommercePWA.Controllers
     public class RemoveCouponRequest
     {
         // Classe vazia, apenas para consistência
+    }
+
+    public class CalculateShippingRequest
+    {
+        public string Cep { get; set; } = string.Empty;
+    }
+
+    public class CepInfo
+    {
+        public string Cep { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
+        public string District { get; set; } = string.Empty;
     }
 }

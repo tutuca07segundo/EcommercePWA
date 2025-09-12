@@ -40,6 +40,19 @@ namespace EcommercePWA.Models
         [StringLength(50)]
         public string Type { get; set; } = string.Empty; // Periférico, Peça, etc.
         
+        // Propriedades para cálculo de frete
+        [Range(0.01, 50000)] // peso em gramas (máximo 50kg)
+        public decimal Weight { get; set; } = 500; // peso padrão 500g
+        
+        [Range(1, 200)] // largura em cm
+        public int Width { get; set; } = 20; // largura padrão 20cm
+        
+        [Range(1, 200)] // altura em cm  
+        public int Height { get; set; } = 15; // altura padrão 15cm
+        
+        [Range(1, 200)] // comprimento em cm
+        public int Length { get; set; } = 25; // comprimento padrão 25cm
+        
         public List<string> Tags { get; set; } = new List<string>();
         
         public decimal Rating { get; set; } = 0;

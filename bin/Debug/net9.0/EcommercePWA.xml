@@ -246,5 +246,17 @@
         <member name="M:EcommercePWA.Migrations.AddCategoryPromotion.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:EcommercePWA.Migrations.AddProductShippingProperties">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddProductShippingProperties.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddProductShippingProperties.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddProductShippingProperties.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
     </members>
 </doc>

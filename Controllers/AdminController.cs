@@ -18,7 +18,7 @@ using EcommercePWA.Attributes;
 //Pedidos: /Admin/Orders
 //Usuários: /Admin/Users
 //Categorias: /Admin/Categories
-// ---> finaliza processo que ja esta rodando
+//taskkill /F /IM dotnet.exe ---> finaliza processo que ja esta rodando
 
 // ✅ Cartão negado 4000 0000 0000 0002  (Visa - sempre negado)
 // CVV: 123

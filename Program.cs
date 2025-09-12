@@ -14,16 +14,18 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
+
+// Registrar serviços
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
-builder.Services.AddScoped<ICouponService, CouponService>();
-builder.Services.AddScoped<IDiscountService, DiscountService>();
-builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<ITrackingService, TrackingService>();
-builder.Services.AddScoped<IMercadoPagoService, MercadoPagoService>();
+builder.Services.AddScoped<IDiscountService, DiscountService>();
+// builder.Services.AddScoped<IPromotionService, PromotionService>(); // Comentado temporariamente
 builder.Services.AddScoped<ICategoryPromotionService, CategoryPromotionService>();
+builder.Services.AddScoped<ITrackingService, TrackingService>();
 builder.Services.AddScoped<DataSeederService>();
 
 // Configure MercadoPago settings

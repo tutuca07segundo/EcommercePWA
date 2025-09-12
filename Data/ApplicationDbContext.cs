@@ -35,6 +35,10 @@ namespace EcommercePWA.Data
                 .Property(p => p.Price)
                 .HasColumnType("decimal(18,2)");
 
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Weight)
+                .HasColumnType("decimal(8,2)");
+
             // Configuração do User
             modelBuilder.Entity<User>()
                 .Property(u => u.Password)

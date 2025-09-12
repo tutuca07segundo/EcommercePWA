@@ -488,12 +488,18 @@ namespace EcommercePWA.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Height")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsAvailable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Length")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
@@ -521,6 +527,12 @@ namespace EcommercePWA.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Weight")
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 

@@ -103,59 +103,130 @@
 <!-- Conteúdo Principal -->
 <main class="main-content">
     <div class="container-fluid py-4">
-        <!-- Filtros e Ordenação -->
+        <!-- Painel de Filtros Avançados -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-6">
-                                <h6 class="mb-0">
-                                    <i class="fas fa-filter me-2"></i>Filtros
-                                </h6>
-                                @if (!string.IsNullOrEmpty(Model.SearchTerm))
-                                {
-                                    <span class="badge bg-primary me-2">
-                                        Busca: "@Model.SearchTerm"
-                                        <a href="@Url.Action("Index", "Home")" class="text-white text-decoration-none ms-1">
-                                            <i class="fas fa-times"></i>
-                                        </a>
-                                    </span>
-                                }
-                                @if (!string.IsNullOrEmpty(Model.SelectedCategory))
-                                {
-                                    <span class="badge bg-success me-2">
-                                        Categoria: @Model.SelectedCategory
-                                        <a href="@Url.Action("Index", "Home")" class="text-white text-decoration-none ms-1">
-                                            <i class="fas fa-times"></i>
-                                        </a>
-                                    </span>
-                                }
-                            </div>
-                            <div class="col-md-6 text-end">
-                                <div class="btn-group" role="group">
-                                    <label class="btn btn-outline-secondary">
-                                        <i class="fas fa-sort me-1"></i>Ordenar:
-                                    </label>
-                                    <a href="@Url.Action("Sort", "Home", new { order = "name" })" 
-                                       class="btn btn-outline-secondary @(Model.SortOrder == "name" ? "active" : "")">
-                                        Nome
-                                    </a>
-                                    <a href="@Url.Action("Sort", "Home", new { order = "price_asc" })" 
-                                       class="btn btn-outline-secondary @(Model.SortOrder == "price_asc" ? "active" : "")">
-                                        <i class="fas fa-sort-amount-down me-1"></i>Menor Preço
-                                    </a>
-                                    <a href="@Url.Action("Sort", "Home", new { order = "price_desc" })" 
-                                       class="btn btn-outline-secondary @(Model.SortOrder == "price_desc" ? "active" : "")">
-                                        <i class="fas fa-sort-amount-up me-1"></i>Maior Preço
-                                    </a>
-                                    <a href="@Url.Action("Sort", "Home", new { order = "rating" })" 
-                                       class="btn btn-outline-secondary @(Model.SortOrder == "rating" ? "active" : "")">
-                                        <i class="fas fa-star me-1"></i>Avaliação
-                                    </a>
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="fas fa-filter me-2"></i>Filtros Avançados
+                            </h6>
+                            <button class="btn btn-outline-primary btn-sm" type="button" id="toggleFilters">
+                                <i class="fas fa-chevron-down me-1"></i>Expandir Filtros
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body" id="filtersPanel" style="display: none;">
+                        <form id="advancedFiltersForm">
+                            <div class="row g-3">
+                                <!-- Busca com Autocomplete -->
+                                <div class="col-md-4">
+                                    <label class="form-label">Buscar Produtos</label>
+                                    <div class="position-relative">
+                                        <input type="text" class="form-control" id="searchInput" 
+                                               placeholder="Digite para buscar..." autocomplete="off">
+                                        <div id="searchSuggestions" class="position-absolute w-100 bg-white border rounded shadow-sm" 
+                                             style="top: 100%; z-index: 1000; display: none; max-height: 300px; overflow-y: auto;"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Categorias -->
+                                <div class="col-md-4">
+                                    <label class="form-label">Categorias</label>
+                                    <div id="categoryFilters" class="filter-checkboxes">
+                                        <!-- Preenchido dinamicamente -->
+                                    </div>
+                                </div>
+
+                                <!-- Marcas -->
+                                <div class="col-md-4">
+                                    <label class="form-label">Marcas</label>
+                                    <div id="brandFilters" class="filter-checkboxes">
+                                        <!-- Preenchido dinamicamente -->
+                                    </div>
+                                </div>
+
+                                <!-- Faixa de Preço -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Faixa de Preço</label>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <input type="number" class="form-control" id="minPrice" 
+                                                   placeholder="Preço mínimo" min="0" step="0.01">
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="number" class="form-control" id="maxPrice" 
+                                                   placeholder="Preço máximo" min="0" step="0.01">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Avaliação Mínima -->
+                                <div class="col-md-3">
+                                    <label class="form-label">Avaliação Mínima</label>
+                                    <select class="form-select" id="minRating">
+                                        <option value="">Qualquer avaliação</option>
+                                        <option value="1">⭐ 1+ estrelas</option>
+                                        <option value="2">⭐⭐ 2+ estrelas</option>
+                                        <option value="3">⭐⭐⭐ 3+ estrelas</option>
+                                        <option value="4">⭐⭐⭐⭐ 4+ estrelas</option>
+                                        <option value="5">⭐⭐⭐⭐⭐ 5 estrelas</option>
+                                    </select>
+                                </div>
+
+                                <!-- Filtros Adicionais -->
+                                <div class="col-md-3">
+                                    <label class="form-label">Filtros Extras</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="inStockOnly">
+                                        <label class="form-check-label" for="inStockOnly">
+                                            Apenas em estoque
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="onSaleOnly">
+                                        <label class="form-check-label" for="onSaleOnly">
+                                            Apenas em promoção
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+
+                            <!-- Ordenação -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Ordenar por</label>
+                                    <select class="form-select" id="sortBy">
+                                        <option value="name">Nome (A-Z)</option>
+                                        <option value="price">Menor Preço</option>
+                                        <option value="price-desc">Maior Preço</option>
+                                        <option value="rating">Melhor Avaliação</option>
+                                        <option value="newest">Mais Recentes</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <button type="button" class="btn btn-warning me-2" id="applyFilters">
+                                        <i class="fas fa-search me-1"></i>Aplicar Filtros
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" id="clearFilters">
+                                        <i class="fas fa-times me-1"></i>Limpar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros Ativos -->
+        <div class="row mb-3" id="activeFiltersRow" style="display: none;">
+            <div class="col-12">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <span class="text-muted me-2">Filtros ativos:</span>
+                    <div id="activeFiltersBadges" class="d-flex flex-wrap gap-1">
+                        <!-- Badges de filtros ativos -->
                     </div>
                 </div>
             </div>
@@ -167,21 +238,13 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="fas fa-boxes me-2"></i>
-                        @if (!string.IsNullOrEmpty(Model.SearchTerm))
-                        {
-                            <span>Resultados para "@Model.SearchTerm"</span>
-                        }
-                        else if (!string.IsNullOrEmpty(Model.SelectedCategory))
-                        {
-                            <span>@Model.SelectedCategory</span>
-                        }
-                        else
-                        {
-                            <span>Todos os Produtos</span>
-                        }
+                        <span id="resultsTitle">Todos os Produtos</span>
                     </h5>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted">@Model.Products.Count produto(s) encontrado(s)</span>
+                        <div id="loadingSpinner" class="spinner-border spinner-border-sm text-warning" style="display: none;" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                        <span class="text-muted" id="resultsCount">@Model.Products.Count produto(s) encontrado(s)</span>
                         @if (Context.Session.GetInt32("UserId").HasValue)
                         {
                             <a href="@Url.Action("Create", "Product")" class="btn btn-success btn-sm">
@@ -194,13 +257,14 @@
         </div>
 
         <!-- Grid de Produtos -->
-        @if (Model.Products.Any())
-        {
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
-                @foreach (var product in Model.Products)
-                {
-                    <div class="col">
-                        <div class="card h-100 product-card position-relative" style="cursor: pointer;" onclick="navigateToProduct(@product.Id, event)">
+        <div id="productsContainer">
+            @if (Model.Products.Any())
+            {
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4" id="productsGrid">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="col">
+                            <div class="card h-100 product-card position-relative" style="cursor: pointer;" onclick="navigateToProduct(@product.Id, event)">
                             <div class="position-relative">
                                 <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/placeholder.jpg" : product.ImageUrl)" 
                                      class="card-img-top" alt="@product.Name" 
@@ -312,7 +376,7 @@
         }
         else
         {
-            <div class="text-center py-5">
+            <div class="text-center py-5" id="noResultsMessage">
                 <i class="fas fa-search fa-3x text-muted mb-3"></i>
                 <h4 class="text-muted">Nenhum produto encontrado</h4>
                 <p class="text-muted">Tente ajustar os filtros ou fazer uma nova busca.</p>
@@ -322,9 +386,22 @@
             </div>
         }
     </div>
+
+    <!-- Paginação -->
+    <div class="row mt-4" id="paginationContainer" style="display: none;">
+        <div class="col-12">
+            <nav aria-label="Navegação de páginas">
+                <ul class="pagination justify-content-center" id="paginationList">
+                    <!-- Paginação dinâmica -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
 </main>
 
 @section Scripts {
+    <script src="~/js/advanced-filters.js"></script>
     <script>
          function addToCartFromHome(productId) {
                 @if (!Context.Session.GetInt32("UserId").HasValue)

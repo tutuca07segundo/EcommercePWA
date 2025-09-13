@@ -890,3 +890,4 @@ C:\Users\Pedro\Desktop\esse\EcommercePWA\bin\Debug\net9.0\MercadoPago.dll
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\compressed\okohksbcf5-nvh65sr6oy.gz
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\compressed\332b2lwu4r-yf47ooc04d.gz
 C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\332b2lwu4r-pveh3qcj3w.gz
+C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\6l74yxgwj4-bzk376wjtu.gz

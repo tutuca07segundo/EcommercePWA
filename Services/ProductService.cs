@@ -15,6 +15,11 @@ namespace EcommercePWA.Services
         Task<List<Product>> GetRelatedProductsAsync(Product product, int count);
         Task<List<ProductVariation>> GetProductVariationsAsync(int productId);
         
+        // Advanced Filter Methods
+        Task<FilteredProductsResult> FilterProductsAsync(ProductFilterModel filter);
+        Task<ProductFilterOptions> GetFilterOptionsAsync();
+        Task<List<SearchSuggestion>> GetSearchSuggestionsAsync(string searchTerm, int maxResults = 5);
+        
         // CRUD Operations
         Task<Product> CreateProductAsync(Product product);
         Task<Product> UpdateProductAsync(Product product);
@@ -475,6 +480,182 @@ namespace EcommercePWA.Services
             {
                 _logger.LogError(ex, "Erro ao inicializar banco de dados");
                 return false;
+            }
+        }
+
+        // Advanced Filter Methods Implementation
+        public async Task<FilteredProductsResult> FilterProductsAsync(ProductFilterModel filter)
+        {
+            try
+            {
+                var query = _context.Products
+                    .Include(p => p.Variations)
+                    .Include(p => p.Reviews)
+                    .AsNoTracking()
+                    .AsQueryable();
+
+                // Apply search term filter
+                if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+                {
+                    query = query.Where(p => 
+                        EF.Functions.Like(p.Name, $"%{filter.SearchTerm}%") ||
+                        EF.Functions.Like(p.Description, $"%{filter.SearchTerm}%") ||
+                        EF.Functions.Like(p.Brand, $"%{filter.SearchTerm}%") ||
+                        EF.Functions.Like(p.Category, $"%{filter.SearchTerm}%"));
+                }
+
+                // Apply category filter
+                if (filter.Categories.Any())
+                {
+                    query = query.Where(p => filter.Categories.Contains(p.Category));
+                }
+
+                // Apply brand filter
+                if (filter.Brands.Any())
+                {
+                    query = query.Where(p => filter.Brands.Contains(p.Brand));
+                }
+
+                // Apply price range filter
+                if (filter.MinPrice.HasValue)
+                {
+                    query = query.Where(p => p.Price >= filter.MinPrice.Value);
+                }
+                if (filter.MaxPrice.HasValue)
+                {
+                    query = query.Where(p => p.Price <= filter.MaxPrice.Value);
+                }
+
+                // Apply rating filter
+                if (filter.MinRating.HasValue)
+                {
+                    query = query.Where(p => p.Rating >= filter.MinRating.Value);
+                }
+
+                // Apply stock filter
+                if (filter.InStockOnly == true)
+                {
+                    query = query.Where(p => p.StockQuantity > 0);
+                }
+
+                // Apply sale filter
+                if (filter.OnSaleOnly == true)
+                {
+                    query = query.Where(p => p.HasDiscount);
+                }
+
+                // Get total count before pagination
+                var totalCount = await query.CountAsync();
+
+                // Apply sorting
+                query = filter.SortBy.ToLower() switch
+                {
+                    "name" => filter.SortDirection == "desc" 
+                        ? query.OrderByDescending(p => p.Name)
+                        : query.OrderBy(p => p.Name),
+                    "price" => filter.SortDirection == "desc"
+                        ? query.OrderByDescending(p => p.Price)
+                        : query.OrderBy(p => p.Price),
+                    "rating" => filter.SortDirection == "desc"
+                        ? query.OrderByDescending(p => p.Rating)
+                        : query.OrderBy(p => p.Rating),
+                    "newest" => query.OrderByDescending(p => p.CreatedAt),
+                    _ => query.OrderBy(p => p.Name)
+                };
+
+                // Apply pagination
+                var products = await query
+                    .Skip((filter.Page - 1) * filter.PageSize)
+                    .Take(filter.PageSize)
+                    .ToListAsync();
+
+                var totalPages = (int)Math.Ceiling((double)totalCount / filter.PageSize);
+
+                return new FilteredProductsResult
+                {
+                    Products = products,
+                    TotalCount = totalCount,
+                    CurrentPage = filter.Page,
+                    TotalPages = totalPages,
+                    FilterOptions = await GetFilterOptionsAsync()
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao filtrar produtos");
+                return new FilteredProductsResult();
+            }
+        }
+
+        public async Task<ProductFilterOptions> GetFilterOptionsAsync()
+        {
+            try
+            {
+                var categories = await _context.Products
+                    .Select(p => p.Category)
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToListAsync();
+
+                var brands = await _context.Products
+                    .Select(p => p.Brand)
+                    .Distinct()
+                    .OrderBy(b => b)
+                    .ToListAsync();
+
+                var prices = await _context.Products
+                    .Select(p => p.Price)
+                    .ToListAsync();
+
+                return new ProductFilterOptions
+                {
+                    AvailableCategories = categories,
+                    AvailableBrands = brands,
+                    MinPrice = prices.Any() ? prices.Min() : 0,
+                    MaxPrice = prices.Any() ? prices.Max() : 0,
+                    AvailableRatings = new List<decimal> { 1, 2, 3, 4, 5 }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter opções de filtro");
+                return new ProductFilterOptions();
+            }
+        }
+
+        public async Task<List<SearchSuggestion>> GetSearchSuggestionsAsync(string searchTerm, int maxResults = 5)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(searchTerm) || searchTerm.Length < 2)
+                    return new List<SearchSuggestion>();
+
+                var suggestions = await _context.Products
+                    .AsNoTracking()
+                    .Where(p => 
+                        EF.Functions.Like(p.Name, $"%{searchTerm}%") ||
+                        EF.Functions.Like(p.Brand, $"%{searchTerm}%") ||
+                        EF.Functions.Like(p.Category, $"%{searchTerm}%"))
+                    .OrderByDescending(p => p.Rating)
+                    .Take(maxResults)
+                    .Select(p => new SearchSuggestion
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Category = p.Category,
+                        Brand = p.Brand,
+                        Price = p.Price,
+                        ImageUrl = p.ImageUrl,
+                        Type = p.Type
+                    })
+                    .ToListAsync();
+
+                return suggestions;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter sugestões de busca");
+                return new List<SearchSuggestion>();
             }
         }
     }

@@ -21,6 +21,10 @@
       "PackagePath": "staticwebassets\\images\\placeholder.txt"
     },
     {
+      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\js\\advanced-filters.js",
+      "PackagePath": "staticwebassets\\js\\advanced-filters.js"
+    },
+    {
       "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },

@@ -170,6 +170,99 @@ public class HomeController : Controller
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 
+    // API Endpoints for Advanced Filters
+    [HttpPost]
+    public async Task<IActionResult> FilterProducts([FromBody] ProductFilterModel filter)
+    {
+        try
+        {
+            var result = await _productService.FilterProductsAsync(filter);
+            
+            // Apply discounts to filtered products
+            await ApplyDiscountsToProducts(result.Products);
+
+            return Json(new
+            {
+                success = true,
+                products = result.Products.Select(p => new
+                {
+                    id = p.Id,
+                    name = p.Name,
+                    description = p.Description,
+                    price = p.Price,
+                    discountedPrice = p.DiscountedPrice,
+                    hasDiscount = p.HasDiscount,
+                    brand = p.Brand,
+                    category = p.Category,
+                    imageUrl = p.ImageUrl ?? "/images/placeholder.jpg",
+                    stockQuantity = p.StockQuantity,
+                    rating = p.Rating,
+                    reviewCount = p.ReviewCount,
+                    type = p.Type
+                }),
+                totalCount = result.TotalCount,
+                currentPage = result.CurrentPage,
+                totalPages = result.TotalPages
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao filtrar produtos");
+            return Json(new { success = false, message = "Erro interno do servidor" });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetFilterOptions()
+    {
+        try
+        {
+            var options = await _productService.GetFilterOptionsAsync();
+            return Json(new
+            {
+                success = true,
+                categories = options.AvailableCategories,
+                brands = options.AvailableBrands,
+                minPrice = options.MinPrice,
+                maxPrice = options.MaxPrice,
+                ratings = options.AvailableRatings
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter opções de filtro");
+            return Json(new { success = false, message = "Erro interno do servidor" });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> SearchSuggestions(string q, int maxResults = 5)
+    {
+        try
+        {
+            var suggestions = await _productService.GetSearchSuggestionsAsync(q, maxResults);
+            return Json(new
+            {
+                success = true,
+                suggestions = suggestions.Select(s => new
+                {
+                    id = s.Id,
+                    name = s.Name,
+                    category = s.Category,
+                    brand = s.Brand,
+                    price = s.Price,
+                    imageUrl = s.ImageUrl ?? "/images/placeholder.jpg",
+                    type = s.Type
+                })
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter sugestões de busca");
+            return Json(new { success = false, suggestions = new List<object>() });
+        }
+    }
+
     private async Task ApplyDiscountsToProducts(List<Product> products)
     {
         foreach (var product in products)

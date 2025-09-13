@@ -315,6 +315,11 @@
                             <button class="btn btn-warning btn-lg" onclick="addToCartFromHome(@Model.Product.Id)">
                                 <i class="fas fa-shopping-cart me-2"></i>Adicionar ao Carrinho
                             </button>
+                            <button class="btn btn-outline-danger" 
+                                    data-product-id="@Model.Product.Id"
+                                    onclick="toggleWishlistFromDetails(@Model.Product.Id, this)">
+                                <i class="fas fa-heart me-2"></i>Adicionar aos Favoritos
+                            </button>
                             @if (Context.Session.GetString("UserRole") == "Admin")
                             {
                                 <div class="btn-group" role="group">
@@ -573,4 +578,30 @@
                     showAlert('danger', 'Erro de conexão ao adicionar ao carrinho');
                 });
             }
+
+    // Função específica para toggle wishlist na página de detalhes
+    function toggleWishlistFromDetails(productId, button) {
+        // Obter variação selecionada, se houver
+        const variationSelect = document.querySelector('input[name="variationId"]:checked');
+        const variationId = variationSelect ? parseInt(variationSelect.value) : null;
+        
+        // Usar a função global do site.js
+        toggleWishlist(productId, variationId, button);
+    }
+
+    // Inicializar status da wishlist quando a página carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        const isLoggedIn = document.body.getAttribute('data-user-authenticated') === 'True';
+        
+        if (isLoggedIn) {
+            const wishlistButton = document.querySelector('[data-product-id="@Model.Product.Id"]');
+            if (wishlistButton) {
+                // Verificar status inicial
+                checkWishlistStatus(@Model.Product.Id, null, wishlistButton);
+                
+                // Atualizar contador da wishlist
+                loadWishlistCount();
+            }
+        }
+    });
 </script>

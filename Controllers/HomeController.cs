@@ -54,7 +54,7 @@ public class HomeController : Controller
             {
                 Products = products,
                 Categories = categories,
-                SelectedCategory = category,
+                SelectedCategory = category ?? "",
                 SearchTerm = searchTerm ?? "",
                 SortOrder = sortOrder ?? "name"
             };

@@ -454,6 +454,8 @@ function addBackToTop() {
 document.addEventListener('DOMContentLoaded', function() {
     addBackToTop();
     loadCartCount();
+    loadWishlistCount();
+    initializeWishlistButtons();
 });
 
 // Carregar contagem inicial do carrinho
@@ -754,5 +756,146 @@ function sortProducts(sortBy) {
         product.style.animationDelay = `${index * 0.1}s`;
         product.classList.add('reordering');
         setTimeout(() => product.classList.remove('reordering'), 500);
+    });
+}
+
+// ===== WISHLIST FUNCTIONS =====
+
+// Carregar contagem inicial da wishlist
+function loadWishlistCount() {
+    const isLoggedIn = document.body.getAttribute('data-user-authenticated') === 'True';
+    
+    if (isLoggedIn) {
+        fetch('/Wishlist/GetCount', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            updateWishlistCount(data.count);
+        })
+        .catch(error => {
+            console.log('Erro ao carregar contagem da wishlist:', error);
+        });
+    }
+}
+
+// Função global para atualizar contador da wishlist
+function updateWishlistCount(count) {
+    const wishlistCountElement = document.getElementById('wishlist-count');
+    if (wishlistCountElement) {
+        if (count > 0) {
+            wishlistCountElement.textContent = count;
+            wishlistCountElement.style.display = 'inline-block';
+        } else {
+            wishlistCountElement.style.display = 'none';
+        }
+    }
+}
+
+// Inicializar botões da wishlist
+function initializeWishlistButtons() {
+    const isLoggedIn = document.body.getAttribute('data-user-authenticated') === 'True';
+    
+    if (isLoggedIn) {
+        // Verificar status inicial dos produtos na wishlist
+        const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+        wishlistButtons.forEach(button => {
+            const productId = button.getAttribute('data-product-id');
+            if (productId) {
+                checkWishlistStatus(productId, null, button);
+            }
+        });
+    }
+}
+
+// Verificar se produto está na wishlist
+function checkWishlistStatus(productId, variationId, button) {
+    fetch(`/Wishlist/CheckStatus?productId=${productId}&variationId=${variationId || ''}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        updateWishlistButtonState(button, data.isInWishlist);
+    })
+    .catch(error => {
+        console.log('Erro ao verificar status da wishlist:', error);
+    });
+}
+
+// Atualizar estado visual do botão da wishlist
+function updateWishlistButtonState(button, isInWishlist) {
+    const icon = button.querySelector('i');
+    if (isInWishlist) {
+        icon.className = 'fas fa-heart text-danger';
+        button.title = 'Remover dos favoritos';
+        button.classList.remove('btn-light');
+        button.classList.add('btn-danger');
+    } else {
+        icon.className = 'fas fa-heart text-muted';
+        button.title = 'Adicionar aos favoritos';
+        button.classList.remove('btn-danger');
+        button.classList.add('btn-light');
+    }
+}
+
+// Toggle wishlist (adicionar/remover)
+function toggleWishlist(productId, variationId, button) {
+    const isLoggedIn = document.body.getAttribute('data-user-authenticated') === 'True';
+    
+    if (!isLoggedIn) {
+        showNotification('Faça login para adicionar produtos aos favoritos', 'warning');
+        return;
+    }
+
+    // Verificar estado atual
+    const icon = button.querySelector('i');
+    const isCurrentlyInWishlist = icon.classList.contains('text-danger');
+    
+    // Mostrar loading
+    const originalIcon = icon.className;
+    icon.className = 'fas fa-spinner fa-spin text-muted';
+    button.disabled = true;
+
+    const action = isCurrentlyInWishlist ? 'Remove' : 'Add';
+    const url = `/Wishlist/${action}`;
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `productId=${productId}&variationId=${variationId || ''}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Atualizar estado do botão
+            updateWishlistButtonState(button, !isCurrentlyInWishlist);
+            
+            // Atualizar contador
+            updateWishlistCount(data.count);
+            
+            // Mostrar notificação
+            showNotification(data.message, 'success');
+        } else {
+            showNotification(data.message, 'error');
+            // Restaurar ícone original em caso de erro
+            icon.className = originalIcon;
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao atualizar wishlist:', error);
+        showNotification('Erro ao atualizar favoritos', 'error');
+        // Restaurar ícone original em caso de erro
+        icon.className = originalIcon;
+    })
+    .finally(() => {
+        button.disabled = false;
     });
 }

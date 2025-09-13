@@ -26,6 +26,7 @@ builder.Services.AddScoped<IDiscountService, DiscountService>();
 // builder.Services.AddScoped<IPromotionService, PromotionService>(); // Comentado temporariamente
 builder.Services.AddScoped<ICategoryPromotionService, CategoryPromotionService>();
 builder.Services.AddScoped<ITrackingService, TrackingService>();
+builder.Services.AddScoped<IWishlistService, WishlistService>();
 builder.Services.AddScoped<DataSeederService>();
 
 // Configure MercadoPago settings

@@ -172,6 +172,10 @@ namespace EcommercePWA.Services
                     
                     item.Quantity = quantity;
                     cart.LastUpdated = DateTime.Now;
+                    
+                    // Recalcular cupom se aplicado
+                    RecalculateCouponIfApplied(cart);
+                    
                     _context.SaveChanges();
                 }
             }
@@ -193,6 +197,10 @@ namespace EcommercePWA.Services
                 {
                     cart.Items.Remove(item);
                     cart.LastUpdated = DateTime.Now;
+                    
+                    // Recalcular cupom se aplicado
+                    RecalculateCouponIfApplied(cart);
+                    
                     _context.SaveChanges();
                 }
             }
@@ -262,7 +270,7 @@ namespace EcommercePWA.Services
                     };
                 }
 
-                if (coupon.MinimumOrderAmount.HasValue && cart.Total < coupon.MinimumOrderAmount.Value)
+                if (coupon.MinimumOrderAmount.HasValue && cart.Subtotal < coupon.MinimumOrderAmount.Value)
                 {
                     return new CouponValidationResult
                     {
@@ -274,7 +282,8 @@ namespace EcommercePWA.Services
                 decimal discountAmount = 0;
                 if (coupon.DiscountPercentage.HasValue)
                 {
-                    discountAmount = cart.Total * (coupon.DiscountPercentage.Value / 100);
+                    // Usar Subtotal ao invés de Total para evitar loop infinito
+                    discountAmount = cart.Subtotal * (coupon.DiscountPercentage.Value / 100);
                 }
                 else
                 {
@@ -388,6 +397,53 @@ namespace EcommercePWA.Services
             {
                 cart.LastUpdated = DateTime.Now;
                 _context.SaveChanges();
+            }
+        }
+
+        private void RecalculateCouponIfApplied(Cart cart)
+        {
+            // Se há um cupom aplicado, recalcular o desconto
+            if (!string.IsNullOrEmpty(cart.CouponCode))
+            {
+                var coupon = _couponService.GetCouponByCode(cart.CouponCode);
+                if (coupon != null && coupon.IsActive && 
+                    DateTime.Now >= coupon.ValidFrom && DateTime.Now <= coupon.ValidUntil)
+                {
+                    // Verificar se ainda atende ao valor mínimo
+                    if (coupon.MinimumOrderAmount.HasValue && cart.Subtotal < coupon.MinimumOrderAmount.Value)
+                    {
+                        // Remove o cupom se não atender mais ao valor mínimo
+                        cart.CouponCode = null;
+                        cart.DiscountAmount = null;
+                    }
+                    else
+                    {
+                        // Recalcular o desconto baseado no novo subtotal
+                        decimal newDiscountAmount = 0;
+                        if (coupon.DiscountPercentage.HasValue)
+                        {
+                            newDiscountAmount = cart.Subtotal * (coupon.DiscountPercentage.Value / 100);
+                        }
+                        else
+                        {
+                            newDiscountAmount = coupon.DiscountAmount;
+                        }
+                        
+                        // Garantir que o desconto não seja maior que o subtotal
+                        if (newDiscountAmount > cart.Subtotal)
+                        {
+                            newDiscountAmount = cart.Subtotal;
+                        }
+                        
+                        cart.DiscountAmount = newDiscountAmount;
+                    }
+                }
+                else
+                {
+                    // Cupom inválido, remover
+                    cart.CouponCode = null;
+                    cart.DiscountAmount = null;
+                }
             }
         }
     }

@@ -1,271 +1,367 @@
 {
   "Files": [
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\obj\\Debug\\net9.0\\scopedcss\\projectbundle\\EcommercePWA.bundle.scp.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\obj\\Debug\\net9.0\\scopedcss\\projectbundle\\EcommercePWA.bundle.scp.css",
       "PackagePath": "staticwebassets\\EcommercePWA.6v7un31a6n.bundle.scp.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\css\\site.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\favicon.ico",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\favicon.ico",
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\images\\placeholder.jpg",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\AMD Ryzen 9 7950X.jpg",
+      "PackagePath": "staticwebassets\\images\\AMD Ryzen 9 7950X.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Corsair Dominator Platinum 32.jpg",
+      "PackagePath": "staticwebassets\\images\\Corsair Dominator Platinum 32.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Crucial P5 Plus 500GB.jpg",
+      "PackagePath": "staticwebassets\\images\\Crucial P5 Plus 500GB.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\G.Skill Trident Z5 16GB.jpg",
+      "PackagePath": "staticwebassets\\images\\G.Skill Trident Z5 16GB.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Headset HyperX Cloud Alpha.jpg",
+      "PackagePath": "staticwebassets\\images\\Headset HyperX Cloud Alpha.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Headset Logitech G Pro X.jpg",
+      "PackagePath": "staticwebassets\\images\\Headset Logitech G Pro X.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Headset SteelSeries Arctis Pro.jpg",
+      "PackagePath": "staticwebassets\\images\\Headset SteelSeries Arctis Pro.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Intel Core i5-13600K.jpg",
+      "PackagePath": "staticwebassets\\images\\Intel Core i5-13600K.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Intel Core i9-13900K.jpg",
+      "PackagePath": "staticwebassets\\images\\Intel Core i9-13900K.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Kingston Fury Beast 64GB.jpg",
+      "PackagePath": "staticwebassets\\images\\Kingston Fury Beast 64GB.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Monitor AOC C24G1.jpg",
+      "PackagePath": "staticwebassets\\images\\Monitor AOC C24G1.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Monitor LG 27GL850-B.jpg",
+      "PackagePath": "staticwebassets\\images\\Monitor LG 27GL850-B.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Monitor Samsung Odyssey G9.jpg",
+      "PackagePath": "staticwebassets\\images\\Monitor Samsung Odyssey G9.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Mouse Gaming Logitech G Pro X Superlight.jpg",
+      "PackagePath": "staticwebassets\\images\\Mouse Gaming Logitech G Pro X Superlight.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Mouse HyperX Pulsefire Haste.jpg",
+      "PackagePath": "staticwebassets\\images\\Mouse HyperX Pulsefire Haste.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Mouse Razer DeathAdder V3 Pro.jpg",
+      "PackagePath": "staticwebassets\\images\\Mouse Razer DeathAdder V3 Pro.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\NVIDIA RTX 4070 Ti.jpg",
+      "PackagePath": "staticwebassets\\images\\NVIDIA RTX 4070 Ti.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\NVIDIA RTX 4090 Founders Edition.jpg",
+      "PackagePath": "staticwebassets\\images\\NVIDIA RTX 4090 Founders Edition.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Samsung 990 Pro 2TB.jpg",
+      "PackagePath": "staticwebassets\\images\\Samsung 990 Pro 2TB.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Teclado HyperX Alloy Origins Core.jpg",
+      "PackagePath": "staticwebassets\\images\\Teclado HyperX Alloy Origins Core.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Teclado Logitech G915 TKL.jpg",
+      "PackagePath": "staticwebassets\\images\\Teclado Logitech G915 TKL.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\Teclado Mecânico Corsair K100 RGB.jpg",
+      "PackagePath": "staticwebassets\\images\\Teclado Mecânico Corsair K100 RGB.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\WD Black SN850X 1TB.jpg",
+      "PackagePath": "staticwebassets\\images\\WD Black SN850X 1TB.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\img1.jpg",
+      "PackagePath": "staticwebassets\\images\\img1.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\placeholder.jpg",
       "PackagePath": "staticwebassets\\images\\placeholder.jpg"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\images\\placeholder.txt",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\images\\placeholder.txt",
       "PackagePath": "staticwebassets\\images\\placeholder.txt"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\js\\advanced-filters.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\js\\advanced-filters.js",
       "PackagePath": "staticwebassets\\js\\advanced-filters.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\js\\site.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\LICENSE",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\LICENSE",
       "PackagePath": "staticwebassets\\lib\\bootstrap"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.min.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.js",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.js.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.js.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.js.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.min.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.min.js",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.min.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt",
       "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\LICENSE.txt"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery-validation-unobtrusive\\dist\\jquery.validate.unobtrusive.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery-validation-unobtrusive\\dist\\jquery.validate.unobtrusive.js",
       "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\dist\\jquery.validate.unobtrusive.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery-validation-unobtrusive\\dist\\jquery.validate.unobtrusive.min.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery-validation-unobtrusive\\dist\\jquery.validate.unobtrusive.min.js",
       "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\dist\\jquery.validate.unobtrusive.min.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery-validation\\LICENSE.md",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery-validation\\LICENSE.md",
       "PackagePath": "staticwebassets\\lib\\jquery-validation\\LICENSE.md"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.js",
       "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\additional-methods.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.min.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.min.js",
       "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\additional-methods.min.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.js",
       "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\jquery.validate.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.min.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.min.js",
       "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\jquery.validate.min.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery\\LICENSE.txt",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery\\LICENSE.txt",
       "PackagePath": "staticwebassets\\lib\\jquery\\LICENSE.txt"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery\\dist\\jquery.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery\\dist\\jquery.js",
       "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery\\dist\\jquery.min.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery\\dist\\jquery.min.js",
       "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery\\dist\\jquery.min.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery\\dist\\jquery.min.map",
       "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.map"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery\\dist\\jquery.slim.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery\\dist\\jquery.slim.js",
       "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.slim.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery\\dist\\jquery.slim.min.js",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery\\dist\\jquery.slim.min.js",
       "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.slim.min.js"
     },
     {
-      "Id": "C:\\Users\\Pedro\\Desktop\\a\\EcommercePWA\\wwwroot\\lib\\jquery\\dist\\jquery.slim.min.map",
+      "Id": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\wwwroot\\lib\\jquery\\dist\\jquery.slim.min.map",
       "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.slim.min.map"
     },
     {

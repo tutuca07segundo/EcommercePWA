@@ -396,12 +396,44 @@
                     taxElement.textContent = `R$ ${parseFloat(data.taxAmount).toFixed(2).replace('.', ',')}`;
                 }
             }
-            if (data.discountAmount !== undefined) {
-                const discountDiv = document.querySelector('.cart-summary .text-success span:nth-child(2)');
-                if (discountDiv) {
-                    discountDiv.textContent = `-R$ ${parseFloat(data.discountAmount).toFixed(2).replace('.', ',')}`;
+            
+            // Atualizar ou remover linha de desconto
+            const discountRow = document.getElementById('discountRow');
+            if (data.discountAmount !== undefined && data.discountAmount > 0 && data.couponCode) {
+                if (discountRow) {
+                    // Atualizar desconto existente
+                    const discountSpan = discountRow.querySelector('span:nth-child(2) span');
+                    if (discountSpan) {
+                        discountSpan.textContent = `-R$ ${parseFloat(data.discountAmount).toFixed(2).replace('.', ',')}`;
+                    }
+                    const couponSpan = discountRow.querySelector('span:first-child');
+                    if (couponSpan) {
+                        couponSpan.textContent = `Desconto (${data.couponCode}):`;
+                    }
+                } else {
+                    // Criar nova linha de desconto
+                    const taxRow = document.getElementById('taxAmountDisplay').closest('.d-flex');
+                    const newDiscountRow = document.createElement('div');
+                    newDiscountRow.className = 'd-flex justify-content-between mb-2 text-success';
+                    newDiscountRow.id = 'discountRow';
+                    newDiscountRow.innerHTML = `
+                        <span>Desconto (${data.couponCode}):</span>
+                        <div>
+                            <span>-R$ ${parseFloat(data.discountAmount).toFixed(2).replace('.', ',')}</span>
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeCoupon()" title="Remover cupom">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    taxRow.parentNode.insertBefore(newDiscountRow, taxRow.nextSibling);
+                }
+            } else if (data.discountAmount === 0 || !data.couponCode) {
+                // Remover linha de desconto se não há cupom
+                if (discountRow) {
+                    discountRow.remove();
                 }
             }
+            
             if (data.total !== undefined) {
                 const totalElement = document.getElementById('totalDisplay');
                 if (totalElement) {

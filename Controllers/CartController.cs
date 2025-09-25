@@ -183,19 +183,7 @@ namespace EcommercePWA.Controllers
                 var cart = _cartService.GetCart(sessionId);
                 var item = cart.Items.FirstOrDefault(i => i.Id == request.ItemId);
 
-                // Recuperar cupom aplicado, se houver
-                string? couponCode = null;
-                if (HttpContext.Session.TryGetValue("CouponCode", out var couponBytes))
-                {
-                    couponCode = System.Text.Encoding.UTF8.GetString(couponBytes);
-                }
-                decimal discountAmount = 0;
-                if (!string.IsNullOrEmpty(couponCode))
-                {
-                    var couponResult = _cartService.ApplyCoupon(sessionId, couponCode);
-                    if (couponResult.IsValid)
-                        discountAmount = couponResult.DiscountAmount;
-                }
+                // O cupom já foi recalculado automaticamente no CartService
                 
                 var shippingCost = CalculateShippingCost(cart);
                 var taxAmount = CalculateTaxAmount(cart.Subtotal);
@@ -232,11 +220,21 @@ namespace EcommercePWA.Controllers
                 
                 var cart = _cartService.GetCart(sessionId);
                 
+                // Calcular valores para retorno
+                var shippingCost = CalculateShippingCost(cart);
+                var taxAmount = CalculateTaxAmount(cart.Subtotal);
+                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount;
+                
                 return Json(new { 
                     success = true, 
                     message = "Item removido do carrinho",
                     cartItemCount = cart.ItemCount,
-                    cartTotal = cart.Total.ToString("C")
+                    subtotal = cart.Subtotal,
+                    shippingCost = shippingCost,
+                    taxAmount = taxAmount,
+                    discountAmount = cart.DiscountAmount ?? 0,
+                    total = finalTotal,
+                    couponCode = cart.CouponCode
                 });
             }
             catch (Exception ex)

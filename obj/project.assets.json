@@ -3715,19 +3715,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Arthur\\.nuget\\packages\\": {}
+    "C:\\Users\\Pedro\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Arthur\\Desktop\\EcommercePWA\\EcommercePWA.csproj",
+      "projectUniqueName": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\EcommercePWA.csproj",
       "projectName": "EcommercePWA",
-      "projectPath": "C:\\Users\\Arthur\\Desktop\\EcommercePWA\\EcommercePWA.csproj",
-      "packagesPath": "C:\\Users\\Arthur\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Arthur\\Desktop\\EcommercePWA\\obj\\",
+      "projectPath": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\EcommercePWA.csproj",
+      "packagesPath": "C:\\Users\\Pedro\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Pedro\\Desktop\\dasdas\\EcommercePWA\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Arthur\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\Pedro\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -3751,7 +3751,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "9.0.200"
     },
     "frameworks": {
       "net9.0": {
@@ -3811,7 +3811,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
       }
     }
   },
@@ -3820,7 +3820,7 @@
       "code": "NU1902",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Package 'RestSharp' 110.2.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4rr6-2v9v-wcpc",
+      "message": "O pacote 'RestSharp' 110.2.0 tem uma moderado vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-4rr6-2v9v-wcpc",
       "libraryId": "RestSharp",
       "targetGraphs": [
         "net9.0"
@@ -3830,7 +3830,7 @@
       "code": "NU1701",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Package 'MercadoPago 1.0.4477.31589' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net9.0'. This package may not be fully compatible with your project.",
+      "message": "O pacote 'MercadoPago 1.0.4477.31589' foi restaurado usando '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' em vez da estrutura de destino do projeto 'net9.0'. Esse pacote pode não ser totalmente compatível com o seu projeto.",
       "libraryId": "MercadoPago",
       "targetGraphs": [
         "net9.0"

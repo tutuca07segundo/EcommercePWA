@@ -1349,3 +1349,5 @@ C:\Users\Pedro\Desktop\sa\EcommercePWA\obj\Debug\net9.0\staticwebassets.pack.jso
 C:\Users\Pedro\Desktop\sa\EcommercePWA\obj\Debug\net9.0\Ecommerc.9F4D6C2C.Up2Date
 C:\Users\Pedro\Desktop\sa\EcommercePWA\obj\Debug\net9.0\EcommercePWA.genruntimeconfig.cache
 C:\Users\Pedro\Desktop\sa\EcommercePWA\obj\Debug\net9.0\ref\EcommercePWA.dll
+C:\Users\Arthur\Desktop\EcommercePWA\obj\Debug\net9.0\compressed\140nw9izc8-dxkad2wbs5.gz
+C:\Users\Arthur\Desktop\EcommercePWA\obj\Debug\net9.0\compressed\k87hba9qm4-ed1lk3ndoj.gz

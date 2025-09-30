@@ -123,6 +123,400 @@
         <member name="P:EcommercePWA.Controllers.Api.AddToCartRequest.VariationId">
             <summary>ID da variação do produto (opcional)</summary>
         </member>
+        <member name="T:EcommercePWA.Controllers.Api.HomeApiController">
+            <summary>
+            API para funcionalidades da página inicial e busca avançada
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.HomeApiController.FilterProducts(EcommercePWA.Models.ProductFilterModel)">
+            <summary>
+            Filtra produtos com critérios avançados
+            </summary>
+            <param name="filter">Critérios de filtro</param>
+            <returns>Produtos filtrados com paginação</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.HomeApiController.GetFilterOptions">
+            <summary>
+            Obtém opções disponíveis para filtros
+            </summary>
+            <returns>Categorias, marcas, faixas de preço e avaliações disponíveis</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.HomeApiController.GetSearchSuggestions(System.String,System.Int32)">
+            <summary>
+            Obtém sugestões de busca em tempo real
+            </summary>
+            <param name="q">Termo de busca</param>
+            <param name="maxResults">Número máximo de resultados (padrão: 5)</param>
+            <returns>Lista de sugestões de produtos</returns>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.FilteredProductsResponse">
+            <summary>
+            Resposta para produtos filtrados
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.FilteredProductsResponse.Success">
+            <summary>Status da operação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.FilteredProductsResponse.Products">
+            <summary>Lista de produtos</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.FilteredProductsResponse.TotalCount">
+            <summary>Total de produtos encontrados</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.FilteredProductsResponse.CurrentPage">
+            <summary>Página atual</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.FilteredProductsResponse.TotalPages">
+            <summary>Total de páginas</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.ProductSummary">
+            <summary>
+            Resumo do produto para listagens
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSummary.Id">
+            <summary>ID do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSummary.Name">
+            <summary>Nome do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSummary.Price">
+            <summary>Preço original</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSummary.DiscountedPrice">
+            <summary>Preço com desconto (se houver)</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSummary.HasDiscount">
+            <summary>Indica se tem desconto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSummary.ImageUrl">
+            <summary>URL da imagem</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSummary.Category">
+            <summary>Categoria</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSummary.Brand">
+            <summary>Marca</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSummary.Rating">
+            <summary>Avaliação média</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSummary.ReviewCount">
+            <summary>Número de avaliações</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSummary.Type">
+            <summary>Tipo do produto</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.FilterOptionsResponse">
+            <summary>
+            Resposta para opções de filtro
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.FilterOptionsResponse.Success">
+            <summary>Status da operação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.FilterOptionsResponse.Categories">
+            <summary>Categorias disponíveis</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.FilterOptionsResponse.Brands">
+            <summary>Marcas disponíveis</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.FilterOptionsResponse.MinPrice">
+            <summary>Preço mínimo</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.FilterOptionsResponse.MaxPrice">
+            <summary>Preço máximo</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.FilterOptionsResponse.Ratings">
+            <summary>Avaliações disponíveis</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.SearchSuggestionsResponse">
+            <summary>
+            Resposta para sugestões de busca
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.SearchSuggestionsResponse.Success">
+            <summary>Status da operação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.SearchSuggestionsResponse.Suggestions">
+            <summary>Lista de sugestões</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.ProductSuggestion">
+            <summary>
+            Sugestão de produto para busca
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSuggestion.Id">
+            <summary>ID do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSuggestion.Name">
+            <summary>Nome do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSuggestion.Category">
+            <summary>Categoria</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSuggestion.Brand">
+            <summary>Marca</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSuggestion.Price">
+            <summary>Preço</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSuggestion.ImageUrl">
+            <summary>URL da imagem</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.ProductSuggestion.Type">
+            <summary>Tipo do produto</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.OrderApiController">
+            <summary>
+            API para gerenciamento de pedidos
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.OrderApiController.GetUserOrders(System.Int32)">
+            <summary>
+            Obtém todos os pedidos de um usuário
+            </summary>
+            <param name="userId">ID do usuário</param>
+            <returns>Lista de pedidos do usuário</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.OrderApiController.GetOrderDetails(System.Int32)">
+            <summary>
+            Obtém detalhes de um pedido específico
+            </summary>
+            <param name="orderId">ID do pedido</param>
+            <returns>Detalhes completos do pedido</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.OrderApiController.UpdateOrderStatus(System.Int32,EcommercePWA.Controllers.Api.UpdateOrderStatusRequest)">
+            <summary>
+            Atualiza o status de um pedido
+            </summary>
+            <param name="orderId">ID do pedido</param>
+            <param name="request">Novo status</param>
+            <returns>Status da operação</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.OrderApiController.UpdatePaymentStatus(System.Int32,EcommercePWA.Controllers.Api.UpdatePaymentStatusRequest)">
+            <summary>
+            Atualiza o status de pagamento de um pedido
+            </summary>
+            <param name="orderId">ID do pedido</param>
+            <param name="request">Novo status de pagamento</param>
+            <returns>Status da operação</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.OrderApiController.AddTrackingCode(System.Int32,EcommercePWA.Controllers.Api.AddTrackingCodeRequest)">
+            <summary>
+            Adiciona código de rastreamento a um pedido
+            </summary>
+            <param name="orderId">ID do pedido</param>
+            <param name="request">Código de rastreamento</param>
+            <returns>Status da operação</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.OrderApiController.CancelOrder(System.Int32)">
+            <summary>
+            Cancela um pedido
+            </summary>
+            <param name="orderId">ID do pedido</param>
+            <returns>Status da operação</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.OrderApiController.GetOrderStatistics">
+            <summary>
+            Obtém estatísticas de pedidos (admin)
+            </summary>
+            <returns>Estatísticas gerais dos pedidos</returns>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.UserOrdersResponse">
+            <summary>
+            Resposta com pedidos do usuário
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.UserOrdersResponse.Success">
+            <summary>Status da operação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.UserOrdersResponse.Orders">
+            <summary>Lista de pedidos</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.UserOrdersResponse.Count">
+            <summary>Contagem de pedidos</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.OrderSummaryDto">
+            <summary>
+            Resumo do pedido
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderSummaryDto.Id">
+            <summary>ID do pedido</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderSummaryDto.OrderNumber">
+            <summary>Número do pedido</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderSummaryDto.Status">
+            <summary>Status do pedido</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderSummaryDto.PaymentStatus">
+            <summary>Status do pagamento</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderSummaryDto.PaymentMethod">
+            <summary>Método de pagamento</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderSummaryDto.TotalAmount">
+            <summary>Valor total</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderSummaryDto.CreatedAt">
+            <summary>Data de criação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderSummaryDto.ItemCount">
+            <summary>Quantidade de itens</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.OrderDetailsResponse">
+            <summary>
+            Resposta com detalhes do pedido
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsResponse.Success">
+            <summary>Status da operação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsResponse.Order">
+            <summary>Detalhes do pedido</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.OrderDetailsDto">
+            <summary>
+            Detalhes completos do pedido
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.Id">
+            <summary>ID do pedido</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.OrderNumber">
+            <summary>Número do pedido</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.Status">
+            <summary>Status do pedido</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.PaymentStatus">
+            <summary>Status do pagamento</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.PaymentMethod">
+            <summary>Método de pagamento</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.TotalAmount">
+            <summary>Valor total</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.ShippingCost">
+            <summary>Custo do frete</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.TaxAmount">
+            <summary>Valor dos impostos</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.DiscountAmount">
+            <summary>Valor do desconto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.CouponCode">
+            <summary>Código do cupom</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.CreatedAt">
+            <summary>Data de criação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.UpdatedAt">
+            <summary>Data de atualização</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.ShippingAddress">
+            <summary>Endereço de entrega</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.TrackingCode">
+            <summary>Código de rastreamento</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderDetailsDto.Items">
+            <summary>Itens do pedido</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.OrderItemDto">
+            <summary>
+            Item do pedido
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderItemDto.Id">
+            <summary>ID do item</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderItemDto.ProductId">
+            <summary>ID do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderItemDto.ProductName">
+            <summary>Nome do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderItemDto.ProductVariationId">
+            <summary>ID da variação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderItemDto.VariationName">
+            <summary>Nome da variação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderItemDto.Quantity">
+            <summary>Quantidade</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderItemDto.UnitPrice">
+            <summary>Preço unitário</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderItemDto.TotalPrice">
+            <summary>Preço total</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.UpdateOrderStatusRequest">
+            <summary>
+            Requisição para atualizar status do pedido
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.UpdateOrderStatusRequest.Status">
+            <summary>Novo status</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.UpdatePaymentStatusRequest">
+            <summary>
+            Requisição para atualizar status de pagamento
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.UpdatePaymentStatusRequest.PaymentStatus">
+            <summary>Novo status de pagamento</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.AddTrackingCodeRequest">
+            <summary>
+            Requisição para adicionar código de rastreamento
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.AddTrackingCodeRequest.TrackingCode">
+            <summary>Código de rastreamento</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.OrderActionResponse">
+            <summary>
+            Resposta de ação no pedido
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderActionResponse.Success">
+            <summary>Status da operação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderActionResponse.Message">
+            <summary>Mensagem de retorno</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.OrderStatisticsResponse">
+            <summary>
+            Resposta com estatísticas de pedidos
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderStatisticsResponse.Success">
+            <summary>Status da operação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderStatisticsResponse.TotalOrders">
+            <summary>Total de pedidos</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderStatisticsResponse.PendingOrders">
+            <summary>Pedidos pendentes</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderStatisticsResponse.CompletedOrders">
+            <summary>Pedidos concluídos</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderStatisticsResponse.CancelledOrders">
+            <summary>Pedidos cancelados</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderStatisticsResponse.TotalRevenue">
+            <summary>Receita total</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.OrderStatisticsResponse.AverageOrderValue">
+            <summary>Valor médio do pedido</summary>
+        </member>
         <member name="T:EcommercePWA.Controllers.Api.ProductApiController">
             <summary>
             API para gerenciamento de produtos do e-commerce Kaboom
@@ -149,6 +543,206 @@
             Obtém as categorias disponíveis
             </summary>
             <returns>Lista de categorias</returns>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.WishlistApiController">
+            <summary>
+            API para gerenciamento da lista de desejos
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.WishlistApiController.GetWishlist(System.Int32)">
+            <summary>
+            Obtém todos os itens da lista de desejos do usuário
+            </summary>
+            <param name="userId">ID do usuário</param>
+            <returns>Lista de itens da wishlist</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.WishlistApiController.AddToWishlist(EcommercePWA.Controllers.Api.AddToWishlistRequest)">
+            <summary>
+            Adiciona um produto à lista de desejos
+            </summary>
+            <param name="request">Dados do item para adicionar</param>
+            <returns>Status da operação</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.WishlistApiController.RemoveFromWishlist(System.Int32,System.Int32,System.Nullable{System.Int32})">
+            <summary>
+            Remove um produto da lista de desejos
+            </summary>
+            <param name="userId">ID do usuário</param>
+            <param name="productId">ID do produto</param>
+            <param name="variationId">ID da variação (opcional)</param>
+            <returns>Status da operação</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.WishlistApiController.IsInWishlist(System.Int32,System.Int32,System.Nullable{System.Int32})">
+            <summary>
+            Verifica se um produto está na lista de desejos
+            </summary>
+            <param name="userId">ID do usuário</param>
+            <param name="productId">ID do produto</param>
+            <param name="variationId">ID da variação (opcional)</param>
+            <returns>Status se está na wishlist</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.WishlistApiController.ClearWishlist(System.Int32)">
+            <summary>
+            Limpa toda a lista de desejos do usuário
+            </summary>
+            <param name="userId">ID do usuário</param>
+            <returns>Status da operação</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.WishlistApiController.GetWishlistCount(System.Int32)">
+            <summary>
+            Obtém contagem de itens na wishlist
+            </summary>
+            <param name="userId">ID do usuário</param>
+            <returns>Número de itens na wishlist</returns>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.AddToWishlistRequest">
+            <summary>
+            Requisição para adicionar à wishlist
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.AddToWishlistRequest.UserId">
+            <summary>ID do usuário</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.AddToWishlistRequest.ProductId">
+            <summary>ID do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.AddToWishlistRequest.VariationId">
+            <summary>ID da variação (opcional)</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.WishlistResponse">
+            <summary>
+            Resposta da wishlist
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistResponse.Success">
+            <summary>Status da operação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistResponse.Items">
+            <summary>Lista de itens</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistResponse.Count">
+            <summary>Contagem de itens</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.WishlistItemDto">
+            <summary>
+            DTO do item da wishlist
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistItemDto.Id">
+            <summary>ID do item da wishlist</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistItemDto.ProductId">
+            <summary>ID do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistItemDto.ProductName">
+            <summary>Nome do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistItemDto.ProductPrice">
+            <summary>Preço do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistItemDto.ProductImageUrl">
+            <summary>URL da imagem do produto</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistItemDto.ProductVariationId">
+            <summary>ID da variação (se houver)</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistItemDto.VariationName">
+            <summary>Nome da variação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistItemDto.AddedAt">
+            <summary>Data de adição</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.WishlistActionResponse">
+            <summary>
+            Resposta de ação na wishlist
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistActionResponse.Success">
+            <summary>Status da operação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistActionResponse.Message">
+            <summary>Mensagem de retorno</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.WishlistCheckResponse">
+            <summary>
+            Resposta de verificação da wishlist
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistCheckResponse.Success">
+            <summary>Status da operação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistCheckResponse.IsInWishlist">
+            <summary>Se está na wishlist</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.WishlistCountResponse">
+            <summary>
+            Resposta de contagem da wishlist
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistCountResponse.Success">
+            <summary>Status da operação</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.WishlistCountResponse.Count">
+            <summary>Contagem de itens</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.ChatbotController">
+            <summary>
+            API para chatbot inteligente do e-commerce Kaboom
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Controllers.ChatbotController.SendMessage(EcommercePWA.Controllers.ChatMessageRequest)">
+            <summary>
+            Envia uma mensagem para o chatbot e recebe resposta inteligente
+            </summary>
+            <param name="request">Mensagem do usuário</param>
+            <returns>Resposta do chatbot com sugestões e ações</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.ChatbotController.GetWelcomeMessage">
+            <summary>
+            Obtém mensagem de boas-vindas do chatbot
+            </summary>
+            <returns>Mensagem de boas-vindas personalizada</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.ChatbotController.GetSuggestions">
+            <summary>
+            Obtém sugestões de perguntas frequentes
+            </summary>
+            <returns>Lista de perguntas sugeridas</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.ChatbotController.GetChatHistory(System.String)">
+            <summary>
+            Obtém histórico de conversa por sessão
+            </summary>
+            <param name="sessionId">ID da sessão do chat</param>
+            <returns>Histórico completo da conversa</returns>
+        </member>
+        <member name="T:EcommercePWA.Controllers.ChatMessageRequest">
+            <summary>
+            Modelo para requisição de mensagem do chatbot
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.ChatMessageRequest.Message">
+            <summary>Mensagem do usuário</summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.ChatMessageRequest.SessionId">
+            <summary>ID da sessão (opcional)</summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.MercadoPagoWebhookController">
+            <summary>
+            API para recebimento de webhooks do Mercado Pago
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Controllers.MercadoPagoWebhookController.TestWebhook">
+            <summary>
+            Endpoint de teste para verificar se o webhook está funcionando
+            </summary>
+            <returns>Mensagem de confirmação</returns>
+        </member>
+        <member name="M:EcommercePWA.Controllers.MercadoPagoWebhookController.ReceiveWebhook">
+            <summary>
+            Recebe notificações de webhook do Mercado Pago sobre pagamentos
+            </summary>
+            <returns>Status do processamento da notificação</returns>
         </member>
         <member name="T:EcommercePWA.Migrations.InitialCreate">
             <inheritdoc />

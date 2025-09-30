@@ -8,8 +8,12 @@ using System.Text.Json;
 
 namespace EcommercePWA.Controllers
 {
+    /// <summary>
+    /// API para recebimento de webhooks do Mercado Pago
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class MercadoPagoWebhookController : ControllerBase
     {
         private readonly IMercadoPagoService _mercadoPagoService;
@@ -26,14 +30,27 @@ namespace EcommercePWA.Controllers
             _webhookSecret = settings.Value.WebhookSecret;
         }
 
+        /// <summary>
+        /// Endpoint de teste para verificar se o webhook está funcionando
+        /// </summary>
+        /// <returns>Mensagem de confirmação</returns>
         [HttpGet]
+        [ProducesResponseType(typeof(string), 200)]
         public IActionResult TestWebhook()
         {
             _logger.LogInformation("Webhook GET - Health check do Mercado Pago");
             return Ok("Webhook endpoint funcionando");
         }
 
+        /// <summary>
+        /// Recebe notificações de webhook do Mercado Pago sobre pagamentos
+        /// </summary>
+        /// <returns>Status do processamento da notificação</returns>
         [HttpPost("ReceiveWebhook")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> ReceiveWebhook()
         {
             try

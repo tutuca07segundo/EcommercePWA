@@ -63,14 +63,46 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Title = "Kaboom E-commerce API",
-        Version = "v1",
-        Description = "API REST completa para o e-commerce Kaboom - Periféricos e Peças de Computador",
+        Version = "v2.0",
+        Description = @"API REST completa para o e-commerce Kaboom - Periféricos e Peças de Computador
+        
+        **Funcionalidades Principais:**
+        - 🔐 Sistema de autenticação completo
+        - 🛒 Gerenciamento de carrinho de compras
+        - 📦 Catálogo de produtos com filtros avançados
+        - 💳 Integração com Mercado Pago
+        - 🤖 Chatbot inteligente
+        - 📊 Sistema de pedidos e rastreamento
+        - 🎯 Sistema de cupons e promoções
+        - ❤️ Lista de desejos
+        - ⭐ Sistema de avaliações
+        
+        **Tecnologias:**
+        - ASP.NET Core 9.0
+        - Entity Framework Core
+        - SQLite Database
+        - SignalR para tempo real
+        - Mercado Pago SDK
+        
+        **Ambientes:**
+        - Desenvolvimento: http://localhost:5005
+        - Swagger UI: http://localhost:5005/swagger",
         Contact = new Microsoft.OpenApi.Models.OpenApiContact
         {
-            Name = "Kaboom Team",
-            Email = "admin@kaboom.com"
+            Name = "Kaboom Development Team",
+            Email = "admin@kaboom.com",
+            Url = new Uri("https://github.com/tutuca07segundo/EcommercePWA")
+        },
+        License = new Microsoft.OpenApi.Models.OpenApiLicense
+        {
+            Name = "MIT License",
+            Url = new Uri("https://opensource.org/licenses/MIT")
         }
     });
+    
+    // Configurar tags para organização
+    c.TagActionsBy(api => new[] { api.GroupName ?? api.ActionDescriptor.RouteValues["controller"] });
+    c.DocInclusionPredicate((name, api) => true);
     
     // Incluir comentários XML para documentação
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -79,6 +111,31 @@ builder.Services.AddSwaggerGen(c =>
     {
         c.IncludeXmlComments(xmlPath);
     }
+    
+    // Configurar esquemas de segurança
+    c.AddSecurityDefinition("Session", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "Autenticação baseada em sessão. Faça login primeiro através do endpoint /api/AuthApi/login",
+        Name = "Session",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Cookie,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Session"
+    });
+    
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Session"
+                }
+            },
+            new string[] {}
+        }
+    });
 });
 
 // Configuração para suportar proxies reversos
@@ -146,7 +203,21 @@ app.UseStaticFiles();
 app.UseSession();
 
 app.UseSwagger();
-app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Kaboom E-commerce API v1"));
+app.UseSwaggerUI(c => 
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Kaboom E-commerce API v2.0");
+    c.RoutePrefix = "swagger";
+    c.DocumentTitle = "Kaboom E-commerce API Documentation";
+    c.DefaultModelsExpandDepth(-1);
+    c.DisplayRequestDuration();
+    c.EnableValidator();
+    c.SupportedSubmitMethods(new[] { 
+        Swashbuckle.AspNetCore.SwaggerUI.SubmitMethod.Get, 
+        Swashbuckle.AspNetCore.SwaggerUI.SubmitMethod.Post, 
+        Swashbuckle.AspNetCore.SwaggerUI.SubmitMethod.Put, 
+        Swashbuckle.AspNetCore.SwaggerUI.SubmitMethod.Delete 
+    });
+});
 
 app.UseHttpsRedirection();
 app.UseRouting();

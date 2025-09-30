@@ -30,6 +30,9 @@ builder.Services.AddScoped<IWishlistService, WishlistService>();
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 builder.Services.AddScoped<DataSeederService>();
 
+// Add Melhor Envio service
+builder.Services.AddHttpClient<IMelhorEnvioService, MelhorEnvioService>();
+
 // Configure MercadoPago settings
 builder.Services.Configure<MercadoPagoSettings>(
     builder.Configuration.GetSection("MercadoPago"));

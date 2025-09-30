@@ -232,6 +232,15 @@ namespace EcommercePWA.Services
                 existingProduct.StockQuantity = product.StockQuantity;
                 existingProduct.Type = product.Type;
                 existingProduct.Tags = product.Tags;
+                
+                // Atualizar campos de peso e dimensões para frete
+                existingProduct.Weight = product.Weight;
+                existingProduct.Width = product.Width;
+                existingProduct.Height = product.Height;
+                existingProduct.Length = product.Length;
+
+                _logger.LogInformation("Atualizando produto {ProductName} - Peso: {Weight}g, Dimensões: {Width}x{Height}x{Length}cm", 
+                    product.Name, product.Weight, product.Width, product.Height, product.Length);
 
                 await _context.SaveChangesAsync();
                 
@@ -430,17 +439,17 @@ namespace EcommercePWA.Services
                 var products = new List<Product>
                 {
                     // Mouses
-                    new Product { Name = "Mouse Gaming Logitech G Pro X Superlight", Description = "Mouse wireless ultra leve com sensor HERO 25K", Price = 599.99m, Category = "Mouses", Brand = "Logitech", ImageUrl = "/images/placeholder.jpg", StockQuantity = 15, Type = "Periférico", Tags = new List<string> { "gaming", "wireless", "leve" }, Rating = 4.8m },
-                    new Product { Name = "Mouse Razer DeathAdder V3 Pro", Description = "Mouse ergonômico com sensor Focus Pro 30K", Price = 699.99m, Category = "Mouses", Brand = "Razer", ImageUrl = "/images/placeholder.jpg", StockQuantity = 8, Type = "Periférico", Tags = new List<string> { "gaming", "ergonômico", "premium" }, Rating = 4.7m },
-                    new Product { Name = "Mouse HyperX Pulsefire Haste", Description = "Mouse ultra leve com switches ópticos", Price = 299.99m, Category = "Mouses", Brand = "HyperX", ImageUrl = "/images/placeholder.jpg", StockQuantity = 25, Type = "Periférico", Tags = new List<string> { "gaming", "leve", "acessível" }, Rating = 4.5m },
+                    new Product { Name = "Mouse Gaming Logitech G Pro X Superlight", Description = "Mouse wireless ultra leve com sensor HERO 25K", Price = 599.99m, Category = "Mouses", Brand = "Logitech", ImageUrl = "/images/placeholder.jpg", StockQuantity = 15, Type = "Periférico", Tags = new List<string> { "gaming", "wireless", "leve" }, Rating = 4.8m, Weight = 150, Width = 12, Height = 4, Length = 7 },
+                    new Product { Name = "Mouse Razer DeathAdder V3 Pro", Description = "Mouse ergonômico com sensor Focus Pro 30K", Price = 699.99m, Category = "Mouses", Brand = "Razer", ImageUrl = "/images/placeholder.jpg", StockQuantity = 8, Type = "Periférico", Tags = new List<string> { "gaming", "ergonômico", "premium" }, Rating = 4.7m, Weight = 180, Width = 13, Height = 4, Length = 8 },
+                    new Product { Name = "Mouse HyperX Pulsefire Haste", Description = "Mouse ultra leve com switches ópticos", Price = 299.99m, Category = "Mouses", Brand = "HyperX", ImageUrl = "/images/placeholder.jpg", StockQuantity = 25, Type = "Periférico", Tags = new List<string> { "gaming", "leve", "acessível" }, Rating = 4.5m, Weight = 120, Width = 11, Height = 3, Length = 6 },
 
                     // Teclados
-                    new Product { Name = "Teclado Mecânico Corsair K100 RGB", Description = "Teclado premium com switches Cherry MX", Price = 1299.99m, Category = "Teclados", Brand = "Corsair", ImageUrl = "/images/placeholder.jpg", StockQuantity = 5, Type = "Periférico", Tags = new List<string> { "mecânico", "rgb", "premium" }, Rating = 4.9m },
+                    new Product { Name = "Teclado Mecânico Corsair K100 RGB", Description = "Teclado premium com switches Cherry MX", Price = 1299.99m, Category = "Teclados", Brand = "Corsair", ImageUrl = "/images/placeholder.jpg", StockQuantity = 5, Type = "Periférico", Tags = new List<string> { "mecânico", "rgb", "premium" }, Rating = 4.9m, Weight = 1200, Width = 45, Height = 4, Length = 17 },
                     new Product { Name = "Teclado HyperX Alloy Origins Core", Description = "Teclado compacto com switches Blue", Price = 449.99m, Category = "Teclados", Brand = "HyperX", ImageUrl = "/images/placeholder.jpg", StockQuantity = 18, Type = "Periférico", Tags = new List<string> { "mecânico", "compacto", "gaming" }, Rating = 4.6m },
                     new Product { Name = "Teclado Logitech G915 TKL", Description = "Teclado wireless com switches GL", Price = 899.99m, Category = "Teclados", Brand = "Logitech", ImageUrl = "/images/placeholder.jpg", StockQuantity = 12, Type = "Periférico", Tags = new List<string> { "wireless", "mecânico", "rgb" }, Rating = 4.7m },
 
                     // Headsets
-                    new Product { Name = "Headset SteelSeries Arctis Pro", Description = "Headset premium com áudio Hi-Res", Price = 899.99m, Category = "Headsets", Brand = "SteelSeries", ImageUrl = "/images/placeholder.jpg", StockQuantity = 10, Type = "Periférico", Tags = new List<string> { "gaming", "áudio", "premium" }, Rating = 4.8m },
+                    new Product { Name = "Headset SteelSeries Arctis Pro", Description = "Headset premium com áudio Hi-Res", Price = 899.99m, Category = "Headsets", Brand = "SteelSeries", ImageUrl = "/images/placeholder.jpg", StockQuantity = 10, Type = "Periférico", Tags = new List<string> { "gaming", "áudio", "premium" }, Rating = 4.8m, Weight = 350, Width = 20, Height = 18, Length = 10 },
                     new Product { Name = "Headset HyperX Cloud Alpha", Description = "Headset com drivers duplos", Price = 399.99m, Category = "Headsets", Brand = "HyperX", ImageUrl = "/images/placeholder.jpg", StockQuantity = 22, Type = "Periférico", Tags = new List<string> { "gaming", "confortável", "qualidade" }, Rating = 4.6m },
                     new Product { Name = "Headset Logitech G Pro X", Description = "Headset com microfone Blue VO!CE", Price = 599.99m, Category = "Headsets", Brand = "Logitech", ImageUrl = "/images/placeholder.jpg", StockQuantity = 15, Type = "Periférico", Tags = new List<string> { "gaming", "microfone", "profissional" }, Rating = 4.7m },
 

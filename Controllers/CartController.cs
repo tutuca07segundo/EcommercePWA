@@ -12,14 +12,16 @@ namespace EcommercePWA.Controllers
         private readonly IProductService _productService;
         private readonly IDiscountService _discountService;
         private readonly ICouponService _couponService;
+        private readonly IMelhorEnvioService _melhorEnvioService;
         private readonly ILogger<CartController> _logger;
 
-        public CartController(ICartService cartService, IProductService productService, IDiscountService discountService, ICouponService couponService, ILogger<CartController> logger)
+        public CartController(ICartService cartService, IProductService productService, IDiscountService discountService, ICouponService couponService, IMelhorEnvioService melhorEnvioService, ILogger<CartController> logger)
         {
             _cartService = cartService;
             _productService = productService;
             _discountService = discountService;
             _couponService = couponService;
+            _melhorEnvioService = melhorEnvioService;
             _logger = logger;
         }
 
@@ -80,16 +82,15 @@ namespace EcommercePWA.Controllers
                     couponMessage = $"Cupom {cart.CouponCode} aplicado! Desconto: R$ {cart.DiscountAmount.Value:N2}";
                 }
                 
-                var shippingCost = CalculateShippingCost(cart);
                 var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount;
+                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount;
                 
                 var viewModel = new CartViewModel
                 {
                     Cart = cart,
                     Items = cartItems,
                     Subtotal = cart.Subtotal,
-                    ShippingCost = shippingCost,
+                    ShippingCost = 0,
                     TaxAmount = taxAmount,
                     Total = finalTotal,
                     CouponCode = cart.CouponCode,
@@ -185,16 +186,15 @@ namespace EcommercePWA.Controllers
 
                 // O cupom já foi recalculado automaticamente no CartService
                 
-                var shippingCost = CalculateShippingCost(cart);
                 var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount;
+                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount;
                 
                 return Json(new {
                     success = true,
                     itemId = request.ItemId,
                     itemTotal = item?.Total ?? 0,
                     subtotal = cart.Subtotal,
-                    shippingCost = shippingCost,
+                    shippingCost = 0,
                     taxAmount = taxAmount,
                     discountAmount = cart.DiscountAmount ?? 0,
                     total = finalTotal,
@@ -221,16 +221,15 @@ namespace EcommercePWA.Controllers
                 var cart = _cartService.GetCart(sessionId);
                 
                 // Calcular valores para retorno
-                var shippingCost = CalculateShippingCost(cart);
                 var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount;
+                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount;
                 
                 return Json(new { 
                     success = true, 
                     message = "Item removido do carrinho",
                     cartItemCount = cart.ItemCount,
                     subtotal = cart.Subtotal,
-                    shippingCost = shippingCost,
+                    shippingCost = 0,
                     taxAmount = taxAmount,
                     discountAmount = cart.DiscountAmount ?? 0,
                     total = finalTotal,
@@ -261,16 +260,15 @@ namespace EcommercePWA.Controllers
                     HttpContext.Session.SetString("DiscountAmount", result.DiscountAmount.ToString());
                     
                     var cart = _cartService.GetCart(sessionId);
-                    var shippingCost = CalculateShippingCost(cart);
                     var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                    var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount;
+                    var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount;
                     
                     return Json(new { 
                         success = true, 
                         message = result.Message,
                         discountAmount = result.DiscountAmount,
                         subtotal = cart.Subtotal,
-                        shippingCost = shippingCost,
+                        shippingCost = 0,
                         taxAmount = taxAmount,
                         total = finalTotal,
                         couponCode = request.CouponCode
@@ -311,7 +309,7 @@ namespace EcommercePWA.Controllers
                 {
                     Items = cart.Items,
                     Subtotal = cart.Items.Sum(i => i.Total),
-                    ShippingCost = CalculateShippingCostFallback(cart),
+                    ShippingCost = 0,
                     TaxAmount = CalculateTaxAmount(cart.Items.Sum(i => i.Total)),
                     DiscountAmount = null,
                     CouponCode = null,
@@ -333,10 +331,11 @@ namespace EcommercePWA.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Erro ao remover cupom: " + ex.Message });
+                return Json(new { success = false, message = "Erro ao calcular frete: " + ex.Message });
             }
         }
 
+        // POST: /Cart/CalculateShipping
         [HttpPost]
         public async Task<IActionResult> CalculateShipping([FromBody] CalculateShippingRequest request)
         {
@@ -344,69 +343,77 @@ namespace EcommercePWA.Controllers
             {
                 var sessionId = GetSessionId();
                 var cart = _cartService.GetCart(sessionId);
-                if (cart == null)
+                
+                if (!cart.Items.Any())
                 {
-                    return Json(new { success = false, message = "Carrinho não encontrado" });
+                    return Json(new { success = false, message = "Carrinho vazio" });
                 }
 
-                if (string.IsNullOrEmpty(request.Cep) || request.Cep.Length != 8)
+                // Validar CEP
+                var isValidCep = await _melhorEnvioService.ValidateCepAsync(request.Cep);
+                if (!isValidCep)
                 {
                     return Json(new { success = false, message = "CEP inválido" });
                 }
 
-                // Validar CEP via ViaCEP
-                var cepInfo = await ValidateCepAsync(request.Cep);
-                if (cepInfo == null)
+                // Preparar produtos para cálculo de frete
+                var shippingProducts = new List<ShippingProduct>();
+                foreach (var item in cart.Items)
                 {
-                    return Json(new { success = false, message = "CEP não encontrado" });
-                }
-
-                // Calcular frete usando fallback (lógica simples)
-                decimal shippingCost = CalculateShippingCostFallback(cart);
-                string estimatedDays = "5-10";
-
-                // Salvar CEP na sessão para usar no checkout
-                HttpContext.Session.SetString("ShippingCep", request.Cep);
-                HttpContext.Session.SetString("ShippingCost", shippingCost.ToString());
-
-                // Recalcular total
-                var subtotal = cart.Items.Sum(i => i.Total);
-                var taxAmount = CalculateTaxAmount(subtotal);
-                
-                // Aplicar desconto se houver cupom
-                decimal discountAmount = 0;
-                var appliedCoupon = HttpContext.Session.GetString("AppliedCoupon");
-                if (!string.IsNullOrEmpty(appliedCoupon))
-                {
-                    var coupon = _couponService.GetCouponByCode(appliedCoupon);
-                    if (coupon != null && _couponService.ValidateCoupon(appliedCoupon, subtotal))
+                    var product = await _productService.GetProductByIdAsync(item.ProductId);
+                    if (product != null)
                     {
-                        if (coupon.DiscountPercentage.HasValue)
+                        shippingProducts.Add(new ShippingProduct
                         {
-                            discountAmount = subtotal * (coupon.DiscountPercentage.Value / 100);
-                        }
-                        else if (coupon.DiscountAmount > 0)
-                        {
-                            discountAmount = coupon.DiscountAmount;
-                        }
+                            Id = product.Id,
+                            Weight = product.Weight,
+                            Width = product.Width,
+                            Height = product.Height,
+                            Length = product.Length,
+                            Quantity = item.Quantity,
+                            Value = item.UnitPrice
+                        });
                     }
                 }
 
-                var total = subtotal + shippingCost + taxAmount - discountAmount;
-
-                return Json(new
+                // Calcular frete via Melhor Envio
+                var shippingRequest = new ShippingCalculationRequest
                 {
-                    success = true,
-                    shippingCost = shippingCost,
-                    total = total,
-                    city = cepInfo.City,
-                    estimatedDays = estimatedDays,
-                    message = "Frete calculado com sucesso!"
-                });
+                    ToCep = request.Cep,
+                    Products = shippingProducts
+                };
+
+                var quotes = await _melhorEnvioService.CalculateShippingAsync(shippingRequest);
+                
+                if (quotes.Any())
+                {
+                    return Json(new { 
+                        success = true, 
+                        quotes = quotes.Select(q => new {
+                            id = q.Id,
+                            name = q.Name,
+                            company = q.Company,
+                            price = q.Price,
+                            deliveryTime = q.DeliveryTime,
+                            deliveryRange = q.DeliveryRange
+                        }),
+                        // Incluir dados do carrinho para manter cupom
+                        subtotal = cart.Subtotal,
+                        discountAmount = cart.DiscountAmount ?? 0,
+                        couponCode = cart.CouponCode,
+                        taxAmount = CalculateTaxAmount(cart.Subtotal),
+                        message = "Opções de frete calculadas com sucesso!"
+                    });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Não foi possível calcular o frete para este CEP" });
+                }
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Erro ao calcular frete: " + ex.Message });
+                _logger.LogError(ex, "Erro ao calcular frete");
+                return Json(new { success = false, message = "Erro ao calcular frete. Tente novamente." });
             }
         }
 
@@ -427,43 +434,6 @@ namespace EcommercePWA.Controllers
             return sessionId;
         }
 
-        private async Task<decimal> CalculateShippingCostAsync(Cart cart, string? destinationCep = null)
-        {
-            try
-            {
-                // Se não tiver CEP de destino, usar lógica de fallback
-                if (string.IsNullOrEmpty(destinationCep))
-                {
-                    return CalculateShippingCostFallback(cart);
-                }
-
-                // Como não temos mais API de frete, usar lógica simples
-                return CalculateShippingCostFallback(cart);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao calcular frete via API");
-            }
-
-            // Fallback para lógica simples
-            return CalculateShippingCostFallback(cart);
-        }
-
-        private decimal CalculateShippingCost(Cart cart)
-        {
-            return CalculateShippingCostFallback(cart);
-        }
-
-        private decimal CalculateShippingCostFallback(Cart cart)
-        {
-            // Lógica simples de frete baseada no valor do pedido
-            if (cart.Total >= 5000)
-                return 0; // Frete grátis para pedidos acima de R$ 200
-            else if (cart.Total >= 3000)
-                return 15; // R$ 15 para pedidos entre R$ 100 e R$ 200
-            else
-                return 25; // R$ 25 para pedidos abaixo de R$ 100
-        }
 
         private decimal CalculateTaxAmount(decimal subtotal)
         {

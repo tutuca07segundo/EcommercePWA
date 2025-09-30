@@ -146,7 +146,7 @@ namespace EcommercePWA.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
-        public async Task<IActionResult> Create([Bind("Name,Description,Price,Category,Brand,ImageUrl,StockQuantity,Type,Tags")] Product product)
+        public async Task<IActionResult> Create([Bind("Name,Description,Price,Category,Brand,ImageUrl,StockQuantity,Type,Tags,Weight,Width,Height,Length")] Product product)
         {
             if (HttpContext.Session.GetString("UserRole") != "Admin")
                 return Forbid();
@@ -203,7 +203,7 @@ namespace EcommercePWA.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,Category,Brand,ImageUrl,StockQuantity,Type,Tags")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,Category,Brand,ImageUrl,StockQuantity,Type,Tags,Weight,Width,Height,Length")] Product product)
         {
             if (HttpContext.Session.GetString("UserRole") != "Admin")
                 return Forbid();
@@ -311,7 +311,7 @@ namespace EcommercePWA.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
-        public async Task<IActionResult> EditSelector(Product product)
+        public async Task<IActionResult> EditSelector([Bind("Id,Name,Description,Price,Category,Brand,ImageUrl,StockQuantity,Type,Tags,Weight,Width,Height,Length")] Product product)
         {
             if (HttpContext.Session.GetString("UserRole") != "Admin")
                 return Forbid();

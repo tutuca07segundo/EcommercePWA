@@ -99,16 +99,23 @@
                         <div class="shipping-section mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span>Frete:</span>
-                                <span id="shippingCostDisplay">R$ @Model.ShippingCost.ToString("N2")</span>
+                                <span id="shippingCostDisplay">A calcular</span>
                             </div>
                             
                             <div class="shipping-calculator">
-                                <div class="input-group input-group-sm">
+                                <div class="input-group input-group-sm mb-2">
                                     <input type="text" class="form-control" id="shippingCep" placeholder="Digite seu CEP" maxlength="9">
                                     <button type="button" class="btn btn-outline-primary" id="calculateShippingBtn">
                                         <i class="fas fa-calculator me-1"></i>Calcular
                                     </button>
                                 </div>
+                                
+                                <!-- Opções de frete -->
+                                <div id="shippingOptions" class="mt-2" style="display: none;">
+                                    <small class="text-muted d-block mb-2">Escolha uma opção de frete:</small>
+                                    <div id="shippingQuotes"></div>
+                                </div>
+                                
                                 <div id="shippingResult" class="mt-2" style="display: none;">
                                     <small class="text-muted">
                                         <i class="fas fa-info-circle me-1"></i>
@@ -485,31 +492,23 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    // Atualizar valor do frete
-                    document.getElementById('shippingCostDisplay').textContent = `R$ ${parseFloat(data.shippingCost).toFixed(2).replace('.', ',')}`;
+                if (data.success && data.quotes) {
+                    // Mostrar opções de frete
+                    displayShippingOptions(data.quotes);
                     
-                    // Mostrar informações do frete
-                    const resultDiv = document.getElementById('shippingResult');
-                    const infoSpan = document.getElementById('shippingInfo');
-                    
-                    if (data.shippingCost === 0) {
-                        infoSpan.innerHTML = '<span class="text-success">Frete grátis!</span>';
-                    } else {
-                        infoSpan.innerHTML = `Entrega para ${data.city || 'sua região'} - ${data.estimatedDays || '5-10'} dias úteis`;
-                    }
-                    
-                    resultDiv.style.display = 'block';
-                    
-                    // Atualizar total geral
-                    if (data.total !== undefined) {
-                        const totalElement = document.getElementById('totalDisplay');
-                        if (totalElement) {
-                            totalElement.textContent = `R$ ${parseFloat(data.total).toFixed(2).replace('.', ',')}`;
+                    // Preservar dados do cupom se existir
+                    if (data.couponCode && data.discountAmount > 0) {
+                        const discountRow = document.getElementById('discountRow');
+                        if (discountRow) {
+                            discountRow.style.display = 'flex';
+                            const couponSpan = discountRow.querySelector('span:first-child');
+                            const discountSpan = discountRow.querySelector('span:nth-child(2) span');
+                            if (couponSpan) couponSpan.textContent = `Desconto (${data.couponCode}):`;
+                            if (discountSpan) discountSpan.textContent = `-R$ ${parseFloat(data.discountAmount).toFixed(2).replace('.', ',')}`;
                         }
                     }
                     
-                    showAlert('success', 'Frete calculado com sucesso!');
+                    showAlert('success', data.message);
                 } else {
                     showAlert('danger', data.message || 'Erro ao calcular frete');
                 }
@@ -523,6 +522,61 @@
                 btn.innerHTML = '<i class="fas fa-calculator me-1"></i>Calcular';
                 btn.disabled = false;
             });
+        }
+        
+        // Exibir opções de frete
+        function displayShippingOptions(quotes) {
+            const optionsDiv = document.getElementById('shippingOptions');
+            const quotesDiv = document.getElementById('shippingQuotes');
+            
+            quotesDiv.innerHTML = '';
+            
+            quotes.forEach(quote => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'form-check mb-2 p-2 border rounded';
+                optionDiv.innerHTML = `
+                    <input class="form-check-input" type="radio" name="shippingOption" id="shipping_${quote.id}" value="${quote.id}" data-price="${quote.price}">
+                    <label class="form-check-label w-100" for="shipping_${quote.id}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${quote.company} - ${quote.name}</strong>
+                                <small class="d-block text-muted">${quote.deliveryRange}</small>
+                            </div>
+                            <div class="text-end">
+                                <strong class="text-primary">R$ ${parseFloat(quote.price).toFixed(2).replace('.', ',')}</strong>
+                            </div>
+                        </div>
+                    </label>
+                `;
+                
+                quotesDiv.appendChild(optionDiv);
+            });
+            
+            // Adicionar event listeners para as opções
+            document.querySelectorAll('input[name="shippingOption"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        const price = parseFloat(this.dataset.price);
+                        document.getElementById('shippingCostDisplay').textContent = `R$ ${price.toFixed(2).replace('.', ',')}`;
+                        
+                        // Recalcular total com frete selecionado
+                        const subtotal = parseFloat(document.getElementById('subtotalDisplay').textContent.replace('R$ ', '').replace(',', '.'));
+                        const taxAmount = parseFloat(document.getElementById('taxAmountDisplay').textContent.replace('R$ ', '').replace(',', '.'));
+                        const discountElement = document.getElementById('discountRow');
+                        let discountAmount = 0;
+                        
+                        if (discountElement && discountElement.style.display !== 'none') {
+                            const discountText = discountElement.querySelector('span:nth-child(2) span').textContent;
+                            discountAmount = parseFloat(discountText.replace('-R$ ', '').replace(',', '.'));
+                        }
+                        
+                        const newTotal = subtotal + price + taxAmount - discountAmount;
+                        document.getElementById('totalDisplay').textContent = `R$ ${newTotal.toFixed(2).replace('.', ',')}`;
+                    }
+                });
+            });
+            
+            optionsDiv.style.display = 'block';
         }
         
         // Formatar CEP enquanto digita

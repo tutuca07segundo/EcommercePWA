@@ -325,8 +325,22 @@
             .then(data => {
                 if (data.success) {
                     showAlert('success', data.message);
-                    // Recarregar página para mostrar cupom aplicado corretamente
-                    setTimeout(() => location.reload(), 1000);
+                    
+                    // Atualizar totais sem recarregar a página
+                    updateCartTotals(data);
+                    
+                    // Aguardar um pouco para garantir que a interface foi atualizada
+                    setTimeout(() => {
+                        console.log('Aplicando cupom - verificando frete selecionado...');
+                        const selectedShipping = document.querySelector('input[name="shippingOption"]:checked');
+                        console.log('Frete selecionado:', selectedShipping ? selectedShipping.dataset.price : 'nenhum');
+                        
+                        // Recalcular total mantendo frete atual
+                        recalculateTotal();
+                    }, 100);
+                    
+                    // Limpar campo do cupom
+                    document.getElementById('couponCode').value = '';
                 } else {
                     showAlert('danger', data.message);
                 }
@@ -351,8 +365,15 @@
                 .then(data => {
                     if (data.success) {
                         showAlert('success', data.message);
-                        // Recarregar página para remover cupom da interface
-                        setTimeout(() => location.reload(), 1000);
+                        
+                        // Remover linha de desconto da interface
+                        const discountRow = document.getElementById('discountRow');
+                        if (discountRow) {
+                            discountRow.remove();
+                        }
+                        
+                        // Recalcular total mantendo frete atual
+                        recalculateTotal();
                     } else {
                         showAlert('danger', data.message);
                     }
@@ -560,18 +581,7 @@
                         document.getElementById('shippingCostDisplay').textContent = `R$ ${price.toFixed(2).replace('.', ',')}`;
                         
                         // Recalcular total com frete selecionado
-                        const subtotal = parseFloat(document.getElementById('subtotalDisplay').textContent.replace('R$ ', '').replace(',', '.'));
-                        const taxAmount = parseFloat(document.getElementById('taxAmountDisplay').textContent.replace('R$ ', '').replace(',', '.'));
-                        const discountElement = document.getElementById('discountRow');
-                        let discountAmount = 0;
-                        
-                        if (discountElement && discountElement.style.display !== 'none') {
-                            const discountText = discountElement.querySelector('span:nth-child(2) span').textContent;
-                            discountAmount = parseFloat(discountText.replace('-R$ ', '').replace(',', '.'));
-                        }
-                        
-                        const newTotal = subtotal + price + taxAmount - discountAmount;
-                        document.getElementById('totalDisplay').textContent = `R$ ${newTotal.toFixed(2).replace('.', ',')}`;
+                        recalculateTotal(price);
                     }
                 });
             });
@@ -579,6 +589,91 @@
             optionsDiv.style.display = 'block';
         }
         
+        // Recalcular total geral
+        function recalculateTotal(shippingCost = null) {
+            try {
+                console.log('=== INICIANDO RECÁLCULO ===');
+                
+                // Se não foi passado frete, pegar o frete atual selecionado
+                if (shippingCost === null) {
+                    const selectedShipping = document.querySelector('input[name="shippingOption"]:checked');
+                    shippingCost = selectedShipping ? parseFloat(selectedShipping.dataset.price) : 0;
+                    console.log('Frete detectado automaticamente:', shippingCost);
+                }
+                
+                // Obter valores dos elementos (tratando formatação brasileira)
+                const subtotalElement = document.getElementById('subtotalDisplay');
+                const taxElement = document.getElementById('taxAmountDisplay');
+                
+                console.log('Subtotal element:', subtotalElement ? subtotalElement.textContent : 'não encontrado');
+                console.log('Tax element:', taxElement ? taxElement.textContent : 'não encontrado');
+                
+                const subtotalText = subtotalElement.textContent.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
+                const taxText = taxElement.textContent.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
+                
+                const subtotal = parseFloat(subtotalText) || 0;
+                const taxAmount = parseFloat(taxText) || 0;
+                
+                // Verificar se há desconto na interface
+                let discountAmount = 0;
+                const discountElement = document.getElementById('discountRow');
+                console.log('Elemento de desconto:', discountElement);
+                console.log('Display do elemento:', discountElement ? discountElement.style.display : 'elemento não existe');
+                
+                if (discountElement && discountElement.style.display !== 'none') {
+                    // Tentar diferentes seletores para encontrar o valor do desconto
+                    let discountSpan = discountElement.querySelector('span:nth-child(2) span');
+                    if (!discountSpan) {
+                        discountSpan = discountElement.querySelector('.text-danger');
+                    }
+                    if (!discountSpan) {
+                        discountSpan = discountElement.querySelector('span[class*="text"]');
+                    }
+                    
+                    console.log('Span do desconto encontrado:', discountSpan);
+                    
+                    if (discountSpan) {
+                        const discountText = discountSpan.textContent;
+                        console.log('Texto do desconto:', discountText);
+                        discountAmount = parseFloat(discountText.replace('-R$ ', '').replace(/\./g, '').replace(',', '.')) || 0;
+                        console.log('Desconto parseado:', discountAmount);
+                    }
+                } else {
+                    console.log('Elemento de desconto não encontrado ou oculto');
+                }
+                
+                // NOVA LÓGICA: Aplicar desconto por último
+                // 1. Primeiro calcular total sem desconto
+                const totalSemDesconto = subtotal + shippingCost + taxAmount;
+                
+                // 2. Se há cupom aplicado, calcular desconto sobre o subtotal original
+                let finalTotal = totalSemDesconto;
+                if (discountElement && discountElement.style.display !== 'none') {
+                    // Calcular 10% sobre o subtotal (assumindo WELCOME10)
+                    const descontoCalculado = subtotal * 0.10;
+                    finalTotal = totalSemDesconto - descontoCalculado;
+                    console.log(`Aplicando desconto: ${descontoCalculado} sobre subtotal ${subtotal}`);
+                    console.log(`Total sem desconto: ${totalSemDesconto}, Total com desconto: ${finalTotal}`);
+                } else {
+                    console.log('Nenhum cupom aplicado, usando total sem desconto');
+                }
+                
+                const total = finalTotal;
+                
+                // Atualizar display do total
+                const totalElement = document.getElementById('totalDisplay');
+                if (totalElement) {
+                    totalElement.textContent = `R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    console.log('Total atualizado para:', totalElement.textContent);
+                }
+                
+                console.log(`RECÁLCULO FINAL: Subtotal=${subtotal}, Frete=${shippingCost}, Impostos=${taxAmount}, Desconto=${discountAmount}, Total=${total}`);
+                console.log('=== FIM RECÁLCULO ===');
+            } catch (error) {
+                console.error('Erro ao recalcular total:', error);
+            }
+        }
+
         // Formatar CEP enquanto digita
         function formatCep(input) {
             let value = input.value.replace(/\D/g, '');

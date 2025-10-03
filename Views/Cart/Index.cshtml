@@ -99,7 +99,7 @@
                         <div class="shipping-section mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span>Frete:</span>
-                                <span id="shippingCostDisplay">A calcular</span>
+                                <span id="shippingCostDisplay">R$ 0,00</span>
                             </div>
                             
                             <div class="shipping-calculator">
@@ -165,7 +165,7 @@
                         @if (Model.Items.Any())
                         {
                             <div class="d-grid gap-2">
-                                <a href="@Url.Action("Index", "Checkout")" class="btn btn-warning btn-lg">
+                                <a href="@Url.Action("Index", "Checkout")" class="btn btn-warning btn-lg" id="finalizarCompraBtn">
                                     <i class="fas fa-credit-card me-2"></i>Finalizar Compra
                                 </a>
                                 <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
@@ -571,8 +571,10 @@
             
             // Adicionar event listeners para as opções
             document.querySelectorAll('input[name="shippingOption"]').forEach(radio => {
+                console.log('Adicionando listener para:', radio.id, 'valor:', radio.value, 'preço:', radio.dataset.price);
                 radio.addEventListener('change', function() {
                     if (this.checked) {
+                        console.log('Frete selecionado:', this.id, 'preço:', this.dataset.price);
                         const price = parseFloat(this.dataset.price);
                         document.getElementById('shippingCostDisplay').textContent = `R$ ${price.toFixed(2).replace('.', ',')}`;
                         
@@ -655,6 +657,86 @@
                 calculateShipping();
             }
         });
+
+        // Inicializar com frete zero por padrão
+        document.addEventListener('DOMContentLoaded', function() {
+            // Se não há frete calculado, definir como R$ 0,00 por padrão
+            const shippingDisplay = document.getElementById('shippingCostDisplay');
+            if (shippingDisplay && (shippingDisplay.textContent === 'A calcular' || shippingDisplay.textContent.trim() === '')) {
+                shippingDisplay.textContent = 'R$ 0,00';
+                
+                // Salvar frete zero no backend
+                fetch('@Url.Action("SetShipping", "Cart")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify({ shippingCost: 0 })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateCartTotals(data);
+                        console.log('Frete padrão (R$ 0,00) definido automaticamente');
+                    }
+                })
+                .catch(error => {
+                    console.log('Erro ao definir frete padrão, mas continuando...', error);
+                });
+            }
+        });
+
+        // Debug do botão Finalizar Compra
+        document.getElementById('finalizarCompraBtn').addEventListener('click', function(e) {
+            console.log('Botão Finalizar Compra clicado!');
+            console.log('URL de destino:', this.href);
+            
+            // Verificar se há frete selecionado com seletor mais específico
+            const selectedShipping = document.querySelector('input[name="shippingOption"]:checked');
+            const shippingCostDisplay = document.getElementById('shippingCostDisplay').textContent;
+            
+            console.log('Elemento frete encontrado:', selectedShipping);
+            console.log('Valor do frete na tela:', shippingCostDisplay);
+            
+            // Se não há frete selecionado E o frete não foi definido como R$ 0,00
+            if (!selectedShipping && shippingCostDisplay === 'A calcular') {
+                console.log('AVISO: Nenhum frete selecionado e não calculado...');
+                const confirmProceed = confirm('Você não selecionou uma opção de frete. Deseja continuar mesmo assim? O frete poderá ser calculado na próxima etapa.');
+                if (!confirmProceed) {
+                    e.preventDefault();
+                    return false;
+                }
+            } else if (selectedShipping) {
+                console.log('Frete selecionado:', selectedShipping.dataset.price);
+            } else {
+                console.log('Frete padrão definido, prosseguindo...');
+            }
+            
+            console.log('Redirecionando para checkout...');
+        });
+
+        // DEBUG: Função para verificar elementos de frete
+        window.debugShipping = function() {
+            console.log('=== DEBUG FRETE ===');
+            const allShippingOptions = document.querySelectorAll('input[name="shippingOption"]');
+            console.log('Total de opções de frete encontradas:', allShippingOptions.length);
+            
+            allShippingOptions.forEach((option, index) => {
+                console.log(`Opção ${index + 1}:`, {
+                    id: option.id,
+                    value: option.value,
+                    checked: option.checked,
+                    price: option.dataset.price
+                });
+            });
+            
+            const selectedShipping = document.querySelector('input[name="shippingOption"]:checked');
+            console.log('Opção selecionada:', selectedShipping);
+            
+            const shippingDisplay = document.getElementById('shippingCostDisplay').textContent;
+            console.log('Valor mostrado na tela:', shippingDisplay);
+        };
 
         // Atualizar quantidade ao mudar input
         document.querySelectorAll('.quantity-input').forEach(input => {

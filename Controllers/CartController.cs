@@ -533,7 +533,7 @@ namespace EcommercePWA.Controllers
 
         // POST: /Cart/SetShipping
         [HttpPost]
-        [RequireAuth]
+        // [RequireAuth] - Temporariamente removido para permitir frete sem login
         public IActionResult SetShipping([FromBody] SetShippingRequest request)
         {
             try

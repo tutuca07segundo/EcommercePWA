@@ -21,9 +21,6 @@ namespace EcommercePWA.Models
         
         [JsonProperty("back_urls")]
         public MercadoPagoUrls BackUrls { get; set; } = new();
-        
-        [JsonProperty("auto_return")]
-        public string AutoReturn { get; set; } = "approved";
     }
 
     public class MercadoPagoItem

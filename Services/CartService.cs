@@ -217,8 +217,16 @@ namespace EcommercePWA.Services
             {
                 var cart = GetCart(sessionId);
                 cart.Items.Clear();
+                
+                // Limpar também dados do cupom
+                cart.CouponCode = null;
+                cart.DiscountAmount = null;
+                cart.ShippingCost = null;
+                
                 cart.LastUpdated = DateTime.Now;
                 _context.SaveChanges();
+                
+                _logger.LogInformation($"Carrinho limpo completamente para sessão {sessionId} - incluindo cupom");
             }
             catch (Exception ex)
             {

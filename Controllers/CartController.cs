@@ -82,15 +82,16 @@ namespace EcommercePWA.Controllers
                     couponMessage = $"Cupom {cart.CouponCode} aplicado! Desconto: R$ {cart.DiscountAmount.Value:N2}";
                 }
                 
+                // Impostos calculados sobre subtotal bruto (antes de descontos)
                 var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount;
+                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount + (cart.ShippingCost ?? 0);
                 
                 var viewModel = new CartViewModel
                 {
                     Cart = cart,
                     Items = cartItems,
                     Subtotal = cart.Subtotal,
-                    ShippingCost = 0,
+                    ShippingCost = cart.ShippingCost ?? 0,
                     TaxAmount = taxAmount,
                     Total = finalTotal,
                     CouponCode = cart.CouponCode,
@@ -186,15 +187,16 @@ namespace EcommercePWA.Controllers
 
                 // O cupom já foi recalculado automaticamente no CartService
                 
+                // Impostos calculados sobre subtotal bruto (antes de descontos)
                 var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount;
+                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount + (cart.ShippingCost ?? 0);
                 
                 return Json(new {
                     success = true,
                     itemId = request.ItemId,
                     itemTotal = item?.Total ?? 0,
                     subtotal = cart.Subtotal,
-                    shippingCost = 0,
+                    shippingCost = cart.ShippingCost ?? 0,
                     taxAmount = taxAmount,
                     discountAmount = cart.DiscountAmount ?? 0,
                     total = finalTotal,
@@ -221,15 +223,16 @@ namespace EcommercePWA.Controllers
                 var cart = _cartService.GetCart(sessionId);
                 
                 // Calcular valores para retorno
+                // Impostos calculados sobre subtotal bruto (antes de descontos)
                 var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount;
+                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount + (cart.ShippingCost ?? 0);
                 
                 return Json(new { 
                     success = true, 
                     message = "Item removido do carrinho",
                     cartItemCount = cart.ItemCount,
                     subtotal = cart.Subtotal,
-                    shippingCost = 0,
+                    shippingCost = cart.ShippingCost ?? 0,
                     taxAmount = taxAmount,
                     discountAmount = cart.DiscountAmount ?? 0,
                     total = finalTotal,
@@ -260,15 +263,16 @@ namespace EcommercePWA.Controllers
                     HttpContext.Session.SetString("DiscountAmount", result.DiscountAmount.ToString());
                     
                     var cart = _cartService.GetCart(sessionId);
+                    // Impostos calculados sobre subtotal bruto (antes de descontos)
                     var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                    var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount;
+                    var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount + (cart.ShippingCost ?? 0);
                     
                     return Json(new { 
                         success = true, 
                         message = result.Message,
                         discountAmount = result.DiscountAmount,
                         subtotal = cart.Subtotal,
-                        shippingCost = 0,
+                        shippingCost = cart.ShippingCost ?? 0,
                         taxAmount = taxAmount,
                         total = finalTotal,
                         couponCode = request.CouponCode
@@ -305,19 +309,21 @@ namespace EcommercePWA.Controllers
                 _cartService.RemoveCoupon(sessionId);
 
                 // Recalcular totais sem cupom
+                var subtotal = cart.Items.Sum(i => i.Total);
+                var taxAmount = CalculateTaxAmount(subtotal);
                 var viewModel = new CartViewModel
                 {
                     Items = cart.Items,
-                    Subtotal = cart.Items.Sum(i => i.Total),
+                    Subtotal = subtotal,
                     ShippingCost = 0,
-                    TaxAmount = CalculateTaxAmount(cart.Items.Sum(i => i.Total)),
+                    TaxAmount = taxAmount,
                     DiscountAmount = null,
                     CouponCode = null,
                     CouponMessage = null,
                     IsCouponValid = false
                 };
 
-                viewModel.Total = viewModel.Subtotal + viewModel.ShippingCost + viewModel.TaxAmount - (viewModel.DiscountAmount ?? 0);
+                viewModel.Total = viewModel.Subtotal + viewModel.ShippingCost + viewModel.TaxAmount;
 
                 return Json(new { 
                     success = true, 
@@ -525,6 +531,42 @@ namespace EcommercePWA.Controllers
             return null;
         }
 
+        // POST: /Cart/SetShipping
+        [HttpPost]
+        [RequireAuth]
+        public IActionResult SetShipping([FromBody] SetShippingRequest request)
+        {
+            try
+            {
+                var sessionId = GetSessionId();
+                
+                // Usar o CartService para salvar o frete
+                _cartService.SetShippingCost(sessionId, request.ShippingCost);
+                
+                var cart = _cartService.GetCart(sessionId);
+
+                // Recalcular total
+                var taxAmount = CalculateTaxAmount(cart.Subtotal);
+                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount + (cart.ShippingCost ?? 0);
+
+                return Json(new { 
+                    success = true, 
+                    message = "Frete selecionado com sucesso!",
+                    shippingCost = cart.ShippingCost,
+                    subtotal = cart.Subtotal,
+                    taxAmount = taxAmount,
+                    discountAmount = cart.DiscountAmount ?? 0,
+                    couponCode = cart.CouponCode,
+                    total = finalTotal
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao definir frete");
+                return Json(new { success = false, message = "Erro ao definir frete" });
+            }
+        }
+
         private string GetCartId()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
@@ -563,6 +605,11 @@ namespace EcommercePWA.Controllers
     public class CalculateShippingRequest
     {
         public string Cep { get; set; } = string.Empty;
+    }
+
+    public class SetShippingRequest
+    {
+        public decimal ShippingCost { get; set; }
     }
 
     public class CepInfo

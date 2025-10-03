@@ -852,5 +852,17 @@
         <member name="M:EcommercePWA.Migrations.AddProductShippingProperties.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:EcommercePWA.Migrations.AddShippingCostToCart">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddShippingCostToCart.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddShippingCostToCart.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.AddShippingCostToCart.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
     </members>
 </doc>

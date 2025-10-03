@@ -11,6 +11,7 @@ namespace EcommercePWA.Services
         void ClearCart(string sessionId);
         CouponValidationResult ApplyCoupon(string sessionId, string couponCode);
         void RemoveCoupon(string sessionId);
+        void SetShippingCost(string sessionId, decimal shippingCost);
     }
 
     public class CouponValidationResult

@@ -331,6 +331,22 @@ namespace EcommercePWA.Services
             }
         }
 
+        public void SetShippingCost(string sessionId, decimal shippingCost)
+        {
+            try
+            {
+                var cart = GetCart(sessionId);
+                cart.ShippingCost = shippingCost;
+                cart.LastUpdated = DateTime.Now;
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao definir frete para sessão {SessionId}", sessionId);
+                throw;
+            }
+        }
+
         private async Task<decimal> GetItemPriceAsync(Product product, int? variationId)
         {
             // Apply discount to base price

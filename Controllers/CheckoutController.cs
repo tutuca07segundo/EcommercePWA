@@ -34,7 +34,8 @@ namespace EcommercePWA.Controllers
                 return RedirectToAction("Index", "Cart");
             }
 
-            var shippingCost = CalculateShippingCost(cart);
+            // Usar frete salvo no carrinho (novo sistema) ou fallback para cálculo antigo
+            var shippingCost = cart.ShippingCost ?? CalculateShippingCost(cart);
             var taxAmount = CalculateTaxAmount(cart.Subtotal);
             
             var cartViewModel = new CartViewModel
@@ -70,16 +71,18 @@ namespace EcommercePWA.Controllers
                 var cart = _cartService.GetCart(sessionId);
                 
                 // Validação customizada baseada no método de pagamento
-                if (!ValidatePaymentMethod(model))
+                if (!ModelState.IsValid)
                 {
+                    var shippingCost = cart.ShippingCost ?? CalculateShippingCost(cart);
+                    var taxAmount = CalculateTaxAmount(cart.Subtotal);
                     var cartViewModel = new CartViewModel
                     {
                         Cart = cart,
                         Items = cart.Items,
                         Subtotal = cart.Subtotal,
-                        ShippingCost = CalculateShippingCost(cart),
-                        TaxAmount = CalculateTaxAmount(cart.Subtotal),
-                        Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal)
+                        ShippingCost = shippingCost,
+                        TaxAmount = taxAmount,
+                        Total = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount
                     };
                     model.Cart = cartViewModel;
                     return View("Index", model);
@@ -119,14 +122,15 @@ namespace EcommercePWA.Controllers
                     }
                     
                     ModelState.AddModelError("", simulationResult.Message);
+                    var shippingCost = cart.ShippingCost ?? CalculateShippingCost(cart);
                     var cartViewModel = new CartViewModel
                     {
                         Cart = cart,
                         Items = cart.Items,
                         Subtotal = cart.Subtotal,
-                        ShippingCost = CalculateShippingCost(cart),
+                        ShippingCost = shippingCost,
                         TaxAmount = CalculateTaxAmount(cart.Subtotal),
-                        Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal)
+                        Total = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + CalculateTaxAmount(cart.Subtotal)
                     };
                     model.Cart = cartViewModel;
                     return View("Index", model);
@@ -135,14 +139,15 @@ namespace EcommercePWA.Controllers
                 // Se for PIX, mostrar QR Code
                 if (simulationResult.RequiresPixConfirmation)
                 {
+                    var shippingCost = cart.ShippingCost ?? CalculateShippingCost(cart);
                     var cartViewModel = new CartViewModel
                     {
                         Cart = cart,
                         Items = cart.Items,
                         Subtotal = cart.Subtotal,
-                        ShippingCost = CalculateShippingCost(cart),
+                        ShippingCost = shippingCost,
                         TaxAmount = CalculateTaxAmount(cart.Subtotal),
-                        Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal)
+                        Total = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + CalculateTaxAmount(cart.Subtotal)
                     };
                     model.Cart = cartViewModel;
                     HttpContext.Session.SetInt32("PendingOrderId", order.Id);
@@ -152,14 +157,15 @@ namespace EcommercePWA.Controllers
                 // Se for cartão, mostrar tela de confirmação
                 if (simulationResult.RequiresCardConfirmation)
                 {
+                    var shippingCost = cart.ShippingCost ?? CalculateShippingCost(cart);
                     var cartViewModel = new CartViewModel
                     {
                         Cart = cart,
                         Items = cart.Items,
                         Subtotal = cart.Subtotal,
-                        ShippingCost = CalculateShippingCost(cart),
+                        ShippingCost = shippingCost,
                         TaxAmount = CalculateTaxAmount(cart.Subtotal),
-                        Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal)
+                        Total = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + CalculateTaxAmount(cart.Subtotal)
                     };
                     model.Cart = cartViewModel;
                     HttpContext.Session.SetInt32("PendingOrderId", order.Id);
@@ -351,11 +357,11 @@ namespace EcommercePWA.Controllers
                 PaymentMethod = GetPaymentMethodName(model.PaymentMethod),
                 PaymentStatus = "Pendente",
                 Subtotal = cart.Subtotal,
-                ShippingCost = CalculateShippingCost(cart),
+                ShippingCost = cart.ShippingCost ?? CalculateShippingCost(cart),
                 TaxAmount = CalculateTaxAmount(cart.Subtotal),
                 DiscountAmount = discountAmount,
                 CouponCode = couponCode,
-                Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal) - discountAmount,
+                Total = cart.Subtotal - discountAmount + (cart.ShippingCost ?? CalculateShippingCost(cart)) + CalculateTaxAmount(cart.Subtotal),
                 ShippingAddress = $"{model.ShippingAddress ?? model.Address}, {model.AddressNumber} - {model.ShippingCity ?? model.City}, {model.State} - {model.ShippingZipCode ?? model.ZipCode}",
                 Items = cart.Items.Select(item => new OrderItem
                 {
@@ -400,11 +406,11 @@ namespace EcommercePWA.Controllers
                 ShippingZipCode = model.ShippingZipCode,
                 ShippingCountry = model.ShippingCountry,
                 Subtotal = cart.Subtotal,
-                ShippingCost = CalculateShippingCost(cart),
+                ShippingCost = cart.ShippingCost ?? CalculateShippingCost(cart),
                 TaxAmount = CalculateTaxAmount(cart.Subtotal),
                 DiscountAmount = discountAmount,
                 CouponCode = couponCode,
-                Total = cart.Total + CalculateShippingCost(cart) + CalculateTaxAmount(cart.Subtotal) - discountAmount,
+                Total = cart.Subtotal - discountAmount + (cart.ShippingCost ?? CalculateShippingCost(cart)) + CalculateTaxAmount(cart.Subtotal),
                 PaymentMethod = model.PaymentMethod,
                 PaymentStatus = paymentStatus,
                 Notes = model.Notes

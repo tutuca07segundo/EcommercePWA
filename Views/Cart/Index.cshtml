@@ -3,6 +3,15 @@
     ViewData["Title"] = "Carrinho de Compras";
 }
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-lg-8">
@@ -98,9 +107,13 @@
                         <!-- Seção de Frete -->
                         <div class="shipping-section mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span>Frete:</span>
-                                <span id="shippingCostDisplay">R$ 0,00</span>
+                                <span>Frete: <span class="text-danger">*</span></span>
+                                <span id="shippingCostDisplay" style="color: #dc3545; font-weight: bold;">A calcular</span>
                             </div>
+                            <small class="text-muted d-block mb-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Obrigatório:</strong> Calcule e selecione uma opção de frete para continuar
+                            </small>
                             
                             <div class="shipping-calculator">
                                 <div class="input-group input-group-sm mb-2">
@@ -223,6 +236,27 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Animação para destacar seção de frete obrigatório */
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    
+    /* Melhorar visual da seção de frete */
+    .shipping-section {
+        transition: all 0.3s ease;
+    }
+    
+    .shipping-section.required {
+        border: 2px solid #dc3545 !important;
+        background-color: #fff5f5 !important;
+        border-radius: 8px !important;
+        padding: 15px !important;
+    }
+</style>
 
 @section Scripts {
     <script>
@@ -658,62 +692,67 @@
             }
         });
 
-        // Inicializar com frete zero por padrão
+        // Inicializar interface de frete
         document.addEventListener('DOMContentLoaded', function() {
-            // Se não há frete calculado, definir como R$ 0,00 por padrão
             const shippingDisplay = document.getElementById('shippingCostDisplay');
-            if (shippingDisplay && (shippingDisplay.textContent === 'A calcular' || shippingDisplay.textContent.trim() === '')) {
-                shippingDisplay.textContent = 'R$ 0,00';
-                
-                // Salvar frete zero no backend
-                fetch('@Url.Action("SetShipping", "Cart")', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                    },
-                    body: JSON.stringify({ shippingCost: 0 })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateCartTotals(data);
-                        console.log('Frete padrão (R$ 0,00) definido automaticamente');
-                    }
-                })
-                .catch(error => {
-                    console.log('Erro ao definir frete padrão, mas continuando...', error);
-                });
+            
+            // Se não há frete calculado, mostrar "A calcular" para forçar usuário a calcular
+            if (shippingDisplay && (shippingDisplay.textContent === 'R$ 0,00' || shippingDisplay.textContent.trim() === '')) {
+                shippingDisplay.textContent = 'A calcular';
+                shippingDisplay.style.color = '#dc3545';
+                shippingDisplay.style.fontWeight = 'bold';
+                console.log('Frete não calculado - usuário deve calcular obrigatoriamente');
             }
         });
 
-        // Debug do botão Finalizar Compra
+        // Validação OBRIGATÓRIA do frete antes de finalizar compra
         document.getElementById('finalizarCompraBtn').addEventListener('click', function(e) {
             console.log('Botão Finalizar Compra clicado!');
-            console.log('URL de destino:', this.href);
             
-            // Verificar se há frete selecionado com seletor mais específico
+            // Verificar se há frete selecionado
             const selectedShipping = document.querySelector('input[name="shippingOption"]:checked');
             const shippingCostDisplay = document.getElementById('shippingCostDisplay').textContent;
+            const shippingOptionsVisible = document.getElementById('shippingOptions').style.display !== 'none';
             
-            console.log('Elemento frete encontrado:', selectedShipping);
+            console.log('Frete selecionado:', selectedShipping);
             console.log('Valor do frete na tela:', shippingCostDisplay);
+            console.log('Opções de frete visíveis:', shippingOptionsVisible);
             
-            // Se não há frete selecionado E o frete não foi definido como R$ 0,00
-            if (!selectedShipping && shippingCostDisplay === 'A calcular') {
-                console.log('AVISO: Nenhum frete selecionado e não calculado...');
-                const confirmProceed = confirm('Você não selecionou uma opção de frete. Deseja continuar mesmo assim? O frete poderá ser calculado na próxima etapa.');
-                if (!confirmProceed) {
-                    e.preventDefault();
-                    return false;
-                }
-            } else if (selectedShipping) {
-                console.log('Frete selecionado:', selectedShipping.dataset.price);
-            } else {
-                console.log('Frete padrão definido, prosseguindo...');
+            // VALIDAÇÃO OBRIGATÓRIA: Frete deve ser calculado e selecionado
+            if (!selectedShipping || shippingCostDisplay === 'A calcular' || shippingCostDisplay === 'R$ 0,00') {
+                e.preventDefault();
+                
+                // Destacar seção de frete com animação
+                const shippingSection = document.querySelector('.shipping-section');
+                shippingSection.style.border = '2px solid #dc3545';
+                shippingSection.style.borderRadius = '8px';
+                shippingSection.style.backgroundColor = '#fff5f5';
+                shippingSection.style.padding = '15px';
+                
+                // Animar para chamar atenção
+                shippingSection.style.animation = 'shake 0.5s ease-in-out';
+                
+                // Focar no campo CEP
+                document.getElementById('shippingCep').focus();
+                
+                // Mostrar alerta específico
+                showAlert('danger', '⚠️ FRETE OBRIGATÓRIO: Por favor, digite seu CEP, calcule o frete e selecione uma opção de entrega antes de finalizar a compra.');
+                
+                // Remover destaque após 5 segundos
+                setTimeout(() => {
+                    shippingSection.style.border = '';
+                    shippingSection.style.borderRadius = '';
+                    shippingSection.style.backgroundColor = '';
+                    shippingSection.style.padding = '';
+                    shippingSection.style.animation = '';
+                }, 5000);
+                
+                return false;
             }
             
-            console.log('Redirecionando para checkout...');
+            // Se chegou até aqui, frete foi selecionado corretamente
+            console.log('✅ Frete validado! Prosseguindo para checkout...');
+            console.log('Frete selecionado: R$', selectedShipping.dataset.price);
         });
 
         // DEBUG: Função para verificar elementos de frete

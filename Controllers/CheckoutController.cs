@@ -38,7 +38,15 @@ namespace EcommercePWA.Controllers
                 return RedirectToAction("Index", "Cart");
             }
             
-            _logger.LogInformation("Carrinho válido - prosseguindo para checkout");
+            // VALIDAÇÃO OBRIGATÓRIA: Verificar se frete foi calculado e selecionado
+            if (!cart.ShippingCost.HasValue || cart.ShippingCost.Value < 0)
+            {
+                _logger.LogWarning("Frete não calculado - redirecionando para /Cart");
+                TempData["ErrorMessage"] = "⚠️ FRETE OBRIGATÓRIO: Por favor, calcule e selecione uma opção de frete antes de finalizar a compra.";
+                return RedirectToAction("Index", "Cart");
+            }
+            
+            _logger.LogInformation($"Carrinho válido - Frete: R$ {cart.ShippingCost.Value:N2} - prosseguindo para checkout");
 
             // Usar frete salvo no carrinho (novo sistema) ou fallback para cálculo antigo
             var shippingCost = cart.ShippingCost ?? CalculateShippingCost(cart);

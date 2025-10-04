@@ -125,9 +125,8 @@ namespace EcommercePWA.Controllers
 
             try
             {
-                // Aqui você pode implementar um método no service para buscar todos os pedidos do usuário
-                // Por enquanto, vamos redirecionar para a página de pedidos do usuário
-                return RedirectToAction("Index", "Order");
+                // CORREÇÃO: Redirecionar para MyOrders ao invés de Index para evitar acesso a todos os pedidos
+                return RedirectToAction("MyOrders", "Order");
             }
             catch (Exception ex)
             {

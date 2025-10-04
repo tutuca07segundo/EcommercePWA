@@ -194,35 +194,49 @@ namespace EcommercePWA.Controllers
             return View("Reports", reportItems);
         }
 
-        // GET: /Order/Index - Lista todos os pedidos (alternativa à Admin/Orders)
+        // GET: /Order/Index - Lista todos os pedidos (APENAS PARA ADMINS)
         [RequireAuth]
         public async Task<IActionResult> Index()
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-                return Forbid();
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userId = HttpContext.Session.GetInt32("UserId");
+            
+            // VALIDAÇÃO RIGOROSA: Apenas admins podem ver todos os pedidos
+            if (userRole != "Admin")
+            {
+                _logger.LogWarning("Tentativa de acesso não autorizado à lista de todos os pedidos. UserId: {UserId}, Role: {Role}", userId, userRole);
+                TempData["ErrorMessage"] = "❌ Acesso negado! Você não tem permissão para visualizar todos os pedidos.";
+                
+                // Redirecionar usuários comuns para seus próprios pedidos
+                return RedirectToAction("MyOrders", "Order");
+            }
+            
             var orders = await _orderService.GetAllOrders();
             return View("~/Views/Admin/Orders.cshtml", orders);
         }
 
-        // GET: /Order/MyOrders - Lista pedidos do usuário logado
+        // GET: /Order/MyOrders - Lista pedidos do usuário logado (APENAS SEUS PRÓPRIOS PEDIDOS)
         [RequireAuth]
         public async Task<IActionResult> MyOrders()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (!userId.HasValue)
             {
+                _logger.LogWarning("Tentativa de acesso a MyOrders sem UserId na sessão");
                 return RedirectToAction("Login", "Auth");
             }
 
             try
             {
+                // VALIDAÇÃO RIGOROSA: Filtrar APENAS pedidos do usuário logado
                 var orders = await _context.Orders
                     .Include(o => o.Items)
                     .ThenInclude(oi => oi.Product)
-                    .Where(o => o.UserId == userId.Value)
+                    .Where(o => o.UserId == userId.Value) // CRÍTICO: Apenas pedidos do usuário atual
                     .OrderByDescending(o => o.OrderDate)
                     .ToListAsync();
 
+                _logger.LogInformation("Usuário {UserId} acessou seus pedidos. Total encontrado: {Count}", userId.Value, orders.Count);
                 return View(orders);
             }
             catch (Exception ex)
@@ -233,30 +247,34 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Order/MyOrderDetails/5 - Detalhes do pedido para usuário comum
+        // GET: /Order/MyOrderDetails/5 - Detalhes do pedido para usuário comum (APENAS SEUS PRÓPRIOS PEDIDOS)
         [RequireAuth]
         public async Task<IActionResult> MyOrderDetails(int id)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (!userId.HasValue)
             {
+                _logger.LogWarning("Tentativa de acesso a MyOrderDetails sem UserId na sessão");
                 return RedirectToAction("Login", "Auth");
             }
 
             try
             {
+                // VALIDAÇÃO CRÍTICA: Garantir que o pedido pertence ao usuário logado
                 var order = await _context.Orders
                     .Include(o => o.Items)
                     .ThenInclude(oi => oi.Product)
                     .Include(o => o.User)
-                    .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId.Value);
+                    .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId.Value); // CRÍTICO: Verificar UserId
 
                 if (order == null)
                 {
-                    TempData["ErrorMessage"] = "Pedido não encontrado.";
+                    _logger.LogWarning("Usuário {UserId} tentou acessar pedido {OrderId} que não lhe pertence ou não existe", userId.Value, id);
+                    TempData["ErrorMessage"] = "❌ Pedido não encontrado ou você não tem permissão para visualizá-lo.";
                     return RedirectToAction("MyOrders");
                 }
 
+                _logger.LogInformation("Usuário {UserId} acessou detalhes do pedido {OrderId}", userId.Value, id);
                 return View(order);
             }
             catch (Exception ex)

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using EcommercePWA.Constants;
 
 namespace EcommercePWA.Models
 {
@@ -17,7 +18,7 @@ namespace EcommercePWA.Models
         public DateTime LastUpdated { get; set; } = DateTime.Now;
         
         // Cupom aplicado
-        [StringLength(50)]
+        [StringLength(BusinessConstants.MAX_COUPON_CODE_LENGTH)]
         public string? CouponCode { get; set; }
         public decimal? DiscountAmount { get; set; }
         
@@ -29,7 +30,7 @@ namespace EcommercePWA.Models
         
         // Propriedades calculadas
         public decimal Subtotal => Items.Sum(item => item.Total);
-        public decimal Total => Subtotal - (DiscountAmount ?? 0) + (ShippingCost ?? 0) + (Subtotal * 0.10m); // Inclui impostos de 10%
+        public decimal Total => Subtotal - (DiscountAmount ?? 0) + (ShippingCost ?? 0) + (Subtotal * BusinessConstants.TAX_RATE);
         public int ItemCount => Items.Sum(item => item.Quantity);
     }
 }

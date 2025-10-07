@@ -2,6 +2,7 @@ using EcommercePWA.Services;
 using EcommercePWA.Data;
 using Microsoft.EntityFrameworkCore;
 using EcommercePWA.Models;
+using EcommercePWA.Constants;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Text.Json;
 
@@ -15,7 +16,7 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
-// Registrar serviços
+// Registrar serviços principais
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -23,12 +24,15 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IDiscountService, DiscountService>();
-// builder.Services.AddScoped<IPromotionService, PromotionService>(); // Comentado temporariamente
 builder.Services.AddScoped<ICategoryPromotionService, CategoryPromotionService>();
 builder.Services.AddScoped<ITrackingService, TrackingService>();
 builder.Services.AddScoped<IWishlistService, WishlistService>();
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 builder.Services.AddScoped<DataSeederService>();
+
+// Registrar novos serviços de Clean Code
+builder.Services.AddScoped<IProductPricingService, ProductPricingService>();
+builder.Services.AddScoped<ICartCalculationService, CartCalculationService>();
 
 // Add Melhor Envio service
 builder.Services.AddHttpClient<IMelhorEnvioService, MelhorEnvioService>();
@@ -48,7 +52,7 @@ builder.Services.AddHttpClient<IMercadoPagoService, MercadoPagoService>(client =
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromMinutes(BusinessConstants.SESSION_TIMEOUT_MINUTES);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

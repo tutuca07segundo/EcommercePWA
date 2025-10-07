@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
 using EcommercePWA.Attributes;
+using EcommercePWA.Constants;
 using System.Text.Json;
 
 namespace EcommercePWA.Controllers
@@ -10,22 +11,27 @@ namespace EcommercePWA.Controllers
     {
         private readonly ICartService _cartService;
         private readonly IProductService _productService;
-        private readonly IDiscountService _discountService;
-        private readonly ICouponService _couponService;
+        private readonly IProductPricingService _productPricingService;
+        private readonly ICartCalculationService _cartCalculationService;
         private readonly IMelhorEnvioService _melhorEnvioService;
         private readonly ILogger<CartController> _logger;
 
-        public CartController(ICartService cartService, IProductService productService, IDiscountService discountService, ICouponService couponService, IMelhorEnvioService melhorEnvioService, ILogger<CartController> logger)
+        public CartController(
+            ICartService cartService, 
+            IProductService productService,
+            IProductPricingService productPricingService,
+            ICartCalculationService cartCalculationService,
+            IMelhorEnvioService melhorEnvioService, 
+            ILogger<CartController> logger)
         {
             _cartService = cartService;
             _productService = productService;
-            _discountService = discountService;
-            _couponService = couponService;
+            _productPricingService = productPricingService;
+            _cartCalculationService = cartCalculationService;
             _melhorEnvioService = melhorEnvioService;
             _logger = logger;
         }
 
-        // GET: /Cart
         [RequireAuth]
         public async Task<IActionResult> Index()
         {
@@ -33,87 +39,15 @@ namespace EcommercePWA.Controllers
             {
                 var sessionId = GetSessionId();
                 var cart = _cartService.GetCart(sessionId);
+                var cartItems = await LoadCartItemsWithPricingAsync(cart.Items);
+                var viewModel = await BuildCartViewModelAsync(cart, cartItems);
                 
-                // Carregar dados completos dos produtos e atualizar preços
-                var cartItems = new List<CartItem>();
-                foreach (var item in cart.Items)
-                {
-                    var product = await _productService.GetProductByIdAsync(item.ProductId);
-                    if (product != null)
-                    {
-                        item.Product = product;
-                        
-                        // Apply discount to product
-                        var discount = await _discountService.GetActiveDiscountForProductAsync(product.Id);
-                        decimal basePrice = product.Price;
-                        
-                        if (discount != null)
-                        {
-                            basePrice = _discountService.CalculateDiscountedPrice(product.Price, discount);
-                            product.DiscountedPrice = basePrice;
-                            product.HasDiscount = true;
-                        }
-                        
-                        if (item.ProductVariationId.HasValue)
-                        {
-                            item.ProductVariation = product.Variations.FirstOrDefault(v => v.Id == item.ProductVariationId);
-                            // Atualizar o preço unitário com base na variação e desconto
-                            if (item.ProductVariation?.PriceModifier.HasValue == true)
-                            {
-                                item.UnitPrice = basePrice + item.ProductVariation.PriceModifier.Value;
-                            }
-                            else
-                            {
-                                item.UnitPrice = basePrice;
-                            }
-                        }
-                        else
-                        {
-                            item.UnitPrice = basePrice;
-                        }
-                    }
-                    cartItems.Add(item);
-                }
-                
-                // Usar dados do cupom persistidos no carrinho
-                string couponMessage = "";
-                if (!string.IsNullOrEmpty(cart.CouponCode) && cart.DiscountAmount.HasValue)
-                {
-                    couponMessage = $"Cupom {cart.CouponCode} aplicado! Desconto: R$ {cart.DiscountAmount.Value:N2}";
-                }
-                
-                // Impostos calculados sobre subtotal bruto (antes de descontos)
-                var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount + (cart.ShippingCost ?? 0);
-                
-                var viewModel = new CartViewModel
-                {
-                    Cart = cart,
-                    Items = cartItems,
-                    Subtotal = cart.Subtotal,
-                    ShippingCost = cart.ShippingCost ?? 0,
-                    TaxAmount = taxAmount,
-                    Total = finalTotal,
-                    CouponCode = cart.CouponCode,
-                    DiscountAmount = cart.DiscountAmount,
-                    CouponMessage = couponMessage,
-                    IsCouponValid = !string.IsNullOrEmpty(cart.CouponCode)
-                };
-
                 return View(viewModel);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao carregar carrinho");
-                return View(new CartViewModel
-                {
-                    Cart = new Cart { Items = new List<CartItem>() },
-                    Items = new List<CartItem>(),
-                    Subtotal = 0,
-                    ShippingCost = 0,
-                    TaxAmount = 0,
-                    Total = 0
-                });
+                return View(CreateEmptyCartViewModel());
             }
         }
 
@@ -186,20 +120,17 @@ namespace EcommercePWA.Controllers
                 var item = cart.Items.FirstOrDefault(i => i.Id == request.ItemId);
 
                 // O cupom já foi recalculado automaticamente no CartService
-                
-                // Impostos calculados sobre subtotal bruto (antes de descontos)
-                var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount + (cart.ShippingCost ?? 0);
+                var totals = _cartCalculationService.CalculateTotals(cart);
                 
                 return Json(new {
                     success = true,
                     itemId = request.ItemId,
                     itemTotal = item?.Total ?? 0,
-                    subtotal = cart.Subtotal,
-                    shippingCost = cart.ShippingCost ?? 0,
-                    taxAmount = taxAmount,
-                    discountAmount = cart.DiscountAmount ?? 0,
-                    total = finalTotal,
+                    subtotal = totals.Subtotal,
+                    shippingCost = totals.ShippingCost,
+                    taxAmount = totals.TaxAmount,
+                    discountAmount = totals.DiscountAmount,
+                    total = totals.FinalTotal,
                     cartItemCount = cart.ItemCount
                 });
             }
@@ -223,19 +154,17 @@ namespace EcommercePWA.Controllers
                 var cart = _cartService.GetCart(sessionId);
                 
                 // Calcular valores para retorno
-                // Impostos calculados sobre subtotal bruto (antes de descontos)
-                var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount + (cart.ShippingCost ?? 0);
+                var totals = _cartCalculationService.CalculateTotals(cart);
                 
                 return Json(new { 
                     success = true, 
                     message = "Item removido do carrinho",
                     cartItemCount = cart.ItemCount,
-                    subtotal = cart.Subtotal,
-                    shippingCost = cart.ShippingCost ?? 0,
-                    taxAmount = taxAmount,
-                    discountAmount = cart.DiscountAmount ?? 0,
-                    total = finalTotal,
+                    subtotal = totals.Subtotal,
+                    shippingCost = totals.ShippingCost,
+                    taxAmount = totals.TaxAmount,
+                    discountAmount = totals.DiscountAmount,
+                    total = totals.FinalTotal,
                     couponCode = cart.CouponCode
                 });
             }
@@ -263,18 +192,16 @@ namespace EcommercePWA.Controllers
                     HttpContext.Session.SetString("DiscountAmount", result.DiscountAmount.ToString());
                     
                     var cart = _cartService.GetCart(sessionId);
-                    // Impostos calculados sobre subtotal bruto (antes de descontos)
-                    var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                    var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount + (cart.ShippingCost ?? 0);
+                    var totals = _cartCalculationService.CalculateTotals(cart);
                     
                     return Json(new { 
                         success = true, 
                         message = result.Message,
                         discountAmount = result.DiscountAmount,
-                        subtotal = cart.Subtotal,
-                        shippingCost = cart.ShippingCost ?? 0,
-                        taxAmount = taxAmount,
-                        total = finalTotal,
+                        subtotal = totals.Subtotal,
+                        shippingCost = totals.ShippingCost,
+                        taxAmount = totals.TaxAmount,
+                        total = totals.FinalTotal,
                         couponCode = request.CouponCode
                     });
                 }
@@ -309,30 +236,28 @@ namespace EcommercePWA.Controllers
                 _cartService.RemoveCoupon(sessionId);
 
                 // Recalcular totais sem cupom
-                var subtotal = cart.Items.Sum(i => i.Total);
-                var taxAmount = CalculateTaxAmount(subtotal);
+                var totals = _cartCalculationService.CalculateTotals(cart);
                 var viewModel = new CartViewModel
                 {
                     Items = cart.Items,
-                    Subtotal = subtotal,
-                    ShippingCost = 0,
-                    TaxAmount = taxAmount,
+                    Subtotal = totals.Subtotal,
+                    ShippingCost = totals.ShippingCost,
+                    TaxAmount = totals.TaxAmount,
                     DiscountAmount = null,
                     CouponCode = null,
                     CouponMessage = null,
-                    IsCouponValid = false
+                    IsCouponValid = false,
+                    Total = totals.FinalTotal
                 };
-
-                viewModel.Total = viewModel.Subtotal + viewModel.ShippingCost + viewModel.TaxAmount;
 
                 return Json(new { 
                     success = true, 
                     message = "Cupom removido com sucesso!",
-                    subtotal = viewModel.Subtotal,
-                    shippingCost = viewModel.ShippingCost,
-                    taxAmount = viewModel.TaxAmount,
+                    subtotal = totals.Subtotal,
+                    shippingCost = totals.ShippingCost,
+                    taxAmount = totals.TaxAmount,
                     discountAmount = 0,
-                    total = viewModel.Total
+                    total = totals.FinalTotal
                 });
             }
             catch (Exception ex)
@@ -407,7 +332,7 @@ namespace EcommercePWA.Controllers
                         subtotal = cart.Subtotal,
                         discountAmount = cart.DiscountAmount ?? 0,
                         couponCode = cart.CouponCode,
-                        taxAmount = CalculateTaxAmount(cart.Subtotal),
+                        taxAmount = _cartCalculationService.CalculateTaxAmount(cart.Subtotal),
                         message = "Opções de frete calculadas com sucesso!"
                     });
                 }
@@ -441,10 +366,69 @@ namespace EcommercePWA.Controllers
         }
 
 
-        private decimal CalculateTaxAmount(decimal subtotal)
+        private async Task<List<CartItem>> LoadCartItemsWithPricingAsync(List<CartItem> items)
         {
-            // Imposto simples de 10%
-            return subtotal * 0.10m;
+            var cartItems = new List<CartItem>();
+            
+            foreach (var item in items)
+            {
+                var product = await _productService.GetProductByIdAsync(item.ProductId);
+                if (product != null)
+                {
+                    item.Product = product;
+                    item.UnitPrice = await _productPricingService.CalculateItemPriceAsync(product, item.ProductVariationId);
+                    
+                    if (item.ProductVariationId.HasValue)
+                    {
+                        item.ProductVariation = product.Variations.FirstOrDefault(v => v.Id == item.ProductVariationId);
+                    }
+                }
+                cartItems.Add(item);
+            }
+            
+            return cartItems;
+        }
+
+        private async Task<CartViewModel> BuildCartViewModelAsync(Cart cart, List<CartItem> cartItems)
+        {
+            var totals = _cartCalculationService.CalculateTotals(cart);
+            var couponMessage = BuildCouponMessage(cart);
+            
+            return new CartViewModel
+            {
+                Cart = cart,
+                Items = cartItems,
+                Subtotal = totals.Subtotal,
+                ShippingCost = totals.ShippingCost,
+                TaxAmount = totals.TaxAmount,
+                Total = totals.FinalTotal,
+                CouponCode = cart.CouponCode,
+                DiscountAmount = cart.DiscountAmount,
+                CouponMessage = couponMessage,
+                IsCouponValid = !string.IsNullOrEmpty(cart.CouponCode)
+            };
+        }
+
+        private static string BuildCouponMessage(Cart cart)
+        {
+            if (!string.IsNullOrEmpty(cart.CouponCode) && cart.DiscountAmount.HasValue)
+            {
+                return $"Cupom {cart.CouponCode} aplicado! Desconto: R$ {cart.DiscountAmount.Value:N2}";
+            }
+            return string.Empty;
+        }
+
+        private static CartViewModel CreateEmptyCartViewModel()
+        {
+            return new CartViewModel
+            {
+                Cart = new Cart { Items = new List<CartItem>() },
+                Items = new List<CartItem>(),
+                Subtotal = 0,
+                ShippingCost = 0,
+                TaxAmount = 0,
+                Total = 0
+            };
         }
 
         // GET: /Cart/GetCartCount
@@ -546,18 +530,17 @@ namespace EcommercePWA.Controllers
                 var cart = _cartService.GetCart(sessionId);
 
                 // Recalcular total
-                var taxAmount = CalculateTaxAmount(cart.Subtotal);
-                var finalTotal = cart.Subtotal - (cart.DiscountAmount ?? 0) + taxAmount + (cart.ShippingCost ?? 0);
+                var totals = _cartCalculationService.CalculateTotals(cart);
 
                 return Json(new { 
                     success = true, 
                     message = "Frete selecionado com sucesso!",
-                    shippingCost = cart.ShippingCost,
-                    subtotal = cart.Subtotal,
-                    taxAmount = taxAmount,
-                    discountAmount = cart.DiscountAmount ?? 0,
+                    shippingCost = totals.ShippingCost,
+                    subtotal = totals.Subtotal,
+                    taxAmount = totals.TaxAmount,
+                    discountAmount = totals.DiscountAmount,
                     couponCode = cart.CouponCode,
-                    total = finalTotal
+                    total = totals.FinalTotal
                 });
             }
             catch (Exception ex)

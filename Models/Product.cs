@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using EcommercePWA.Constants;
 
 namespace EcommercePWA.Models
 {
@@ -8,15 +9,15 @@ namespace EcommercePWA.Models
         public int Id { get; set; }
         
         [Required]
-        [StringLength(100)]
+        [StringLength(BusinessConstants.MAX_NAME_LENGTH)]
         public string Name { get; set; } = string.Empty;
         
         [Required]
-        [StringLength(500)]
+        [StringLength(BusinessConstants.MAX_DESCRIPTION_LENGTH)]
         public string Description { get; set; } = string.Empty;
         
         [Required]
-        [Range(0.01, double.MaxValue)]
+        [Range(typeof(decimal), "0.01", "999999999")]
         public decimal Price { get; set; }
         
         [Required]
@@ -41,21 +42,21 @@ namespace EcommercePWA.Models
         public string Type { get; set; } = string.Empty; // Periférico, Peça, etc.
         
         // Propriedades para cálculo de frete
-        [Range(0.01, 50000)] // peso em gramas (máximo 50kg)
-        public decimal Weight { get; set; } = 500; // peso padrão 500g
+        [Range(typeof(decimal), "0.01", "50000")] // peso em gramas (máximo 50kg)
+        public decimal Weight { get; set; } = BusinessConstants.DEFAULT_WEIGHT_GRAMS;
         
-        [Range(1, 200)] // largura em cm
-        public int Width { get; set; } = 20; // largura padrão 20cm
+        [Range(1, BusinessConstants.MAX_DIMENSION_CM)] // largura em cm
+        public int Width { get; set; } = BusinessConstants.DEFAULT_WIDTH_CM;
         
-        [Range(1, 200)] // altura em cm  
-        public int Height { get; set; } = 15; // altura padrão 15cm
+        [Range(1, BusinessConstants.MAX_DIMENSION_CM)] // altura em cm  
+        public int Height { get; set; } = BusinessConstants.DEFAULT_HEIGHT_CM;
         
-        [Range(1, 200)] // comprimento em cm
-        public int Length { get; set; } = 25; // comprimento padrão 25cm
+        [Range(1, BusinessConstants.MAX_DIMENSION_CM)] // comprimento em cm
+        public int Length { get; set; } = BusinessConstants.DEFAULT_LENGTH_CM;
         
         public List<string> Tags { get; set; } = new List<string>();
         
-        public decimal Rating { get; set; } = 0;
+        public decimal Rating { get; set; } = BusinessConstants.DEFAULT_RATING;
         
         // Novos campos para variações de cor
         public virtual List<ProductVariation> Variations { get; set; } = new();

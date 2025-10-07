@@ -4,6 +4,11 @@
         <name>EcommercePWA</name>
     </assembly>
     <members>
+        <member name="T:EcommercePWA.Constants.BusinessConstants">
+            <summary>
+            Constantes de negócio centralizadas para evitar magic numbers
+            </summary>
+        </member>
         <member name="T:EcommercePWA.Controllers.Api.AuthApiController">
             <summary>
             API para autenticação e gerenciamento de usuários
@@ -863,6 +868,16 @@
         </member>
         <member name="M:EcommercePWA.Migrations.AddShippingCostToCart.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
+        </member>
+        <member name="T:EcommercePWA.Models.CartTotals">
+            <summary>
+            Modelo para encapsular todos os cálculos de totais do carrinho
+            </summary>
+        </member>
+        <member name="T:EcommercePWA.Models.ProductWithPricing">
+            <summary>
+            Modelo que encapsula um produto com informações de preço e desconto aplicadas
+            </summary>
         </member>
     </members>
 </doc>

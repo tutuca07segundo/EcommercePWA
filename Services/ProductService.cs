@@ -1,5 +1,6 @@
 using EcommercePWA.Models;
 using EcommercePWA.Data;
+using EcommercePWA.Constants;
 using Microsoft.EntityFrameworkCore;
 
 namespace EcommercePWA.Services
@@ -413,76 +414,12 @@ namespace EcommercePWA.Services
         {
             try
             {
-                // Verificar se já existem categorias
                 if (await _context.Categories.AnyAsync())
                     return true;
 
-                var categories = new List<Category>
-                {
-                    new Category { Name = "Mouses", Description = "Mouses gaming e profissionais", IconClass = "fas fa-mouse", Color = "#FF6B6B", DisplayOrder = 1 },
-                    new Category { Name = "Teclados", Description = "Teclados mecânicos e membrana", IconClass = "fas fa-keyboard", Color = "#4ECDC4", DisplayOrder = 2 },
-                    new Category { Name = "Headsets", Description = "Fones de ouvido e microfones", IconClass = "fas fa-headphones", Color = "#45B7D1", DisplayOrder = 3 },
-                    new Category { Name = "Monitores", Description = "Monitores gaming e profissionais", IconClass = "fas fa-tv", Color = "#96CEB4", DisplayOrder = 4 },
-                    new Category { Name = "Processadores", Description = "CPUs Intel e AMD", IconClass = "fas fa-microchip", Color = "#FFEAA7", DisplayOrder = 5 },
-                    new Category { Name = "Placas de Vídeo", Description = "GPUs NVIDIA e AMD", IconClass = "fas fa-gamepad", Color = "#DDA0DD", DisplayOrder = 6 },
-                    new Category { Name = "Memórias RAM", Description = "Memórias DDR4 e DDR5", IconClass = "fas fa-memory", Color = "#98D8C8", DisplayOrder = 7 },
-                    new Category { Name = "SSDs", Description = "Discos sólidos de alta velocidade", IconClass = "fas fa-hdd", Color = "#F7DC6F", DisplayOrder = 8 }
-                };
-
-                _context.Categories.AddRange(categories);
-                await _context.SaveChangesAsync();
-
-                // Verificar se já existem produtos
-                if (await _context.Products.AnyAsync())
-                    return true;
-
-                var products = new List<Product>
-                {
-                    // Mouses
-                    new Product { Name = "Mouse Gaming Logitech G Pro X Superlight", Description = "Mouse wireless ultra leve com sensor HERO 25K", Price = 599.99m, Category = "Mouses", Brand = "Logitech", ImageUrl = "/images/placeholder.jpg", StockQuantity = 15, Type = "Periférico", Tags = new List<string> { "gaming", "wireless", "leve" }, Rating = 4.8m, Weight = 150, Width = 12, Height = 4, Length = 7 },
-                    new Product { Name = "Mouse Razer DeathAdder V3 Pro", Description = "Mouse ergonômico com sensor Focus Pro 30K", Price = 699.99m, Category = "Mouses", Brand = "Razer", ImageUrl = "/images/placeholder.jpg", StockQuantity = 8, Type = "Periférico", Tags = new List<string> { "gaming", "ergonômico", "premium" }, Rating = 4.7m, Weight = 180, Width = 13, Height = 4, Length = 8 },
-                    new Product { Name = "Mouse HyperX Pulsefire Haste", Description = "Mouse ultra leve com switches ópticos", Price = 299.99m, Category = "Mouses", Brand = "HyperX", ImageUrl = "/images/placeholder.jpg", StockQuantity = 25, Type = "Periférico", Tags = new List<string> { "gaming", "leve", "acessível" }, Rating = 4.5m, Weight = 120, Width = 11, Height = 3, Length = 6 },
-
-                    // Teclados
-                    new Product { Name = "Teclado Mecânico Corsair K100 RGB", Description = "Teclado premium com switches Cherry MX", Price = 1299.99m, Category = "Teclados", Brand = "Corsair", ImageUrl = "/images/placeholder.jpg", StockQuantity = 5, Type = "Periférico", Tags = new List<string> { "mecânico", "rgb", "premium" }, Rating = 4.9m, Weight = 1200, Width = 45, Height = 4, Length = 17 },
-                    new Product { Name = "Teclado HyperX Alloy Origins Core", Description = "Teclado compacto com switches Blue", Price = 449.99m, Category = "Teclados", Brand = "HyperX", ImageUrl = "/images/placeholder.jpg", StockQuantity = 18, Type = "Periférico", Tags = new List<string> { "mecânico", "compacto", "gaming" }, Rating = 4.6m },
-                    new Product { Name = "Teclado Logitech G915 TKL", Description = "Teclado wireless com switches GL", Price = 899.99m, Category = "Teclados", Brand = "Logitech", ImageUrl = "/images/placeholder.jpg", StockQuantity = 12, Type = "Periférico", Tags = new List<string> { "wireless", "mecânico", "rgb" }, Rating = 4.7m },
-
-                    // Headsets
-                    new Product { Name = "Headset SteelSeries Arctis Pro", Description = "Headset premium com áudio Hi-Res", Price = 899.99m, Category = "Headsets", Brand = "SteelSeries", ImageUrl = "/images/placeholder.jpg", StockQuantity = 10, Type = "Periférico", Tags = new List<string> { "gaming", "áudio", "premium" }, Rating = 4.8m, Weight = 350, Width = 20, Height = 18, Length = 10 },
-                    new Product { Name = "Headset HyperX Cloud Alpha", Description = "Headset com drivers duplos", Price = 399.99m, Category = "Headsets", Brand = "HyperX", ImageUrl = "/images/placeholder.jpg", StockQuantity = 22, Type = "Periférico", Tags = new List<string> { "gaming", "confortável", "qualidade" }, Rating = 4.6m },
-                    new Product { Name = "Headset Logitech G Pro X", Description = "Headset com microfone Blue VO!CE", Price = 599.99m, Category = "Headsets", Brand = "Logitech", ImageUrl = "/images/placeholder.jpg", StockQuantity = 15, Type = "Periférico", Tags = new List<string> { "gaming", "microfone", "profissional" }, Rating = 4.7m },
-
-                    // Monitores
-                    new Product { Name = "Monitor Samsung Odyssey G9", Description = "Monitor ultrawide 49\" 240Hz", Price = 8999.99m, Category = "Monitores", Brand = "Samsung", ImageUrl = "/images/placeholder.jpg", StockQuantity = 3, Type = "Periférico", Tags = new List<string> { "ultrawide", "240hz", "curvo" }, Rating = 4.9m },
-                    new Product { Name = "Monitor LG 27GL850-B", Description = "Monitor 27\" 1440p 144Hz Nano IPS", Price = 2499.99m, Category = "Monitores", Brand = "LG", ImageUrl = "/images/placeholder.jpg", StockQuantity = 8, Type = "Periférico", Tags = new List<string> { "1440p", "144hz", "nano-ips" }, Rating = 4.8m },
-                    new Product { Name = "Monitor AOC C24G1", Description = "Monitor 24\" 1080p 144Hz VA", Price = 899.99m, Category = "Monitores", Brand = "AOC", ImageUrl = "/images/placeholder.jpg", StockQuantity = 20, Type = "Periférico", Tags = new List<string> { "1080p", "144hz", "curvo" }, Rating = 4.5m },
-
-                    // Processadores
-                    new Product { Name = "Intel Core i9-13900K", Description = "Processador 24 cores 5.8GHz", Price = 3499.99m, Category = "Processadores", Brand = "Intel", ImageUrl = "/images/placeholder.jpg", StockQuantity = 7, Type = "Peça", Tags = new List<string> { "intel", "i9", "gaming" }, Rating = 4.9m },
-                    new Product { Name = "AMD Ryzen 9 7950X", Description = "Processador 16 cores 5.7GHz", Price = 3999.99m, Category = "Processadores", Brand = "AMD", ImageUrl = "/images/placeholder.jpg", StockQuantity = 5, Type = "Peça", Tags = new List<string> { "amd", "ryzen", "zen4" }, Rating = 4.8m },
-                    new Product { Name = "Intel Core i5-13600K", Description = "Processador 14 cores 5.1GHz", Price = 1899.99m, Category = "Processadores", Brand = "Intel", ImageUrl = "/images/placeholder.jpg", StockQuantity = 15, Type = "Peça", Tags = new List<string> { "intel", "i5", "mid-range" }, Rating = 4.7m },
-
-                    // Placas de Vídeo
-                    new Product { Name = "NVIDIA RTX 4090 Founders Edition", Description = "GPU mais poderosa do mundo", Price = 12999.99m, Category = "Placas de Vídeo", Brand = "NVIDIA", ImageUrl = "/images/placeholder.jpg", StockQuantity = 2, Type = "Peça", Tags = new List<string> { "rtx", "4090", "top" }, Rating = 5.0m },
-                    new Product { Name = "AMD RX 7900 XTX", Description = "GPU AMD de alta performance", Price = 7999.99m, Category = "Placas de Vídeo", Brand = "AMD", ImageUrl = "/images/placeholder.jpg", StockQuantity = 6, Type = "Peça", Tags = new List<string> { "amd", "rx", "7900" }, Rating = 4.8m },
-                    new Product { Name = "NVIDIA RTX 4070 Ti", Description = "GPU RTX 40 série mid-range", Price = 4499.99m, Category = "Placas de Vídeo", Brand = "NVIDIA", ImageUrl = "/images/placeholder.jpg", StockQuantity = 12, Type = "Peça", Tags = new List<string> { "rtx", "4070", "mid-range" }, Rating = 4.6m },
-
-                    // Memórias RAM
-                    new Product { Name = "Corsair Dominator Platinum 32GB", Description = "RAM DDR5 6000MHz CL36", Price = 899.99m, Category = "Memórias RAM", Brand = "Corsair", ImageUrl = "/images/placeholder.jpg", StockQuantity = 18, Type = "Peça", Tags = new List<string> { "ddr5", "32gb", "6000mhz" }, Rating = 4.8m },
-                    new Product { Name = "G.Skill Trident Z5 16GB", Description = "RAM DDR5 6400MHz CL32", Price = 599.99m, Category = "Memórias RAM", Brand = "G.Skill", ImageUrl = "/images/placeholder.jpg", StockQuantity = 25, Type = "Peça", Tags = new List<string> { "ddr5", "16gb", "6400mhz" }, Rating = 4.7m },
-                    new Product { Name = "Kingston Fury Beast 64GB", Description = "RAM DDR4 3200MHz CL16", Price = 799.99m, Category = "Memórias RAM", Brand = "Kingston", ImageUrl = "/images/placeholder.jpg", StockQuantity = 30, Type = "Peça", Tags = new List<string> { "ddr4", "64gb", "3200mhz" }, Rating = 4.6m },
-
-                    // SSDs
-                    new Product { Name = "Samsung 990 Pro 2TB", Description = "SSD NVMe PCIe 4.0 7450MB/s", Price = 899.99m, Category = "SSDs", Brand = "Samsung", ImageUrl = "/images/placeholder.jpg", StockQuantity = 20, Type = "Peça", Tags = new List<string> { "nvme", "pcie4", "2tb" }, Rating = 4.9m },
-                    new Product { Name = "WD Black SN850X 1TB", Description = "SSD NVMe PCIe 4.0 7300MB/s", Price = 599.99m, Category = "SSDs", Brand = "Western Digital", ImageUrl = "/images/placeholder.jpg", StockQuantity = 28, Type = "Peça", Tags = new List<string> { "nvme", "pcie4", "1tb" }, Rating = 4.8m },
-                    new Product { Name = "Crucial P5 Plus 500GB", Description = "SSD NVMe PCIe 4.0 6600MB/s", Price = 299.99m, Category = "SSDs", Brand = "Crucial", ImageUrl = "/images/placeholder.jpg", StockQuantity = 35, Type = "Peça", Tags = new List<string> { "nvme", "pcie4", "500gb" }, Rating = 4.7m }
-                };
-
-                _context.Products.AddRange(products);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation("Banco de dados inicializado com sucesso com {ProductCount} produtos e {CategoryCount} categorias", products.Count, categories.Count);
+                await InitializeCategoriesAsync();
+                await InitializeProductsAsync();
+                
                 return true;
             }
             catch (Exception ex)
@@ -490,6 +427,109 @@ namespace EcommercePWA.Services
                 _logger.LogError(ex, "Erro ao inicializar banco de dados");
                 return false;
             }
+        }
+
+        private async Task InitializeCategoriesAsync()
+        {
+            var categories = CreateDefaultCategories();
+            _context.Categories.AddRange(categories);
+            await _context.SaveChangesAsync();
+            
+            _logger.LogInformation("Categorias inicializadas: {CategoryCount}", categories.Count);
+        }
+
+        private async Task InitializeProductsAsync()
+        {
+            if (await _context.Products.AnyAsync())
+                return;
+
+            var products = CreateDefaultProducts();
+            _context.Products.AddRange(products);
+            await _context.SaveChangesAsync();
+            
+            _logger.LogInformation("Produtos inicializados: {ProductCount}", products.Count);
+        }
+
+        private static List<Category> CreateDefaultCategories()
+        {
+            return new List<Category>
+            {
+                new Category { Name = "Mouses", Description = "Mouses gaming e profissionais", IconClass = "fas fa-mouse", Color = "#FF6B6B", DisplayOrder = 1 },
+                new Category { Name = "Teclados", Description = "Teclados mecânicos e membrana", IconClass = "fas fa-keyboard", Color = "#4ECDC4", DisplayOrder = 2 },
+                new Category { Name = "Headsets", Description = "Fones de ouvido e microfones", IconClass = "fas fa-headphones", Color = "#45B7D1", DisplayOrder = 3 },
+                new Category { Name = "Monitores", Description = "Monitores gaming e profissionais", IconClass = "fas fa-tv", Color = "#96CEB4", DisplayOrder = 4 },
+                new Category { Name = "Processadores", Description = "CPUs Intel e AMD", IconClass = "fas fa-microchip", Color = "#FFEAA7", DisplayOrder = 5 },
+                new Category { Name = "Placas de Vídeo", Description = "GPUs NVIDIA e AMD", IconClass = "fas fa-gamepad", Color = "#DDA0DD", DisplayOrder = 6 },
+                new Category { Name = "Memórias RAM", Description = "Memórias DDR4 e DDR5", IconClass = "fas fa-memory", Color = "#98D8C8", DisplayOrder = 7 },
+                new Category { Name = "SSDs", Description = "Discos sólidos de alta velocidade", IconClass = "fas fa-hdd", Color = "#F7DC6F", DisplayOrder = 8 }
+            };
+        }
+
+        private static List<Product> CreateDefaultProducts()
+        {
+            return new List<Product>
+            {
+                // Mouses
+                CreateProduct("Mouse Gaming Logitech G Pro X Superlight", "Mouse wireless ultra leve com sensor HERO 25K", 599.99m, "Mouses", "Logitech", 15, "Periférico", new[] { "gaming", "wireless", "leve" }, 4.8m, 150, 12, 4, 7),
+                CreateProduct("Mouse Razer DeathAdder V3 Pro", "Mouse ergonômico com sensor Focus Pro 30K", 699.99m, "Mouses", "Razer", 8, "Periférico", new[] { "gaming", "ergonômico", "premium" }, 4.7m, 180, 13, 4, 8),
+                CreateProduct("Mouse HyperX Pulsefire Haste", "Mouse ultra leve com switches ópticos", 299.99m, "Mouses", "HyperX", 25, "Periférico", new[] { "gaming", "leve", "acessível" }, 4.5m, 120, 11, 3, 6),
+
+                // Teclados
+                CreateProduct("Teclado Mecânico Corsair K100 RGB", "Teclado premium com switches Cherry MX", 1299.99m, "Teclados", "Corsair", 5, "Periférico", new[] { "mecânico", "rgb", "premium" }, 4.9m, 1200, 45, 4, 17),
+                CreateProduct("Teclado HyperX Alloy Origins Core", "Teclado compacto com switches Blue", 449.99m, "Teclados", "HyperX", 18, "Periférico", new[] { "mecânico", "compacto", "gaming" }, 4.6m),
+                CreateProduct("Teclado Logitech G915 TKL", "Teclado wireless com switches GL", 899.99m, "Teclados", "Logitech", 12, "Periférico", new[] { "wireless", "mecânico", "rgb" }, 4.7m),
+
+                // Headsets
+                CreateProduct("Headset SteelSeries Arctis Pro", "Headset premium com áudio Hi-Res", 899.99m, "Headsets", "SteelSeries", 10, "Periférico", new[] { "gaming", "áudio", "premium" }, 4.8m, 350, 20, 18, 10),
+                CreateProduct("Headset HyperX Cloud Alpha", "Headset com drivers duplos", 399.99m, "Headsets", "HyperX", 22, "Periférico", new[] { "gaming", "confortável", "qualidade" }, 4.6m),
+                CreateProduct("Headset Logitech G Pro X", "Headset com microfone Blue VO!CE", 599.99m, "Headsets", "Logitech", 15, "Periférico", new[] { "gaming", "microfone", "profissional" }, 4.7m),
+
+                // Monitores
+                CreateProduct("Monitor Samsung Odyssey G9", "Monitor ultrawide 49\" 240Hz", 8999.99m, "Monitores", "Samsung", 3, "Periférico", new[] { "ultrawide", "240hz", "curvo" }, 4.9m),
+                CreateProduct("Monitor LG 27GL850-B", "Monitor 27\" 1440p 144Hz Nano IPS", 2499.99m, "Monitores", "LG", 8, "Periférico", new[] { "1440p", "144hz", "nano-ips" }, 4.8m),
+                CreateProduct("Monitor AOC C24G1", "Monitor 24\" 1080p 144Hz VA", 899.99m, "Monitores", "AOC", 20, "Periférico", new[] { "1080p", "144hz", "curvo" }, 4.5m),
+
+                // Processadores
+                CreateProduct("Intel Core i9-13900K", "Processador 24 cores 5.8GHz", 3499.99m, "Processadores", "Intel", 7, "Peça", new[] { "intel", "i9", "gaming" }, 4.9m),
+                CreateProduct("AMD Ryzen 9 7950X", "Processador 16 cores 5.7GHz", 3999.99m, "Processadores", "AMD", 5, "Peça", new[] { "amd", "ryzen", "zen4" }, 4.8m),
+                CreateProduct("Intel Core i5-13600K", "Processador 14 cores 5.1GHz", 1899.99m, "Processadores", "Intel", 15, "Peça", new[] { "intel", "i5", "mid-range" }, 4.7m),
+
+                // Placas de Vídeo
+                CreateProduct("NVIDIA RTX 4090 Founders Edition", "GPU mais poderosa do mundo", 12999.99m, "Placas de Vídeo", "NVIDIA", 2, "Peça", new[] { "rtx", "4090", "top" }, 5.0m),
+                CreateProduct("AMD RX 7900 XTX", "GPU AMD de alta performance", 7999.99m, "Placas de Vídeo", "AMD", 6, "Peça", new[] { "amd", "rx", "7900" }, 4.8m),
+                CreateProduct("NVIDIA RTX 4070 Ti", "GPU RTX 40 série mid-range", 4499.99m, "Placas de Vídeo", "NVIDIA", 12, "Peça", new[] { "rtx", "4070", "mid-range" }, 4.6m),
+
+                // Memórias RAM
+                CreateProduct("Corsair Dominator Platinum 32GB", "RAM DDR5 6000MHz CL36", 899.99m, "Memórias RAM", "Corsair", 18, "Peça", new[] { "ddr5", "32gb", "6000mhz" }, 4.8m),
+                CreateProduct("G.Skill Trident Z5 16GB", "RAM DDR5 6400MHz CL32", 599.99m, "Memórias RAM", "G.Skill", 25, "Peça", new[] { "ddr5", "16gb", "6400mhz" }, 4.7m),
+                CreateProduct("Kingston Fury Beast 64GB", "RAM DDR4 3200MHz CL16", 799.99m, "Memórias RAM", "Kingston", 30, "Peça", new[] { "ddr4", "64gb", "3200mhz" }, 4.6m),
+
+                // SSDs
+                CreateProduct("Samsung 990 Pro 2TB", "SSD NVMe PCIe 4.0 7450MB/s", 899.99m, "SSDs", "Samsung", 20, "Peça", new[] { "nvme", "pcie4", "2tb" }, 4.9m),
+                CreateProduct("WD Black SN850X 1TB", "SSD NVMe PCIe 4.0 7300MB/s", 599.99m, "SSDs", "Western Digital", 28, "Peça", new[] { "nvme", "pcie4", "1tb" }, 4.8m),
+                CreateProduct("Crucial P5 Plus 500GB", "SSD NVMe PCIe 4.0 6600MB/s", 299.99m, "SSDs", "Crucial", 35, "Peça", new[] { "nvme", "pcie4", "500gb" }, 4.7m)
+            };
+        }
+
+        private static Product CreateProduct(string name, string description, decimal price, string category, string brand, int stock, string type, string[] tags, decimal rating, decimal weight = BusinessConstants.DEFAULT_WEIGHT_GRAMS, int width = BusinessConstants.DEFAULT_WIDTH_CM, int height = BusinessConstants.DEFAULT_HEIGHT_CM, int length = BusinessConstants.DEFAULT_LENGTH_CM)
+        {
+            return new Product
+            {
+                Name = name,
+                Description = description,
+                Price = price,
+                Category = category,
+                Brand = brand,
+                ImageUrl = "/images/placeholder.jpg",
+                StockQuantity = stock,
+                Type = type,
+                Tags = tags.ToList(),
+                Rating = rating,
+                Weight = weight,
+                Width = width,
+                Height = height,
+                Length = length
+            };
         }
 
         // Advanced Filter Methods Implementation

@@ -11,14 +11,16 @@ namespace EcommercePWA.Controllers
         private readonly IOrderService _orderService;
         private readonly IEmailService _emailService;
         private readonly IMercadoPagoService _mercadoPagoService;
+        private readonly IPixService _pixService;
         private readonly ILogger<CheckoutController> _logger;
 
-        public CheckoutController(ICartService cartService, IOrderService orderService, IEmailService emailService, IMercadoPagoService mercadoPagoService, ILogger<CheckoutController> logger)
+        public CheckoutController(ICartService cartService, IOrderService orderService, IEmailService emailService, IMercadoPagoService mercadoPagoService, IPixService pixService, ILogger<CheckoutController> logger)
         {
             _cartService = cartService;
             _orderService = orderService;
             _emailService = emailService;
             _mercadoPagoService = mercadoPagoService;
+            _pixService = pixService;
             _logger = logger;
         }
 
@@ -1011,6 +1013,55 @@ namespace EcommercePWA.Controllers
                 return Json(new { success = false, message = "Erro ao processar pagamento" });
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> GeneratePix([FromBody] GeneratePixRequest request)
+        {
+            try
+            {
+                var sessionId = GetSessionId();
+                var cart = _cartService.GetCart(sessionId);
+
+                if (cart == null || !cart.Items.Any())
+                {
+                    return Json(new { success = false, message = "Carrinho vazio" });
+                }
+
+                var shippingCost = cart.ShippingCost ?? CalculateShippingCost(cart);
+                var taxAmount = CalculateTaxAmount(cart.Subtotal);
+                var total = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount;
+
+                var descricao = $"Pedido Kaboom E-commerce - {cart.Items.Count} item(s)";
+                var identificador = $"KABOOM{DateTime.Now:yyyyMMddHHmmss}";
+
+                var pixData = await _pixService.GeneratePixAsync(total, descricao, identificador);
+
+                if (pixData.Success)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        pixCode = pixData.PixCode,
+                        qrCodeBase64 = pixData.QRCodeBase64,
+                        valor = pixData.Valor,
+                        descricao = pixData.Descricao,
+                        identificador = pixData.Identificador,
+                        chavePix = pixData.ChavePix,
+                        dataVencimento = pixData.DataVencimento.ToString("dd/MM/yyyy HH:mm"),
+                        message = "PIX gerado com sucesso!"
+                    });
+                }
+                else
+                {
+                    return Json(new { success = false, message = pixData.ErrorMessage });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao gerar PIX");
+                return Json(new { success = false, message = "Erro interno do servidor" });
+            }
+        }
     }
 
     public class PaymentResult
@@ -1021,6 +1072,11 @@ namespace EcommercePWA.Controllers
         public bool RequiresCardConfirmation { get; set; } = false;
         public string? RedirectUrl { get; set; }
         public int OrderId { get; set; }
+    }
+
+    public class GeneratePixRequest
+    {
+        // Pode ser expandido futuramente para incluir dados específicos
     }
 
     public class SendEmailRequest

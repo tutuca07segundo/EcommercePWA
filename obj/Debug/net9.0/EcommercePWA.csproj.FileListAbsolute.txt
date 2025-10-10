@@ -2036,3 +2036,9 @@ C:\Users\Pedro\EcommercePWA-1\obj\Debug\net9.0\ref\EcommercePWA.dll
 C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\140nw9izc8-dxkad2wbs5.gz
 C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\k87hba9qm4-ed1lk3ndoj.gz
 C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\6l74yxgwj4-2mkz3rp2fx.gz
+C:\Users\Pedro\Desktop\a\EcommercePWA\bin\Debug\net9.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\Pedro\Desktop\a\EcommercePWA\bin\Debug\net9.0\QRCoder.dll
+C:\Users\Pedro\Desktop\a\EcommercePWA\bin\Debug\net9.0\System.Drawing.Common.dll
+C:\Users\Pedro\Desktop\a\EcommercePWA\bin\Debug\net9.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\Pedro\Desktop\a\EcommercePWA\bin\Debug\net9.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\Users\Pedro\Desktop\a\EcommercePWA\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll

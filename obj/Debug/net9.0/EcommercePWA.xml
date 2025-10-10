@@ -879,5 +879,53 @@
             Modelo que encapsula um produto com informações de preço e desconto aplicadas
             </summary>
         </member>
+        <member name="T:EcommercePWA.Services.IPixService">
+            <summary>
+            Interface para serviços de PIX
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Services.IPixService.GeneratePixAsync(System.Decimal,System.String,System.String)">
+            <summary>
+            Gera um PIX com QR Code para pagamento
+            </summary>
+            <param name="valor">Valor do PIX em reais</param>
+            <param name="descricao">Descrição do pagamento</param>
+            <param name="identificador">Identificador único da transação</param>
+            <returns>Dados do PIX gerado</returns>
+        </member>
+        <member name="M:EcommercePWA.Services.IPixService.GenerateQRCodeImage(System.String)">
+            <summary>
+            Gera QR Code como imagem base64
+            </summary>
+            <param name="pixCode">Código PIX (EMV)</param>
+            <returns>Imagem QR Code em base64</returns>
+        </member>
+        <member name="M:EcommercePWA.Services.IPixService.ValidatePixKey(System.String)">
+            <summary>
+            Valida se uma chave PIX é válida
+            </summary>
+            <param name="chavePix">Chave PIX para validar</param>
+            <returns>True se válida</returns>
+        </member>
+        <member name="T:EcommercePWA.Services.PixPaymentData">
+            <summary>
+            Dados do pagamento PIX gerado
+            </summary>
+        </member>
+        <member name="T:EcommercePWA.Services.PixService">
+            <summary>
+            Serviço para geração de PIX com QR Code
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Services.PixService.GeneratePixEMVCode(System.String,System.String,System.String,System.Decimal,System.String,System.String)">
+            <summary>
+            Gera código PIX no formato EMV (padrão brasileiro)
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Services.PixService.CalculateCRC16(System.String)">
+            <summary>
+            Calcula CRC16 para o código PIX
+            </summary>
+        </member>
     </members>
 </doc>

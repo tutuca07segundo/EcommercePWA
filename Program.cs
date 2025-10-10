@@ -48,6 +48,9 @@ builder.Services.AddHttpClient<IMercadoPagoService, MercadoPagoService>(client =
     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 });
 
+// Add PIX service
+builder.Services.AddScoped<IPixService, PixService>();
+
 // Add session support
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>

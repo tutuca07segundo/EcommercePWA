@@ -114,8 +114,74 @@
                                 <div class="alert alert-info">
                                     <i class="fas fa-qrcode me-2"></i>
                                     <strong>PIX - Pagamento Instantâneo</strong><br>
-                                    Após finalizar o pedido, você será direcionado para uma tela com o QR Code para pagamento.
-                                    O código PIX expira em 5 minutos.
+                                    Clique em "Gerar PIX" para criar o QR Code de pagamento.
+                                    O código PIX expira em 30 minutos.
+                                </div>
+                                
+                                <!-- Botão para gerar PIX -->
+                                <div class="text-center mb-3">
+                                    <button type="button" id="generatePixBtn" class="btn btn-success btn-lg">
+                                        <i class="fas fa-qrcode me-2"></i>Gerar PIX
+                                    </button>
+                                </div>
+                                
+                                <!-- Área do QR Code PIX -->
+                                <div id="pixQRCodeArea" style="display: none;" class="card">
+                                    <div class="card-header bg-success text-white text-center">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-qrcode me-2"></i>PIX Gerado com Sucesso!
+                                        </h5>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <!-- QR Code -->
+                                        <div class="mb-3">
+                                            <img id="pixQRCode" src="" alt="QR Code PIX" class="img-fluid" style="max-width: 250px; border: 2px solid #28a745; border-radius: 8px;">
+                                        </div>
+                                        
+                                        <!-- Informações do PIX -->
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <small class="text-muted">Valor:</small>
+                                                <div class="h4 text-success" id="pixValor">R$ 0,00</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small class="text-muted">Vencimento:</small>
+                                                <div class="fw-bold" id="pixVencimento">--</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <hr>
+                                        
+                                        <!-- Código PIX para copiar -->
+                                        <div class="mb-3">
+                                            <label class="form-label"><strong>Código PIX (Copie e Cole):</strong></label>
+                                            <div class="input-group">
+                                                <input type="text" id="pixCode" class="form-control" readonly>
+                                                <button type="button" class="btn btn-outline-success" onclick="copyPixCode()">
+                                                    <i class="fas fa-copy"></i> Copiar
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Instruções -->
+                                        <div class="alert alert-light">
+                                            <h6><i class="fas fa-info-circle me-2"></i>Como pagar:</h6>
+                                            <ol class="mb-0 text-start">
+                                                <li>Abra o app do seu banco</li>
+                                                <li>Escaneie o QR Code ou copie o código PIX</li>
+                                                <li>Confirme o pagamento</li>
+                                                <li>Aguarde a confirmação automática</li>
+                                            </ol>
+                                        </div>
+                                        
+                                        <!-- Chave PIX -->
+                                        <div class="text-muted">
+                                            <small>
+                                                <i class="fas fa-key me-1"></i>
+                                                Chave PIX: <span id="pixChave">--</span>
+                                            </small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -443,6 +509,83 @@
                     notification.remove();
                 }
             }, 8000);
+        }
+
+        // Função para gerar PIX
+        document.addEventListener('DOMContentLoaded', function() {
+            const generatePixBtn = document.getElementById('generatePixBtn');
+            if (generatePixBtn) {
+                generatePixBtn.addEventListener('click', generatePix);
+            }
+        });
+
+        async function generatePix() {
+            const btn = document.getElementById('generatePixBtn');
+            const originalText = btn.innerHTML;
+            
+            try {
+                // Mostrar loading
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Gerando PIX...';
+                
+                const response = await fetch('@Url.Action("GeneratePix", "Checkout")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Mostrar QR Code e informações
+                    displayPixQRCode(data);
+                    showNotification('PIX gerado com sucesso!', 'success');
+                } else {
+                    showNotification(data.message || 'Erro ao gerar PIX', 'danger');
+                }
+            } catch (error) {
+                console.error('Erro ao gerar PIX:', error);
+                showNotification('Erro ao gerar PIX. Tente novamente.', 'danger');
+            } finally {
+                // Restaurar botão
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        function displayPixQRCode(pixData) {
+            // Mostrar área do QR Code
+            document.getElementById('pixQRCodeArea').style.display = 'block';
+            
+            // Preencher dados
+            document.getElementById('pixQRCode').src = 'data:image/png;base64,' + pixData.qrCodeBase64;
+            document.getElementById('pixValor').textContent = 'R$ ' + pixData.valor.toFixed(2).replace('.', ',');
+            document.getElementById('pixVencimento').textContent = pixData.dataVencimento;
+            document.getElementById('pixCode').value = pixData.pixCode;
+            document.getElementById('pixChave').textContent = pixData.chavePix;
+            
+            // Esconder botão de gerar
+            document.getElementById('generatePixBtn').style.display = 'none';
+            
+            // Scroll para o QR Code
+            document.getElementById('pixQRCodeArea').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyPixCode() {
+            const pixCodeInput = document.getElementById('pixCode');
+            pixCodeInput.select();
+            pixCodeInput.setSelectionRange(0, 99999); // Para mobile
+            
+            try {
+                document.execCommand('copy');
+                showNotification('Código PIX copiado para a área de transferência!', 'success');
+            } catch (err) {
+                console.error('Erro ao copiar:', err);
+                showNotification('Erro ao copiar código PIX', 'danger');
+            }
         }
     </script>
 }

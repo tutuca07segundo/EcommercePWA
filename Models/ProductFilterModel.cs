@@ -9,7 +9,6 @@ namespace EcommercePWA.Models
         public List<string> Brands { get; set; } = new();
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
-        public decimal? MinRating { get; set; }
         public bool? InStockOnly { get; set; }
         public bool? OnSaleOnly { get; set; }
         public string SortBy { get; set; } = "name";
@@ -33,7 +32,6 @@ namespace EcommercePWA.Models
         public List<string> AvailableBrands { get; set; } = new();
         public decimal MinPrice { get; set; }
         public decimal MaxPrice { get; set; }
-        public List<decimal> AvailableRatings { get; set; } = new() { 1, 2, 3, 4, 5 };
     }
 
     public class SearchSuggestion

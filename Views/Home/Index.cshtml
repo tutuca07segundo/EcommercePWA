@@ -162,18 +162,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Avaliação Mínima -->
-                                <div class="col-md-3">
-                                    <label class="form-label">Avaliação Mínima</label>
-                                    <select class="form-select" id="minRating">
-                                        <option value="">Qualquer avaliação</option>
-                                        <option value="1">⭐ 1+ estrelas</option>
-                                        <option value="2">⭐⭐ 2+ estrelas</option>
-                                        <option value="3">⭐⭐⭐ 3+ estrelas</option>
-                                        <option value="4">⭐⭐⭐⭐ 4+ estrelas</option>
-                                        <option value="5">⭐⭐⭐⭐⭐ 5 estrelas</option>
-                                    </select>
-                                </div>
 
                                 <!-- Filtros Adicionais -->
                                 <div class="col-md-3">
@@ -305,28 +293,6 @@
                                     @product.Name
                                 </h6>
                                
-                                <div class="mb-2">
-                                    <div class="d-flex align-items-center mb-1">
-                                        <div class="text-warning me-2">
-                                            @for (int i = 1; i <= 5; i++)
-                                            {
-                                                if (i <= product.Rating)
-                                                {
-                                                    <i class="fas fa-star"></i>
-                                                }
-                                                else if (i - 0.5m <= product.Rating)
-                                                {
-                                                    <i class="fas fa-star-half-alt"></i>
-                                                }
-                                                else
-                                                {
-                                                    <i class="far fa-star"></i>
-                                                }
-                                            }
-                                        </div>
-                                        <small class="text-muted">(@product.ReviewCount)</small>
-                                    </div>
-                                </div>
 
                                 <div class="mt-auto">
                                     <div class="d-flex justify-content-between align-items-center mb-2">

@@ -203,8 +203,6 @@ public class HomeController : Controller
                     category = p.Category,
                     imageUrl = p.ImageUrl ?? "/images/placeholder.jpg",
                     stockQuantity = p.StockQuantity,
-                    rating = p.Rating,
-                    reviewCount = p.ReviewCount,
                     type = p.Type
                 }),
                 totalCount = result.TotalCount,
@@ -232,7 +230,6 @@ public class HomeController : Controller
                 brands = options.AvailableBrands,
                 minPrice = options.MinPrice,
                 maxPrice = options.MaxPrice,
-                ratings = options.AvailableRatings
             });
         }
         catch (Exception ex)

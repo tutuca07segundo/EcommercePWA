@@ -94,13 +94,6 @@ class AdvancedFilters {
             });
         }
 
-        // Rating select
-        const ratingSelect = document.getElementById('minRating');
-        if (ratingSelect) {
-            ratingSelect.addEventListener('change', (e) => {
-                this.currentFilters.minRating = e.target.value ? parseFloat(e.target.value) : null;
-            });
-        }
 
         // Checkboxes
         const inStockCheck = document.getElementById('inStockOnly');
@@ -420,10 +413,6 @@ class AdvancedFilters {
                                 
                                 <div class="mb-2">
                                     <div class="d-flex align-items-center mb-1">
-                                        <div class="text-warning me-2">
-                                            ${this.generateStars(product.rating)}
-                                        </div>
-                                        <small class="text-muted">(${product.reviewCount})</small>
                                     </div>
                                 </div>
 
@@ -465,19 +454,6 @@ class AdvancedFilters {
         `;
     }
 
-    generateStars(rating) {
-        let stars = '';
-        for (let i = 1; i <= 5; i++) {
-            if (i <= rating) {
-                stars += '<i class="fas fa-star"></i>';
-            } else if (i - 0.5 <= rating) {
-                stars += '<i class="fas fa-star-half-alt"></i>';
-            } else {
-                stars += '<i class="far fa-star"></i>';
-            }
-        }
-        return stars;
-    }
 
     updateActiveFilters() {
         const activeFiltersRow = document.getElementById('activeFiltersRow');
@@ -516,12 +492,6 @@ class AdvancedFilters {
             </span>`);
         }
         
-        if (this.currentFilters.minRating) {
-            badges.push(`<span class="badge bg-secondary me-1">
-                ${this.currentFilters.minRating}+ estrelas
-                <button type="button" class="btn-close btn-close-white ms-1" onclick="advancedFilters.removeFilter('rating')"></button>
-            </span>`);
-        }
         
         if (this.currentFilters.inStockOnly) {
             badges.push(`<span class="badge bg-success me-1">
@@ -623,10 +593,6 @@ class AdvancedFilters {
                 this.currentFilters.maxPrice = null;
                 document.getElementById('minPrice').value = '';
                 document.getElementById('maxPrice').value = '';
-                break;
-            case 'rating':
-                this.currentFilters.minRating = null;
-                document.getElementById('minRating').value = '';
                 break;
             case 'inStock':
                 this.currentFilters.inStockOnly = false;

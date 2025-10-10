@@ -56,22 +56,17 @@ namespace EcommercePWA.Models
         
         public List<string> Tags { get; set; } = new List<string>();
         
-        public decimal Rating { get; set; } = BusinessConstants.DEFAULT_RATING;
         
         // Novos campos para variações de cor
         public virtual List<ProductVariation> Variations { get; set; } = new();
         
         // Navigation properties
-        public virtual List<Review> Reviews { get; set; } = new();
         public virtual List<ProductDiscount> ProductDiscounts { get; set; } = new();
         public virtual Subcategory? Subcategory { get; set; }
         public virtual List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public virtual List<CartItem> CartItems { get; set; } = new List<CartItem>();
         public virtual List<WishlistItem> WishlistItems { get; set; } = new List<WishlistItem>();
 
-        // Computed properties
-        public double AverageRating => Reviews.Any() ? Reviews.Average(r => r.Rating) : 0;
-        public int ReviewCount => Reviews.Count;
         
         // Discount properties (not mapped to database)
         [NotMapped]

@@ -852,7 +852,6 @@ C:\Users\Pedro\Desktop\esse\EcommercePWA\bin\Debug\net9.0\MercadoPago.dll
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\compressed\okohksbcf5-nvh65sr6oy.gz
 C:\Users\Pedro\Desktop\esse\EcommercePWA\obj\Debug\net9.0\compressed\332b2lwu4r-yf47ooc04d.gz
 C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\332b2lwu4r-pveh3qcj3w.gz
-C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\6l74yxgwj4-bzk376wjtu.gz
 C:\Users\Arthur\Desktop\EcommercePWA\bin\Debug\net9.0\EcommercePWA.xml
 C:\Users\Arthur\Desktop\EcommercePWA\bin\Debug\net9.0\MercadoPago.dll
 C:\Users\Arthur\Desktop\EcommercePWA\obj\Debug\net9.0\compressed\okohksbcf5-nvh65sr6oy.gz
@@ -2034,3 +2033,6 @@ C:\Users\Pedro\EcommercePWA-1\obj\Debug\net9.0\staticwebassets.pack.json
 C:\Users\Pedro\EcommercePWA-1\obj\Debug\net9.0\Ecommerc.9F4D6C2C.Up2Date
 C:\Users\Pedro\EcommercePWA-1\obj\Debug\net9.0\EcommercePWA.genruntimeconfig.cache
 C:\Users\Pedro\EcommercePWA-1\obj\Debug\net9.0\ref\EcommercePWA.dll
+C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\140nw9izc8-dxkad2wbs5.gz
+C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\k87hba9qm4-ed1lk3ndoj.gz
+C:\Users\Pedro\Desktop\a\EcommercePWA\obj\Debug\net9.0\compressed\6l74yxgwj4-2mkz3rp2fx.gz

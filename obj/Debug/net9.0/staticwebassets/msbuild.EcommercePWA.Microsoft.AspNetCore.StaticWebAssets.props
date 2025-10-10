@@ -552,8 +552,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>z1roqqpud5</Fingerprint>
-      <Integrity>97AVh9YNYRc8148S3bg4kxxEZwFM8aIFpJ98PFdV+j8=</Integrity>
+      <Fingerprint>2mkz3rp2fx</Fingerprint>
+      <Integrity>GpJN7zYUKTIGhkapdj1jB7+FIuUOg9klhS/WCYDBYRE=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\advanced-filters.js'))</OriginalItemSpec>

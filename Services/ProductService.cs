@@ -51,7 +51,6 @@ namespace EcommercePWA.Services
             {
                 return await _context.Products
                     .Include(p => p.Variations)
-                    .Include(p => p.Reviews)
                     .Include(p => p.ProductDiscounts)
                     .ThenInclude(pd => pd.Discount)
                     .OrderBy(p => p.Name)
@@ -73,7 +72,6 @@ namespace EcommercePWA.Services
 
                 return await _context.Products
                     .Include(p => p.Variations)
-                    .Include(p => p.Reviews)
                     .Where(p => 
                         p.Name.Contains(searchTerm) ||
                         p.Description.Contains(searchTerm) ||
@@ -99,7 +97,6 @@ namespace EcommercePWA.Services
 
                 return await _context.Products
                     .Include(p => p.Variations)
-                    .Include(p => p.Reviews)
                     .Where(p => p.Category.Equals(category))
                     .ToListAsync();
             }
@@ -119,7 +116,6 @@ namespace EcommercePWA.Services
                 "price_asc" => products.OrderBy(p => p.Price).ToList(),
                 "price_desc" => products.OrderByDescending(p => p.Price).ToList(),
                 "name" => products.OrderBy(p => p.Name).ToList(),
-                "rating" => products.OrderByDescending(p => p.Rating).ToList(),
                 "newest" => products.OrderByDescending(p => p.CreatedAt).ToList(),
                 _ => products.OrderBy(p => p.Name).ToList()
             };
@@ -152,7 +148,6 @@ namespace EcommercePWA.Services
             {
                 return await _context.Products
                     .Include(p => p.Variations)
-                    .Include(p => p.Reviews)
                     .FirstOrDefaultAsync(p => p.Id == id);
             }
             catch (Exception ex)
@@ -168,9 +163,8 @@ namespace EcommercePWA.Services
             {
                 return await _context.Products
                     .Include(p => p.Variations)
-                    .Include(p => p.Reviews)
                 .Where(p => p.Id != product.Id && p.Category == product.Category)
-                .OrderByDescending(p => p.Rating)
+                .OrderBy(p => p.Name)
                 .Take(count)
                     .ToListAsync();
             }
@@ -524,7 +518,6 @@ namespace EcommercePWA.Services
                 StockQuantity = stock,
                 Type = type,
                 Tags = tags.ToList(),
-                Rating = rating,
                 Weight = weight,
                 Width = width,
                 Height = height,
@@ -537,11 +530,9 @@ namespace EcommercePWA.Services
         {
             try
             {
-                var query = _context.Products
+                IQueryable<Product> query = _context.Products
                     .Include(p => p.Variations)
-                    .Include(p => p.Reviews)
-                    .AsNoTracking()
-                    .AsQueryable();
+                    .AsNoTracking();
 
                 // Apply search term filter
                 if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
@@ -575,11 +566,6 @@ namespace EcommercePWA.Services
                     query = query.Where(p => p.Price <= filter.MaxPrice.Value);
                 }
 
-                // Apply rating filter
-                if (filter.MinRating.HasValue)
-                {
-                    query = query.Where(p => p.Rating >= filter.MinRating.Value);
-                }
 
                 // Apply stock filter
                 if (filter.InStockOnly == true)
@@ -605,9 +591,6 @@ namespace EcommercePWA.Services
                     "price" => filter.SortDirection == "desc"
                         ? query.OrderByDescending(p => p.Price)
                         : query.OrderBy(p => p.Price),
-                    "rating" => filter.SortDirection == "desc"
-                        ? query.OrderByDescending(p => p.Rating)
-                        : query.OrderBy(p => p.Rating),
                     "newest" => query.OrderByDescending(p => p.CreatedAt),
                     _ => query.OrderBy(p => p.Name)
                 };
@@ -661,8 +644,7 @@ namespace EcommercePWA.Services
                     AvailableCategories = categories,
                     AvailableBrands = brands,
                     MinPrice = prices.Any() ? prices.Min() : 0,
-                    MaxPrice = prices.Any() ? prices.Max() : 0,
-                    AvailableRatings = new List<decimal> { 1, 2, 3, 4, 5 }
+                    MaxPrice = prices.Any() ? prices.Max() : 0
                 };
             }
             catch (Exception ex)
@@ -685,7 +667,7 @@ namespace EcommercePWA.Services
                         EF.Functions.Like(p.Name, $"%{searchTerm}%") ||
                         EF.Functions.Like(p.Brand, $"%{searchTerm}%") ||
                         EF.Functions.Like(p.Category, $"%{searchTerm}%"))
-                    .OrderByDescending(p => p.Rating)
+                    .OrderBy(p => p.Name)
                     .Take(maxResults)
                     .Select(p => new SearchSuggestion
                     {

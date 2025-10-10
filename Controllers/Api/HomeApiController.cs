@@ -48,8 +48,6 @@ namespace EcommercePWA.Controllers.Api
                         ImageUrl = p.ImageUrl ?? "/images/placeholder.jpg",
                         Category = p.Category,
                         Brand = p.Brand,
-                        Rating = p.Rating,
-                        ReviewCount = p.ReviewCount,
                         Type = p.Type
                     }),
                     TotalCount = result.TotalCount,
@@ -83,7 +81,6 @@ namespace EcommercePWA.Controllers.Api
                     Brands = options.AvailableBrands,
                     MinPrice = options.MinPrice,
                     MaxPrice = options.MaxPrice,
-                    Ratings = options.AvailableRatings
                 });
             }
             catch (Exception ex)

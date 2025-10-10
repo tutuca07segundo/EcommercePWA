@@ -275,25 +275,19 @@ namespace EcommercePWA.Controllers
                 var sessionId = GetSessionId();
                 var cart = _cartService.GetCart(sessionId);
                 
-                if (!cart.Items.Any())
-                {
-                    return Json(new { success = false, message = "Carrinho vazio" });
-                }
-
-                // Validar CEP
-                var isValidCep = await _melhorEnvioService.ValidateCepAsync(request.Cep);
-                if (!isValidCep)
-                {
-                    return Json(new { success = false, message = "CEP inválido" });
-                }
-
                 // Preparar produtos para cálculo de frete
                 var shippingProducts = new List<ShippingProduct>();
-                foreach (var item in cart.Items)
+                
+                // Se foi chamado da página de detalhes (com productId específico)
+                if (request.ProductId.HasValue)
                 {
-                    var product = await _productService.GetProductByIdAsync(item.ProductId);
+                    var product = await _productService.GetProductByIdAsync(request.ProductId.Value);
                     if (product != null)
                     {
+                        var quantity = request.Quantity ?? 1;
+                        var unitPrice = product.HasDiscount && product.DiscountedPrice.HasValue ? 
+                                       product.DiscountedPrice.Value : product.Price;
+                        
                         shippingProducts.Add(new ShippingProduct
                         {
                             Id = product.Id,
@@ -301,10 +295,48 @@ namespace EcommercePWA.Controllers
                             Width = product.Width,
                             Height = product.Height,
                             Length = product.Length,
-                            Quantity = item.Quantity,
-                            Value = item.UnitPrice
+                            Quantity = quantity,
+                            Value = unitPrice
                         });
                     }
+                }
+                else
+                {
+                    // Lógica original para carrinho
+                    if (!cart.Items.Any())
+                    {
+                        return Json(new { success = false, message = "Carrinho vazio" });
+                    }
+
+                    foreach (var item in cart.Items)
+                    {
+                        var product = await _productService.GetProductByIdAsync(item.ProductId);
+                        if (product != null)
+                        {
+                            shippingProducts.Add(new ShippingProduct
+                            {
+                                Id = product.Id,
+                                Weight = product.Weight,
+                                Width = product.Width,
+                                Height = product.Height,
+                                Length = product.Length,
+                                Quantity = item.Quantity,
+                                Value = item.UnitPrice
+                            });
+                        }
+                    }
+                }
+
+                if (!shippingProducts.Any())
+                {
+                    return Json(new { success = false, message = "Nenhum produto encontrado para cálculo" });
+                }
+
+                // Validar CEP
+                var isValidCep = await _melhorEnvioService.ValidateCepAsync(request.Cep);
+                if (!isValidCep)
+                {
+                    return Json(new { success = false, message = "CEP inválido" });
                 }
 
                 // Calcular frete via Melhor Envio
@@ -588,6 +620,9 @@ namespace EcommercePWA.Controllers
     public class CalculateShippingRequest
     {
         public string Cep { get; set; } = string.Empty;
+        public int? ProductId { get; set; }
+        public int? VariationId { get; set; }
+        public int? Quantity { get; set; }
     }
 
     public class SetShippingRequest

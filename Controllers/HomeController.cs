@@ -2,7 +2,6 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
-using EcommercePWA.Constants;
 
 namespace EcommercePWA.Controllers;
 

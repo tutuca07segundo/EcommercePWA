@@ -2,7 +2,6 @@ using EcommercePWA.Services;
 using EcommercePWA.Data;
 using Microsoft.EntityFrameworkCore;
 using EcommercePWA.Models;
-using EcommercePWA.Constants;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Text.Json;
 
@@ -55,7 +54,7 @@ builder.Services.AddScoped<IPixService, PixService>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(BusinessConstants.SESSION_TIMEOUT_MINUTES);
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // 30 minutos de timeout
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

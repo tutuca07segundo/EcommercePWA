@@ -18,6 +18,20 @@
                         <strong>Escaneie o QR Code abaixo com o app do seu banco para realizar o pagamento</strong>
                     </div>
 
+                    <!-- DEBUG: Mostrar se PixCode existe -->
+                    @if (string.IsNullOrEmpty(Model.PixCode))
+                    {
+                        <div class="alert alert-danger">
+                            <strong>DEBUG:</strong> Model.PixCode está vazio ou nulo!
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-success">
+                            <strong>DEBUG:</strong> Model.PixCode tem @Model.PixCode.Length caracteres
+                        </div>
+                    }
+
                     <!-- QR Code Section -->
                     <div class="qr-code-section mb-4">
                         <div class="qr-code-container p-4 border rounded bg-white d-inline-block">
@@ -172,9 +186,23 @@
         // Gerar QR Code
         document.addEventListener('DOMContentLoaded', function() {
             const pixCode = '@Model.PixCode';
-            const qrCodeElement = document.getElementById('qrcode');
+            const qrCodeContainer = document.getElementById('qrcode');
             
-            QRCode.toCanvas(qrCodeElement, pixCode, {
+            console.log('Código PIX:', pixCode);
+            console.log('Container QR Code:', qrCodeContainer);
+            
+            if (!pixCode || pixCode === '') {
+                console.error('Código PIX vazio!');
+                qrCodeContainer.innerHTML = '<div class="alert alert-danger">Erro: Código PIX não foi gerado</div>';
+                return;
+            }
+            
+            // Criar canvas
+            const canvas = document.createElement('canvas');
+            qrCodeContainer.appendChild(canvas);
+            
+            // Gerar QR Code no canvas
+            QRCode.toCanvas(canvas, pixCode, {
                 width: 200,
                 height: 200,
                 margin: 2,
@@ -185,7 +213,9 @@
             }, function (error) {
                 if (error) {
                     console.error('Erro ao gerar QR Code:', error);
-                    qrCodeElement.innerHTML = '<div class="alert alert-danger">Erro ao gerar QR Code</div>';
+                    qrCodeContainer.innerHTML = '<div class="alert alert-danger">Erro ao gerar QR Code: ' + error.message + '</div>';
+                } else {
+                    console.log('QR Code gerado com sucesso!');
                 }
             });
         });

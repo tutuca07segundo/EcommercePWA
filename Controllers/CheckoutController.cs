@@ -208,9 +208,31 @@ namespace EcommercePWA.Controllers
                     return View("Index", model);
                 }
 
-                // Se for PIX, mostrar QR Code
+                // Se for PIX, gerar código PIX real e mostrar QR Code
                 if (paymentResult.RequiresPixConfirmation)
                 {
+                    // Gerar PIX usando o serviço real
+                    var total = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount;
+                    var descricao = $"Pedido Kaboom E-commerce - {cart.Items.Count} item(s)";
+                    var identificador = $"KABOOM{DateTime.Now:yyyyMMddHHmmss}";
+                    
+                    var pixData = await _pixService.GeneratePixAsync(total, descricao, identificador);
+                    
+                    if (pixData.Success)
+                    {
+                        model.PixCode = pixData.PixCode;
+                        model.PixExpirationTime = pixData.DataVencimento;
+                        model.ShowPixQrCode = true;
+                    }
+                    else
+                    {
+                        // Fallback: gerar código simulado se o serviço falhar
+                        model.PixCode = GeneratePixCode();
+                        model.PixExpirationTime = DateTime.Now.AddMinutes(30);
+                        model.ShowPixQrCode = true;
+                        _logger.LogWarning($"Erro ao gerar PIX real: {pixData.ErrorMessage}. Usando código simulado.");
+                    }
+                    
                     // Reutilizar variáveis já declaradas
                     var cartViewModelPix = new CartViewModel
                     {
@@ -219,7 +241,7 @@ namespace EcommercePWA.Controllers
                         Subtotal = cart.Subtotal,
                         ShippingCost = shippingCost,
                         TaxAmount = taxAmount,
-                        Total = cart.Subtotal - (cart.DiscountAmount ?? 0) + shippingCost + taxAmount
+                        Total = total
                     };
                     model.Cart = cartViewModelPix;
                     HttpContext.Session.SetInt32("PendingOrderId", order.Id);

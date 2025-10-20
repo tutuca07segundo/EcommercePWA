@@ -9,6 +9,7 @@ namespace EcommercePWA.Services
         private readonly HttpClient _httpClient;
         private readonly ILogger<MelhorEnvioService> _logger;
         private readonly string _apiToken;
+        private readonly string _companyCep;
         private readonly string _baseUrl = "https://sandbox.melhorenvio.com.br/api/v2/me";
 
         public MelhorEnvioService(HttpClient httpClient, ILogger<MelhorEnvioService> logger, IConfiguration configuration)
@@ -16,6 +17,7 @@ namespace EcommercePWA.Services
             _httpClient = httpClient;
             _logger = logger;
             _apiToken = configuration["MelhorEnvio:ApiToken"] ?? "";
+            _companyCep = configuration["MelhorEnvio:CompanyCep"] ?? "01310-100"; // CEP da empresa
             
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiToken}");
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
@@ -26,9 +28,16 @@ namespace EcommercePWA.Services
         {
             try
             {
+                // Usar CEP da empresa se FromCep estiver vazio ou for o padrão
+                var fromCep = string.IsNullOrEmpty(request.FromCep) || request.FromCep == "01310-100" 
+                    ? _companyCep 
+                    : request.FromCep;
+
+                _logger.LogInformation($"Calculando frete de {fromCep} para {request.ToCep}");
+
                 var payload = new
                 {
-                    from = new { postal_code = request.FromCep },
+                    from = new { postal_code = fromCep },
                     to = new { postal_code = request.ToCep },
                     products = request.Products.Select(p => new
                     {
@@ -45,7 +54,12 @@ namespace EcommercePWA.Services
                 var json = JsonSerializer.Serialize(payload);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+                _logger.LogInformation($"Enviando requisição para API Melhor Envio...");
+                _logger.LogInformation($"Payload: {json}");
+                
                 var response = await _httpClient.PostAsync($"{_baseUrl}/shipment/calculate", content);
+                
+                _logger.LogInformation($"Status da API: {response.StatusCode}");
                 
                 if (response.IsSuccessStatusCode)
                 {
@@ -69,7 +83,8 @@ namespace EcommercePWA.Services
                 }
                 else
                 {
-                    _logger.LogError($"Erro na API Melhor Envio: {response.StatusCode}");
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError($"Erro na API Melhor Envio: {response.StatusCode} - {errorContent}");
                     return GetFallbackQuotes(request);
                 }
             }
@@ -133,30 +148,32 @@ namespace EcommercePWA.Services
 
         private List<ShippingQuote> GetFallbackQuotes(ShippingCalculationRequest request)
         {
-            // Fallback com cotações simuladas baseadas no peso total
-            var totalWeight = request.Products.Sum(p => p.Weight * p.Quantity);
+            // Fallback com cotações simuladas REALISTAS baseadas no peso total
+            var totalWeight = request.Products.Sum(p => p.Weight * p.Quantity); // em gramas
             var totalValue = request.Products.Sum(p => p.Value * p.Quantity);
+
+            _logger.LogInformation($"Fallback: Peso total = {totalWeight}g, Valor total = R$ {totalValue:N2}");
 
             var quotes = new List<ShippingQuote>();
 
-            // PAC simulado
+            // PAC simulado - preços realistas
             quotes.Add(new ShippingQuote
             {
                 Id = 1,
                 Name = "PAC",
                 Company = "Correios",
-                Price = CalculateFallbackPrice(totalWeight, totalValue, 0.8m),
+                Price = CalculateFallbackPrice(totalWeight, totalValue, 1.0m),
                 DeliveryTime = 8,
                 DeliveryRange = "8 a 12 dias úteis"
             });
 
-            // SEDEX simulado
+            // SEDEX simulado - preços realistas
             quotes.Add(new ShippingQuote
             {
                 Id = 2,
                 Name = "SEDEX",
                 Company = "Correios",
-                Price = CalculateFallbackPrice(totalWeight, totalValue, 1.5m),
+                Price = CalculateFallbackPrice(totalWeight, totalValue, 1.8m),
                 DeliveryTime = 3,
                 DeliveryRange = "3 a 5 dias úteis"
             });
@@ -164,11 +181,21 @@ namespace EcommercePWA.Services
             return quotes;
         }
 
-        private decimal CalculateFallbackPrice(decimal totalWeight, decimal totalValue, decimal multiplier)
+        private decimal CalculateFallbackPrice(decimal totalWeightGrams, decimal totalValue, decimal multiplier)
         {
-            var basePrice = (totalWeight / 1000) * 5m; // R$ 5 por kg
-            var valueInsurance = totalValue * 0.02m; // 2% do valor para seguro
-            return Math.Max(15m, (basePrice + valueInsurance) * multiplier);
+            // Cálculo REALISTA de frete
+            // Base: R$ 0.015 por grama (R$ 15 por kg) - mais próximo da realidade
+            var basePrice = (totalWeightGrams * 0.015m);
+            
+            // Seguro: apenas 0.5% do valor (não 2%)
+            var valueInsurance = totalValue * 0.005m;
+            
+            // Preço mínimo de R$ 12 (mais realista que R$ 15)
+            var calculatedPrice = (basePrice + valueInsurance) * multiplier;
+            
+            _logger.LogInformation($"Fallback calculado: Base={basePrice:N2}, Seguro={valueInsurance:N2}, Multiplicador={multiplier}, Total={calculatedPrice:N2}");
+            
+            return Math.Max(12m, Math.Min(calculatedPrice, 150m)); // Máximo de R$ 150 para evitar absurdos
         }
     }
 

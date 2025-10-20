@@ -4,11 +4,6 @@
         <name>EcommercePWA</name>
     </assembly>
     <members>
-        <member name="T:EcommercePWA.Constants.BusinessConstants">
-            <summary>
-            Constantes de negócio centralizadas para evitar magic numbers
-            </summary>
-        </member>
         <member name="T:EcommercePWA.Controllers.Api.AuthApiController">
             <summary>
             API para autenticação e gerenciamento de usuários

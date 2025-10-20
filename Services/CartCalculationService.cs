@@ -1,5 +1,4 @@
 using EcommercePWA.Models;
-using EcommercePWA.Constants;
 
 namespace EcommercePWA.Services
 {
@@ -45,7 +44,7 @@ namespace EcommercePWA.Services
 
         public decimal CalculateTaxAmount(decimal subtotal)
         {
-            return subtotal * BusinessConstants.TAX_RATE;
+            return subtotal * 0.10m; // 10% de impostos
         }
 
         public decimal CalculateFinalTotal(decimal subtotal, decimal? discountAmount, decimal taxAmount, decimal? shippingCost)

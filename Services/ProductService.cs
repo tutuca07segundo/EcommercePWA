@@ -1,6 +1,5 @@
 using EcommercePWA.Models;
 using EcommercePWA.Data;
-using EcommercePWA.Constants;
 using Microsoft.EntityFrameworkCore;
 
 namespace EcommercePWA.Services
@@ -505,7 +504,7 @@ namespace EcommercePWA.Services
             };
         }
 
-        private static Product CreateProduct(string name, string description, decimal price, string category, string brand, int stock, string type, string[] tags, decimal rating, decimal weight = BusinessConstants.DEFAULT_WEIGHT_GRAMS, int width = BusinessConstants.DEFAULT_WIDTH_CM, int height = BusinessConstants.DEFAULT_HEIGHT_CM, int length = BusinessConstants.DEFAULT_LENGTH_CM)
+        private static Product CreateProduct(string name, string description, decimal price, string category, string brand, int stock, string type, string[] tags, decimal rating, decimal weight = 200m, int width = 15, int height = 10, int length = 20)
         {
             return new Product
             {

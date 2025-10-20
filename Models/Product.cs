@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using EcommercePWA.Constants;
 
 namespace EcommercePWA.Models
 {
@@ -9,15 +8,15 @@ namespace EcommercePWA.Models
         public int Id { get; set; }
         
         [Required]
-        [StringLength(BusinessConstants.MAX_NAME_LENGTH)]
+        [StringLength(100)]
         public string Name { get; set; } = string.Empty;
         
         [Required]
-        [StringLength(BusinessConstants.MAX_DESCRIPTION_LENGTH)]
+        [StringLength(500)]
         public string Description { get; set; } = string.Empty;
         
         [Required]
-        [Range(typeof(decimal), "0.01", "999999999")]
+        [Range(0.01, 999999999)]
         public decimal Price { get; set; }
         
         [Required]
@@ -42,17 +41,17 @@ namespace EcommercePWA.Models
         public string Type { get; set; } = string.Empty; // Periférico, Peça, etc.
         
         // Propriedades para cálculo de frete
-        [Range(typeof(decimal), "0.01", "50000")] // peso em gramas (máximo 50kg)
-        public decimal Weight { get; set; } = BusinessConstants.DEFAULT_WEIGHT_GRAMS;
+        [Range(0.01, 50000)] // peso em gramas (máximo 50kg)
+        public decimal Weight { get; set; } = 200m; // 200g padrão (mais realista para periféricos)
         
-        [Range(1, BusinessConstants.MAX_DIMENSION_CM)] // largura em cm
-        public int Width { get; set; } = BusinessConstants.DEFAULT_WIDTH_CM;
+        [Range(1, 200)] // largura em cm
+        public int Width { get; set; } = 15; // 15cm padrão
         
-        [Range(1, BusinessConstants.MAX_DIMENSION_CM)] // altura em cm  
-        public int Height { get; set; } = BusinessConstants.DEFAULT_HEIGHT_CM;
+        [Range(1, 200)] // altura em cm  
+        public int Height { get; set; } = 10; // 10cm padrão
         
-        [Range(1, BusinessConstants.MAX_DIMENSION_CM)] // comprimento em cm
-        public int Length { get; set; } = BusinessConstants.DEFAULT_LENGTH_CM;
+        [Range(1, 200)] // comprimento em cm
+        public int Length { get; set; } = 20; // 20cm padrão
         
         public List<string> Tags { get; set; } = new List<string>();
         

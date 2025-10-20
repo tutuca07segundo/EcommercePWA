@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
 using EcommercePWA.Attributes;
-using EcommercePWA.Constants;
 using System.Text.Json;
 
 namespace EcommercePWA.Controllers

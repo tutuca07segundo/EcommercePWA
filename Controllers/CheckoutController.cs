@@ -221,6 +221,7 @@ namespace EcommercePWA.Controllers
                     if (pixData.Success)
                     {
                         model.PixCode = pixData.PixCode;
+                        model.PixQRCodeBase64 = pixData.QRCodeBase64;
                         model.PixExpirationTime = pixData.DataVencimento;
                         model.ShowPixQrCode = true;
                     }

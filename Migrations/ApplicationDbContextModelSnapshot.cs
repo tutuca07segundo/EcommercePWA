@@ -513,9 +513,6 @@ namespace EcommercePWA.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("Rating")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("StockQuantity")
                         .HasColumnType("INTEGER");
 
@@ -854,12 +851,9 @@ namespace EcommercePWA.Migrations
 
             modelBuilder.Entity("EcommercePWA.Models.Product", b =>
                 {
-                    b.HasOne("EcommercePWA.Models.Subcategory", "Subcategory")
+                    b.HasOne("EcommercePWA.Models.Subcategory", null)
                         .WithMany("Products")
-                        .HasForeignKey("SubcategoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Subcategory");
+                        .HasForeignKey("SubcategoryId");
                 });
 
             modelBuilder.Entity("EcommercePWA.Models.ProductDiscount", b =>
@@ -895,7 +889,7 @@ namespace EcommercePWA.Migrations
             modelBuilder.Entity("EcommercePWA.Models.Review", b =>
                 {
                     b.HasOne("EcommercePWA.Models.Product", "Product")
-                        .WithMany("Reviews")
+                        .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -981,8 +975,6 @@ namespace EcommercePWA.Migrations
                     b.Navigation("OrderItems");
 
                     b.Navigation("ProductDiscounts");
-
-                    b.Navigation("Reviews");
 
                     b.Navigation("Variations");
 

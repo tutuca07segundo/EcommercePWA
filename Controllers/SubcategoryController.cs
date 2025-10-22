@@ -213,11 +213,7 @@ namespace EcommercePWA.Controllers
             
             if (subcategory != null)
             {
-                // Remove a subcategoria dos produtos antes de deletar
-                foreach (var product in subcategory.Products)
-                {
-                    product.SubcategoryId = null;
-                }
+                // Subcategory removida - não há mais produtos vinculados
                 
                 _context.Subcategories.Remove(subcategory);
                 await _context.SaveChangesAsync();

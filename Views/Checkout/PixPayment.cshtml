@@ -18,24 +18,26 @@
                         <strong>Escaneie o QR Code abaixo com o app do seu banco para realizar o pagamento</strong>
                     </div>
 
-                    <!-- DEBUG: Mostrar se PixCode existe -->
-                    @if (string.IsNullOrEmpty(Model.PixCode))
-                    {
-                        <div class="alert alert-danger">
-                            <strong>DEBUG:</strong> Model.PixCode está vazio ou nulo!
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-success">
-                            <strong>DEBUG:</strong> Model.PixCode tem @Model.PixCode.Length caracteres
-                        </div>
-                    }
-
                     <!-- QR Code Section -->
                     <div class="qr-code-section mb-4">
                         <div class="qr-code-container p-4 border rounded bg-white d-inline-block">
-                            <div id="qrcode"></div>
+                            @if (!string.IsNullOrEmpty(Model.PixQRCodeBase64))
+                            {
+                                <img src="data:image/png;base64,@Model.PixQRCodeBase64" 
+                                     alt="QR Code PIX" 
+                                     style="width: 250px; height: 250px;" 
+                                     class="img-fluid" />
+                            }
+                            else if (!string.IsNullOrEmpty(Model.PixCode))
+                            {
+                                <div id="qrcode">
+                                    <canvas id="qrCanvas" style="width: 250px; height: 250px;"></canvas>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-danger">Erro ao gerar QR Code</div>
+                            }
                         </div>
                         <p class="mt-3 text-muted">
                             <small>Use o aplicativo do seu banco para escanear o código QR</small>
@@ -183,41 +185,68 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script>
-        // Gerar QR Code
+        // Gerar QR Code (apenas se não houver base64)
         document.addEventListener('DOMContentLoaded', function() {
-            const pixCode = '@Model.PixCode';
-            const qrCodeContainer = document.getElementById('qrcode');
+            const hasQRCodeBase64 = '@Model.PixQRCodeBase64' !== '';
             
-            console.log('Código PIX:', pixCode);
-            console.log('Container QR Code:', qrCodeContainer);
-            
-            if (!pixCode || pixCode === '') {
-                console.error('Código PIX vazio!');
-                qrCodeContainer.innerHTML = '<div class="alert alert-danger">Erro: Código PIX não foi gerado</div>';
+            // Se já temos QR Code base64, não precisa gerar
+            if (hasQRCodeBase64) {
+                console.log('QR Code carregado do backend (base64)');
                 return;
             }
             
-            // Criar canvas
-            const canvas = document.createElement('canvas');
-            qrCodeContainer.appendChild(canvas);
+            // Tentar gerar via JavaScript como fallback
+            const pixCode = '@Html.Raw(Model.PixCode)';
+            const canvas = document.getElementById('qrCanvas');
             
-            // Gerar QR Code no canvas
-            QRCode.toCanvas(canvas, pixCode, {
-                width: 200,
-                height: 200,
-                margin: 2,
-                color: {
-                    dark: '#000000',
-                    light: '#FFFFFF'
+            console.log('Tentando gerar QR Code via JavaScript...');
+            console.log('Código PIX:', pixCode);
+            console.log('Canvas:', canvas);
+            
+            if (!pixCode || pixCode === '') {
+                console.error('Código PIX vazio!');
+                const qrcodeDiv = document.getElementById('qrcode');
+                if (qrcodeDiv) {
+                    qrcodeDiv.innerHTML = '<div class="alert alert-danger">Erro: Código PIX não foi gerado</div>';
                 }
-            }, function (error) {
-                if (error) {
-                    console.error('Erro ao gerar QR Code:', error);
-                    qrCodeContainer.innerHTML = '<div class="alert alert-danger">Erro ao gerar QR Code: ' + error.message + '</div>';
-                } else {
-                    console.log('QR Code gerado com sucesso!');
-                }
-            });
+                return;
+            }
+            
+            if (!canvas) {
+                console.error('Canvas não encontrado!');
+                return;
+            }
+            
+            // Verificar se a biblioteca QRCode está disponível
+            if (typeof QRCode === 'undefined') {
+                console.error('Biblioteca QRCode.js não carregada!');
+                document.getElementById('qrcode').innerHTML = '<div class="alert alert-warning">Biblioteca QR Code não disponível. Use o código PIX abaixo.</div>';
+                return;
+            }
+            
+            try {
+                // Gerar QR Code no canvas usando a biblioteca QRCode.js
+                QRCode.toCanvas(canvas, pixCode, {
+                    width: 250,
+                    height: 250,
+                    margin: 2,
+                    errorCorrectionLevel: 'M',
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
+                }, function (error) {
+                    if (error) {
+                        console.error('Erro ao gerar QR Code:', error);
+                        document.getElementById('qrcode').innerHTML = '<div class="alert alert-danger">Erro ao gerar QR Code. Use o código PIX abaixo.</div>';
+                    } else {
+                        console.log('QR Code gerado com sucesso via JavaScript!');
+                    }
+                });
+            } catch (err) {
+                console.error('Exceção ao gerar QR Code:', err);
+                document.getElementById('qrcode').innerHTML = '<div class="alert alert-danger">Erro ao gerar QR Code. Use o código PIX abaixo.</div>';
+            }
         });
 
         // Timer countdown

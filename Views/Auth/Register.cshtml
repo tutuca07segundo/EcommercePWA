@@ -22,14 +22,14 @@
                             <label asp-for="Name" class="form-label">
                                 <i class="fas fa-user me-2"></i>@Html.DisplayNameFor(m => m.Name)
                             </label>
-                            <input asp-for="Name" class="form-control" autocomplete="off" />
+                            <input asp-for="Name" class="form-control" autocomplete="name" />
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label">
                                 <i class="fas fa-envelope me-2"></i>@Html.DisplayNameFor(m => m.Email)
                             </label>
-                            <input asp-for="Email" class="form-control" autocomplete="off" />
+                            <input asp-for="Email" class="form-control" autocomplete="email" />
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
                         <div class="mb-3">

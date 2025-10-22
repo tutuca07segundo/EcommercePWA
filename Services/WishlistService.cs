@@ -17,8 +17,6 @@ namespace EcommercePWA.Services
         {
             return await _context.WishlistItems
                 .Include(w => w.Product)
-                    .ThenInclude(p => p.Subcategory)
-                        .ThenInclude(s => s.Category)
                 .Include(w => w.ProductVariation)
                 .Where(w => w.UserId == userId)
                 .OrderByDescending(w => w.AddedAt)

@@ -864,6 +864,30 @@
         <member name="M:EcommercePWA.Migrations.AddShippingCostToCart.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:EcommercePWA.Migrations.RemoveSubcategoryAndRating">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.RemoveSubcategoryAndRating.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.RemoveSubcategoryAndRating.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.RemoveSubcategoryAndRating.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:EcommercePWA.Migrations.RemoveSubcategoryReferences">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.RemoveSubcategoryReferences.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.RemoveSubcategoryReferences.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:EcommercePWA.Migrations.RemoveSubcategoryReferences.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:EcommercePWA.Models.CartTotals">
             <summary>
             Modelo para encapsular todos os cálculos de totais do carrinho

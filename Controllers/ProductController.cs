@@ -447,5 +447,26 @@ namespace EcommercePWA.Controllers
                 product.HasDiscount = false;
             }
         }
+
+        // GET: /Product/GetBrandsByCategory
+        [HttpGet]
+        public async Task<IActionResult> GetBrandsByCategory(string category)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(category))
+                {
+                    return Json(new List<string>());
+                }
+
+                var brands = await _productService.GetBrandsByCategoryAsync(category);
+                return Json(brands);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar marcas da categoria: {Category}", category);
+                return Json(new List<string>());
+            }
+        }
     }
 }

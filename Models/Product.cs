@@ -23,10 +23,9 @@ namespace EcommercePWA.Models
         [StringLength(50)]
         public string Category { get; set; } = string.Empty;
         
+        [Required(ErrorMessage = "A marca é obrigatória")]
         [StringLength(50)]
         public string Brand { get; set; } = string.Empty;
-        
-        public int? SubcategoryId { get; set; }
         
         [StringLength(500)]
         public string ImageUrl { get; set; } = string.Empty;
@@ -61,7 +60,6 @@ namespace EcommercePWA.Models
         
         // Navigation properties
         public virtual List<ProductDiscount> ProductDiscounts { get; set; } = new();
-        public virtual Subcategory? Subcategory { get; set; }
         public virtual List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public virtual List<CartItem> CartItems { get; set; } = new List<CartItem>();
         public virtual List<WishlistItem> WishlistItems { get; set; } = new List<WishlistItem>();

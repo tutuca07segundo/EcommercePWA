@@ -109,12 +109,7 @@ namespace EcommercePWA.Data
                 .HasForeignKey(s => s.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configuração do relacionamento Product -> Subcategory
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.Subcategory)
-                .WithMany(s => s.Products)
-                .HasForeignKey(p => p.SubcategoryId)
-                .OnDelete(DeleteBehavior.SetNull);
+            // Relacionamento Product -> Subcategory removido (agora usando Brand)
 
             // Configuração do Discount
             modelBuilder.Entity<Discount>()

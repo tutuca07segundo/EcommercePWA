@@ -59,6 +59,7 @@ namespace EcommercePWA.Models
         
         // PIX Information
         public string? PixCode { get; set; }
+        public string? PixQRCodeBase64 { get; set; }
         public DateTime? PixExpirationTime { get; set; }
         public bool ShowPixQrCode { get; set; } = false;
         

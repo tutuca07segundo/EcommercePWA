@@ -24,34 +24,34 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label asp-for="ShippingName" class="form-label">Nome Completo *</label>
-                                    <input asp-for="ShippingName" class="form-control" required>
+                                    <input asp-for="ShippingName" class="form-control" required autocomplete="name">
                                     <span asp-validation-for="ShippingName" class="text-danger"></span>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label asp-for="ShippingPhone" class="form-label">Telefone *</label>
-                                    <input asp-for="ShippingPhone" class="form-control" required>
+                                    <input asp-for="ShippingPhone" class="form-control" required autocomplete="tel">
                                     <span asp-validation-for="ShippingPhone" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label asp-for="ShippingAddress" class="form-label">Endereço *</label>
-                                <input asp-for="ShippingAddress" class="form-control" required>
+                                <input asp-for="ShippingAddress" class="form-control" required autocomplete="street-address">
                                 <span asp-validation-for="ShippingAddress" class="text-danger"></span>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label asp-for="ShippingCity" class="form-label">Cidade *</label>
-                                    <input asp-for="ShippingCity" class="form-control" required>
+                                    <input asp-for="ShippingCity" class="form-control" required autocomplete="address-level2">
                                     <span asp-validation-for="ShippingCity" class="text-danger"></span>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label asp-for="ShippingZipCode" class="form-label">CEP *</label>
-                                    <input asp-for="ShippingZipCode" class="form-control" required>
+                                    <input asp-for="ShippingZipCode" class="form-control" required autocomplete="postal-code">
                                     <span asp-validation-for="ShippingZipCode" class="text-danger"></span>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label asp-for="ShippingCountry" class="form-label">País *</label>
-                                    <input asp-for="ShippingCountry" class="form-control" value="Brasil" required>
+                                    <input asp-for="ShippingCountry" class="form-control" value="Brasil" required autocomplete="country-name">
                                     <span asp-validation-for="ShippingCountry" class="text-danger"></span>
                                 </div>
                             </div>
@@ -79,24 +79,24 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="CardNumber" class="form-label">Número do Cartão *</label>
-                                        <input asp-for="CardNumber" class="form-control card-field" placeholder="1234 5678 9012 3456">
+                                        <input asp-for="CardNumber" class="form-control card-field" placeholder="1234 5678 9012 3456" autocomplete="cc-number">
                                         <span asp-validation-for="CardNumber" class="text-danger"></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="CardName" class="form-label">Nome no Cartão *</label>
-                                        <input asp-for="CardName" class="form-control card-field" placeholder="Como está impresso no cartão">
+                                        <input asp-for="CardName" class="form-control card-field" placeholder="Como está impresso no cartão" autocomplete="cc-name">
                                         <span asp-validation-for="CardName" class="text-danger"></span>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label asp-for="CardExpiry" class="form-label">Validade *</label>
-                                        <input asp-for="CardExpiry" class="form-control card-field" placeholder="MM/AA">
+                                        <input asp-for="CardExpiry" class="form-control card-field" placeholder="MM/AA" autocomplete="cc-exp">
                                         <span asp-validation-for="CardExpiry" class="text-danger"></span>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label asp-for="CardCvv" class="form-label">CVV *</label>
-                                        <input asp-for="CardCvv" class="form-control card-field" placeholder="123">
+                                        <input asp-for="CardCvv" class="form-control card-field" placeholder="123" autocomplete="cc-csc">
                                         <span asp-validation-for="CardCvv" class="text-danger"></span>
                                     </div>
                                     <div class="col-md-4 mb-3">

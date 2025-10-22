@@ -19,6 +19,7 @@ namespace EcommercePWA.Services
         Task<FilteredProductsResult> FilterProductsAsync(ProductFilterModel filter);
         Task<ProductFilterOptions> GetFilterOptionsAsync();
         Task<List<SearchSuggestion>> GetSearchSuggestionsAsync(string searchTerm, int maxResults = 5);
+        Task<List<string>> GetBrandsByCategoryAsync(string category);
         
         // CRUD Operations
         Task<Product> CreateProductAsync(Product product);
@@ -686,6 +687,27 @@ namespace EcommercePWA.Services
             {
                 _logger.LogError(ex, "Erro ao obter sugestões de busca");
                 return new List<SearchSuggestion>();
+            }
+        }
+
+        public async Task<List<string>> GetBrandsByCategoryAsync(string category)
+        {
+            try
+            {
+                var brands = await _context.Products
+                    .AsNoTracking()
+                    .Where(p => p.Category == category)
+                    .Select(p => p.Brand)
+                    .Distinct()
+                    .OrderBy(b => b)
+                    .ToListAsync();
+
+                return brands;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar marcas da categoria: {Category}", category);
+                return new List<string>();
             }
         }
     }

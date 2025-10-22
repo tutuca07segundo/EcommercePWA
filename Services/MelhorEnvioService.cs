@@ -148,37 +148,71 @@ namespace EcommercePWA.Services
 
         private List<ShippingQuote> GetFallbackQuotes(ShippingCalculationRequest request)
         {
-            // Fallback com cotações simuladas REALISTAS baseadas no peso total
+            // Fallback com cotações simuladas REALISTAS baseadas no peso total E distância
             var totalWeight = request.Products.Sum(p => p.Weight * p.Quantity); // em gramas
             var totalValue = request.Products.Sum(p => p.Value * p.Quantity);
+            
+            // Calcular distância aproximada baseada no CEP (primeiros 2 dígitos)
+            var distanceMultiplier = CalculateDistanceMultiplier(request.FromCep, request.ToCep);
 
-            _logger.LogInformation($"Fallback: Peso total = {totalWeight}g, Valor total = R$ {totalValue:N2}");
+            _logger.LogInformation($"Fallback: Peso total = {totalWeight}g, Valor total = R$ {totalValue:N2}, Multiplicador distância = {distanceMultiplier}");
 
             var quotes = new List<ShippingQuote>();
 
-            // PAC simulado - preços realistas
+            // PAC simulado - preços realistas com distância
             quotes.Add(new ShippingQuote
             {
                 Id = 1,
                 Name = "PAC",
                 Company = "Correios",
-                Price = CalculateFallbackPrice(totalWeight, totalValue, 1.0m),
-                DeliveryTime = 8,
-                DeliveryRange = "8 a 12 dias úteis"
+                Price = CalculateFallbackPrice(totalWeight, totalValue, 1.0m * distanceMultiplier),
+                DeliveryTime = (int)(8 * distanceMultiplier),
+                DeliveryRange = $"{(int)(8 * distanceMultiplier)} a {(int)(12 * distanceMultiplier)} dias úteis"
             });
 
-            // SEDEX simulado - preços realistas
+            // SEDEX simulado - preços realistas com distância
             quotes.Add(new ShippingQuote
             {
                 Id = 2,
                 Name = "SEDEX",
                 Company = "Correios",
-                Price = CalculateFallbackPrice(totalWeight, totalValue, 1.8m),
-                DeliveryTime = 3,
-                DeliveryRange = "3 a 5 dias úteis"
+                Price = CalculateFallbackPrice(totalWeight, totalValue, 1.8m * distanceMultiplier),
+                DeliveryTime = (int)(3 * distanceMultiplier),
+                DeliveryRange = $"{(int)(3 * distanceMultiplier)} a {(int)(5 * distanceMultiplier)} dias úteis"
             });
 
             return quotes;
+        }
+        
+        private decimal CalculateDistanceMultiplier(string fromCep, string toCep)
+        {
+            try
+            {
+                // Extrair primeiros 2 dígitos do CEP (região)
+                var fromRegion = int.Parse(fromCep.Replace("-", "").Substring(0, 2));
+                var toRegion = int.Parse(toCep.Replace("-", "").Substring(0, 2));
+                
+                // Calcular diferença entre regiões
+                var regionDiff = Math.Abs(fromRegion - toRegion);
+                
+                // Multiplicador baseado na distância entre regiões
+                // Mesma região (0-5): 1.0x
+                // Região próxima (6-15): 1.2x
+                // Região média (16-30): 1.5x
+                // Região distante (31-50): 2.0x
+                // Região muito distante (51+): 2.5x
+                
+                if (regionDiff <= 5) return 1.0m;
+                if (regionDiff <= 15) return 1.2m;
+                if (regionDiff <= 30) return 1.5m;
+                if (regionDiff <= 50) return 2.0m;
+                return 2.5m;
+            }
+            catch
+            {
+                // Se houver erro, usar multiplicador padrão
+                return 1.0m;
+            }
         }
 
         private decimal CalculateFallbackPrice(decimal totalWeightGrams, decimal totalValue, decimal multiplier)

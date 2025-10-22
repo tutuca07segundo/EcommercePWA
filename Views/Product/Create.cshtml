@@ -22,34 +22,23 @@
                     <form asp-action="Create" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                         
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label asp-for="Name" class="form-label">Nome do Produto *</label>
-                                    <input asp-for="Name" class="form-control" placeholder="Ex: Mouse Gaming Logitech G Pro X" />
-                                    <span asp-validation-for="Name" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label asp-for="Brand" class="form-label">Marca *</label>
-                                    <input asp-for="Brand" class="form-control" placeholder="Ex: Logitech" />
-                                    <span asp-validation-for="Brand" class="text-danger"></span>
-                                </div>
-                            </div>
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Nome do Produto *</label>
+                            <input asp-for="Name" class="form-control" placeholder="Ex: Mouse Gaming Logitech G Pro X" autocomplete="off" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Description" class="form-label">Descrição *</label>
-                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Descreva as características do produto..."></textarea>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Descreva as características do produto..." autocomplete="off"></textarea>
                             <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
 
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label asp-for="Category" class="form-label">Categoria *</label>
-                                    <select asp-for="Category" class="form-select" id="categorySelect">
+                                    <label for="Category" class="form-label">Categoria *</label>
+                                    <select asp-for="Category" class="form-select" id="Category" autocomplete="off">
                                         <option value="">Selecione uma categoria</option>
                                         @foreach (var category in ViewBag.Categories)
                                         {
@@ -61,17 +50,17 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label asp-for="SubcategoryId" class="form-label">Subcategoria (Marca)</label>
-                                    <select asp-for="SubcategoryId" class="form-select" id="subcategorySelect" disabled>
+                                    <label asp-for="Brand" class="form-label">Marca *</label>
+                                    <select asp-for="Brand" class="form-select" id="BrandSelect" disabled autocomplete="off">
                                         <option value="">Primeiro selecione uma categoria</option>
                                     </select>
-                                    <span asp-validation-for="SubcategoryId" class="text-danger"></span>
+                                    <span asp-validation-for="Brand" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label asp-for="Type" class="form-label">Tipo *</label>
-                                    <select asp-for="Type" class="form-select">
+                                    <select asp-for="Type" class="form-select" autocomplete="off">
                                         <option value="">Selecione o tipo</option>
                                         <option value="Periférico">Periférico</option>
                                         <option value="Peça">Peça</option>
@@ -83,7 +72,7 @@
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label asp-for="StockQuantity" class="form-label">Quantidade em Estoque *</label>
-                                    <input asp-for="StockQuantity" class="form-control" type="number" min="0" placeholder="0" />
+                                    <input asp-for="StockQuantity" class="form-control" type="number" min="0" placeholder="0" autocomplete="off" />
                                     <span asp-validation-for="StockQuantity" class="text-danger"></span>
                                 </div>
                             </div>
@@ -95,7 +84,7 @@
                                     <label asp-for="Price" class="form-label">Preço (R$) *</label>
                                     <div class="input-group">
                                         <span class="input-group-text">R$</span>
-                                        <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" placeholder="0.00" />
+                                        <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" placeholder="0.00" autocomplete="off" />
                                     </div>
                                     <span asp-validation-for="Price" class="text-danger"></span>
                                 </div>
@@ -103,7 +92,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="ImageUrl" class="form-label">URL da Imagem</label>
-                                    <input asp-for="ImageUrl" class="form-control" placeholder="https://exemplo.com/imagem.jpg" />
+                                    <input asp-for="ImageUrl" class="form-control" placeholder="https://exemplo.com/imagem.jpg" autocomplete="url" />
                                     <span asp-validation-for="ImageUrl" class="text-danger"></span>
                                     <small class="form-text text-muted">Deixe em branco para usar imagem padrão</small>
                                 </div>
@@ -121,7 +110,7 @@
                                         <div class="mb-3">
                                             <label asp-for="Weight" class="form-label">Peso (gramas) *</label>
                                             <div class="input-group">
-                                                <input asp-for="Weight" class="form-control" type="number" step="0.01" min="0.01" max="50000" placeholder="500" />
+                                                <input asp-for="Weight" class="form-control" type="number" step="0.01" min="0.01" max="50000" placeholder="500" autocomplete="off" />
                                                 <span class="input-group-text">g</span>
                                             </div>
                                             <span asp-validation-for="Weight" class="text-danger"></span>
@@ -132,7 +121,7 @@
                                         <div class="mb-3">
                                             <label asp-for="Width" class="form-label">Largura (cm) *</label>
                                             <div class="input-group">
-                                                <input asp-for="Width" class="form-control" type="number" min="1" max="200" placeholder="20" />
+                                                <input asp-for="Width" class="form-control" type="number" min="1" max="200" placeholder="20" autocomplete="off" />
                                                 <span class="input-group-text">cm</span>
                                             </div>
                                             <span asp-validation-for="Width" class="text-danger"></span>
@@ -142,7 +131,7 @@
                                         <div class="mb-3">
                                             <label asp-for="Height" class="form-label">Altura (cm) *</label>
                                             <div class="input-group">
-                                                <input asp-for="Height" class="form-control" type="number" min="1" max="200" placeholder="15" />
+                                                <input asp-for="Height" class="form-control" type="number" min="1" max="200" placeholder="15" autocomplete="off" />
                                                 <span class="input-group-text">cm</span>
                                             </div>
                                             <span asp-validation-for="Height" class="text-danger"></span>
@@ -152,7 +141,7 @@
                                         <div class="mb-3">
                                             <label asp-for="Length" class="form-label">Comprimento (cm) *</label>
                                             <div class="input-group">
-                                                <input asp-for="Length" class="form-control" type="number" min="1" max="200" placeholder="25" />
+                                                <input asp-for="Length" class="form-control" type="number" min="1" max="200" placeholder="25" autocomplete="off" />
                                                 <span class="input-group-text">cm</span>
                                             </div>
                                             <span asp-validation-for="Length" class="text-danger"></span>
@@ -169,7 +158,7 @@
 
                         <div class="mb-3">
                             <label asp-for="Tags" class="form-label">Tags</label>
-                            <input asp-for="Tags" class="form-control" placeholder="gaming, wireless, leve (separadas por vírgula)" />
+                            <input asp-for="Tags" class="form-control" placeholder="gaming, wireless, leve (separadas por vírgula)" autocomplete="off" />
                             <span asp-validation-for="Tags" class="text-danger"></span>
                             <small class="form-text text-muted">Separe as tags por vírgula</small>
                         </div>
@@ -206,8 +195,8 @@
         // Converter string de tags para array e vice-versa
         document.addEventListener('DOMContentLoaded', function() {
             const tagsInput = document.querySelector('input[name="Tags"]');
-            const categorySelect = document.getElementById('categorySelect');
-            const subcategorySelect = document.getElementById('subcategorySelect');
+            const categorySelect = document.getElementById('Category');
+            const subcategorySelect = document.getElementById('SubcategoryId');
             
             // Converter array para string ao carregar
             if (tagsInput.value && tagsInput.value.startsWith('[')) {
@@ -219,36 +208,59 @@
                 }
             }
 
-            // Carregar subcategorias quando categoria for selecionada
+            const brandSelect = document.getElementById('BrandSelect');
+            
+            // Carregar marcas quando categoria for selecionada
             categorySelect.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                const categoryId = selectedOption.getAttribute('data-category-id');
+                const categoryName = this.value;
                 
-                if (categoryId) {
-                    // Habilitar select de subcategoria
-                    subcategorySelect.disabled = false;
-                    subcategorySelect.innerHTML = '<option value="">Carregando...</option>';
+                if (categoryName) {
+                    // Habilitar select de marca
+                    brandSelect.disabled = false;
+                    brandSelect.innerHTML = '<option value="">Carregando...</option>';
                     
-                    // Buscar subcategorias via AJAX
-                    fetch(`/Subcategory/GetByCategory?categoryId=${categoryId}`)
+                    // Buscar marcas da categoria via AJAX
+                    fetch(`/Product/GetBrandsByCategory?category=${encodeURIComponent(categoryName)}`)
                         .then(response => response.json())
                         .then(data => {
-                            subcategorySelect.innerHTML = '<option value="">Selecione uma subcategoria (opcional)</option>';
-                            data.forEach(subcategory => {
+                            brandSelect.innerHTML = '<option value="">Selecione uma marca</option>';
+                            data.forEach(brand => {
                                 const option = document.createElement('option');
-                                option.value = subcategory.id;
-                                option.textContent = subcategory.name;
-                                subcategorySelect.appendChild(option);
+                                option.value = brand;
+                                option.textContent = brand;
+                                brandSelect.appendChild(option);
                             });
+                            // Adicionar opção "Outra"
+                            const otherOption = document.createElement('option');
+                            otherOption.value = 'other';
+                            otherOption.textContent = '+ Adicionar nova marca';
+                            brandSelect.appendChild(otherOption);
                         })
                         .catch(error => {
-                            console.error('Erro ao carregar subcategorias:', error);
-                            subcategorySelect.innerHTML = '<option value="">Erro ao carregar subcategorias</option>';
+                            console.error('Erro ao carregar marcas:', error);
+                            brandSelect.innerHTML = '<option value="">Erro ao carregar marcas</option>';
                         });
                 } else {
-                    // Desabilitar select de subcategoria
-                    subcategorySelect.disabled = true;
-                    subcategorySelect.innerHTML = '<option value="">Primeiro selecione uma categoria</option>';
+                    // Desabilitar select de marca
+                    brandSelect.disabled = true;
+                    brandSelect.innerHTML = '<option value="">Primeiro selecione uma categoria</option>';
+                }
+            });
+            
+            // Permitir adicionar nova marca
+            brandSelect.addEventListener('change', function() {
+                if (this.value === 'other') {
+                    const newBrand = prompt('Digite o nome da nova marca:');
+                    if (newBrand && newBrand.trim()) {
+                        const option = document.createElement('option');
+                        option.value = newBrand.trim();
+                        option.textContent = newBrand.trim();
+                        option.selected = true;
+                        // Inserir antes da opção "Outra"
+                        this.insertBefore(option, this.lastElementChild);
+                    } else {
+                        this.value = '';
+                    }
                 }
             });
         });

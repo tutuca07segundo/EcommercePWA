@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
 
 namespace EcommercePWA.Controllers.Api
 {
-
+    /// <summary>
+    /// API de Produtos - Catálogo e Categorias
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
@@ -17,6 +19,15 @@ namespace EcommercePWA.Controllers.Api
             _productService = productService;
         }
 
+        /// <summary>
+        /// Lista produtos com filtros opcionais
+        /// </summary>
+        /// <param name="search">Termo de busca (nome, descrição, marca)</param>
+        /// <param name="categoryId">ID da categoria para filtrar</param>
+        /// <param name="sortBy">Ordenação: name, price, rating</param>
+        /// <returns>Lista de produtos</returns>
+        /// <response code="200">Lista de produtos retornada com sucesso</response>
+        /// <response code="400">Erro ao buscar produtos</response>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<Product>), 200)]
         public async Task<IActionResult> GetProducts(
@@ -37,6 +48,13 @@ namespace EcommercePWA.Controllers.Api
             }
         }
 
+        /// <summary>
+        /// Obtém detalhes de um produto específico
+        /// </summary>
+        /// <param name="id">ID do produto</param>
+        /// <returns>Dados completos do produto</returns>
+        /// <response code="200">Produto encontrado</response>
+        /// <response code="404">Produto não encontrado</response>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(Product), 200)]
         [ProducesResponseType(404)]
@@ -56,6 +74,11 @@ namespace EcommercePWA.Controllers.Api
             }
         }
 
+        /// <summary>
+        /// Lista todas as categorias de produtos
+        /// </summary>
+        /// <returns>Lista de categorias</returns>
+        /// <response code="200">Lista de categorias retornada com sucesso</response>
         [HttpGet("categories")]
         [ProducesResponseType(typeof(IEnumerable<Category>), 200)]
         public async Task<IActionResult> GetCategories()

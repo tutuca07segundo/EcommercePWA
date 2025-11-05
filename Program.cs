@@ -1,4 +1,4 @@
-﻿using EcommercePWA.Services;
+using EcommercePWA.Services;
 using EcommercePWA.Data;
 using Microsoft.EntityFrameworkCore;
 using EcommercePWA.Models;
@@ -62,29 +62,63 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Kaboom E-commerce API",
         Version = "v2.0",
-        Description = @"API REST completa para o e-commerce Kaboom - Periféricos e Peças de Computador
-        
-        **Funcionalidades Principais:**
-        - 🔐 Sistema de autenticação completo
-        - 🛒 Gerenciamento de carrinho de compras
-        - 📦 Catálogo de produtos com filtros avançados
-        - 💳 Integração com Mercado Pago
-        - 🤖 Chatbot inteligente
-        - 📊 Sistema de pedidos e rastreamento
-        - 🎯 Sistema de cupons e promoções
-        - ❤️ Lista de desejos
-        - ⭐ Sistema de avaliações
-        
-        **Tecnologias:**
-        - ASP.NET Core 9.0
-        - Entity Framework Core
-        - SQLite Database
-        - SignalR para tempo real
-        - Mercado Pago SDK
-        
-        **Ambientes:**
-        - Desenvolvimento: http://localhost:5005
-        - Swagger UI: http://localhost:5005/swagger",
+        Description = @"API REST Completa - E-commerce Kaboom
+
+VISÃO GERAL
+API completa para gerenciamento de e-commerce de periféricos e peças de computador.
+
+AUTENTICAÇÃO
+Esta API usa autenticação baseada em sessão HTTP. Para usar endpoints protegidos:
+
+1. Faça login através do endpoint POST /api/AuthApi/login
+2. Use as credenciais padrão:
+   - Email: admin@kaboom.com
+   - Senha: admin123
+3. A sessão será mantida automaticamente nos cookies
+
+FUNCIONALIDADES PRINCIPAIS
+
+Autenticação (AuthApi)
+- Login e registro de usuários
+- Gerenciamento de sessões
+- Controle de acesso (admin/user)
+
+Carrinho (CartApi)
+- Adicionar/remover produtos
+- Gerenciar quantidades
+- Aplicar cupons de desconto
+- Calcular frete
+
+Produtos (ProductApi)
+- Catálogo completo de produtos
+- Busca e filtros avançados
+- Categorias e subcategorias
+- Variações de produtos
+
+Pedidos (OrderApi)
+- Criar e gerenciar pedidos
+- Rastreamento de entregas
+- Histórico de compras
+
+Lista de Desejos (WishlistApi)
+- Adicionar produtos favoritos
+- Transferir para carrinho
+
+TECNOLOGIAS
+- Framework: ASP.NET Core 9.0
+- Banco de Dados: SQLite + Entity Framework Core
+- Pagamentos: Mercado Pago SDK
+- Frete: Melhor Envio API
+- Real-time: SignalR
+
+AMBIENTES
+- Desenvolvimento: http://localhost:5005
+- Swagger UI: http://localhost:5005/swagger
+- API Base: http://localhost:5005/api
+
+CONTATO
+- Email: admin@kaboom.com
+- GitHub: https://github.com/tutuca07segundo/EcommercePWA",
         Contact = new Microsoft.OpenApi.Models.OpenApiContact
         {
             Name = "Kaboom Development Team",
@@ -98,39 +132,36 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
+    // Organizar endpoints por controller
     c.TagActionsBy(api => new[] { api.GroupName ?? api.ActionDescriptor.RouteValues["controller"] });
     c.DocInclusionPredicate((name, api) => true);
 
+    // Incluir comentários XML
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))
     {
-        c.IncludeXmlComments(xmlPath);
+        c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
     }
 
+    // Configuração de autenticação (apenas informativa)
     c.AddSecurityDefinition("Session", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
-        Description = "Autenticação baseada em sessão. Faça login primeiro através do endpoint /api/AuthApi/login",
-        Name = "Session",
+        Description = @"Autenticação baseada em sessão HTTP
+        
+Para autenticar:
+1. Use o endpoint POST /api/AuthApi/login
+2. Credenciais padrão: admin@kaboom.com / admin123
+3. A sessão será mantida automaticamente via cookies
+4. Não é necessário preencher o campo 'Value' abaixo - é apenas informativo",
+        Name = "ASP.NET_SessionId",
         In = Microsoft.OpenApi.Models.ParameterLocation.Cookie,
         Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
         Scheme = "Session"
     });
     
-    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Session"
-                }
-            },
-            new string[] {}
-        }
-    });
+    // Não aplicar security requirement globalmente - apenas informativo
+    // Os endpoints protegidos usam [RequireAuth] no backend
 });
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>

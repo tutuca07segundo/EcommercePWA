@@ -4,6 +4,209 @@
         <name>EcommercePWA</name>
     </assembly>
     <members>
+        <member name="T:EcommercePWA.Controllers.Api.AuthApiController">
+            <summary>
+            API de Autenticação - Login e Registro de Usuários
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.AuthApiController.Login(EcommercePWA.Controllers.Api.LoginRequest)">
+            <summary>
+            Realiza login de usuário
+            </summary>
+            <param name="request">Credenciais de login (email e senha)</param>
+            <returns>Dados do usuário autenticado</returns>
+            <response code="200">Login realizado com sucesso</response>
+            <response code="400">Dados inválidos</response>
+            <response code="401">Credenciais incorretas</response>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.AuthApiController.Register(EcommercePWA.Controllers.Api.RegisterRequest)">
+            <summary>
+            Registra um novo usuário
+            </summary>
+            <param name="request">Dados do novo usuário (nome, email, senha)</param>
+            <returns>Confirmação de registro</returns>
+            <response code="200">Usuário registrado com sucesso</response>
+            <response code="400">Erro ao registrar (email já existe ou dados inválidos)</response>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.LoginRequest">
+            <summary>
+            Modelo de requisição de login
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginRequest.Email">
+            <summary>
+            Email do usuário
+            </summary>
+            <example>admin@kaboom.com</example>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginRequest.Password">
+            <summary>
+            Senha do usuário
+            </summary>
+            <example>admin123</example>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.LoginResponse">
+            <summary>
+            Resposta de login bem-sucedido
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginResponse.UserId">
+            <summary>
+            ID do usuário
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginResponse.Name">
+            <summary>
+            Nome do usuário
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginResponse.Email">
+            <summary>
+            Email do usuário
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginResponse.Role">
+            <summary>
+            Papel do usuário (admin ou user)
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.LoginResponse.Success">
+            <summary>
+            Indica se o login foi bem-sucedido
+            </summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.RegisterRequest">
+            <summary>
+            Modelo de requisição de registro
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.RegisterRequest.Name">
+            <summary>
+            Nome completo do usuário
+            </summary>
+            <example>João Silva</example>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.RegisterRequest.Email">
+            <summary>
+            Email do usuário
+            </summary>
+            <example>joao@email.com</example>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.RegisterRequest.Password">
+            <summary>
+            Senha (mínimo 6 caracteres)
+            </summary>
+            <example>senha123</example>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.RegisterResponse">
+            <summary>
+            Resposta de registro
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.RegisterResponse.Success">
+            <summary>
+            Indica se o registro foi bem-sucedido
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.RegisterResponse.Message">
+            <summary>
+            Mensagem de confirmação ou erro
+            </summary>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.CartApiController">
+            <summary>
+            API de Carrinho de Compras
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.CartApiController.AddToCart(EcommercePWA.Controllers.Api.AddToCartRequest)">
+            <summary>
+            Adiciona um produto ao carrinho
+            </summary>
+            <param name="request">Dados do produto (ID, quantidade, variação)</param>
+            <returns>Confirmação de adição</returns>
+            <response code="200">Produto adicionado com sucesso</response>
+            <response code="400">Erro ao adicionar produto</response>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.CartApiController.GetCart(System.String)">
+            <summary>
+            Obtém o carrinho de compras
+            </summary>
+            <param name="sessionId">ID da sessão do usuário</param>
+            <returns>Dados completos do carrinho</returns>
+            <response code="200">Carrinho encontrado</response>
+            <response code="404">Carrinho não encontrado</response>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.CartApiController.RemoveFromCart(System.String,System.Int32)">
+            <summary>
+            Remove um item do carrinho
+            </summary>
+            <param name="sessionId">ID da sessão</param>
+            <param name="itemId">ID do item a remover</param>
+            <returns>Confirmação de remoção</returns>
+            <response code="200">Item removido com sucesso</response>
+            <response code="404">Item não encontrado</response>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.AddToCartRequest">
+            <summary>
+            Modelo de requisição para adicionar ao carrinho
+            </summary>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.AddToCartRequest.SessionId">
+            <summary>
+            ID da sessão do usuário
+            </summary>
+            <example>abc123xyz</example>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.AddToCartRequest.ProductId">
+            <summary>
+            ID do produto
+            </summary>
+            <example>1</example>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.AddToCartRequest.Quantity">
+            <summary>
+            Quantidade do produto
+            </summary>
+            <example>2</example>
+        </member>
+        <member name="P:EcommercePWA.Controllers.Api.AddToCartRequest.VariationId">
+            <summary>
+            ID da variação (opcional - cor, tamanho, etc.)
+            </summary>
+            <example>5</example>
+        </member>
+        <member name="T:EcommercePWA.Controllers.Api.ProductApiController">
+            <summary>
+            API de Produtos - Catálogo e Categorias
+            </summary>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.ProductApiController.GetProducts(System.String,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Lista produtos com filtros opcionais
+            </summary>
+            <param name="search">Termo de busca (nome, descrição, marca)</param>
+            <param name="categoryId">ID da categoria para filtrar</param>
+            <param name="sortBy">Ordenação: name, price, rating</param>
+            <returns>Lista de produtos</returns>
+            <response code="200">Lista de produtos retornada com sucesso</response>
+            <response code="400">Erro ao buscar produtos</response>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.ProductApiController.GetProduct(System.Int32)">
+            <summary>
+            Obtém detalhes de um produto específico
+            </summary>
+            <param name="id">ID do produto</param>
+            <returns>Dados completos do produto</returns>
+            <response code="200">Produto encontrado</response>
+            <response code="404">Produto não encontrado</response>
+        </member>
+        <member name="M:EcommercePWA.Controllers.Api.ProductApiController.GetCategories">
+            <summary>
+            Lista todas as categorias de produtos
+            </summary>
+            <returns>Lista de categorias</returns>
+            <response code="200">Lista de categorias retornada com sucesso</response>
+        </member>
         <member name="T:EcommercePWA.Migrations.InitialCreate">
             <inheritdoc />
         </member>

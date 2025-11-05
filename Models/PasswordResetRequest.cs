@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace EcommercePWA.Models
 {
@@ -19,5 +19,4 @@ namespace EcommercePWA.Models
         public bool Used { get; set; }
     }
 }
-
 

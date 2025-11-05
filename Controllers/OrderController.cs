@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Services;
 using EcommercePWA.Models;
 using EcommercePWA.Attributes;
@@ -20,7 +20,6 @@ namespace EcommercePWA.Controllers
             _logger = logger;
         }
 
-        // GET: /Order/Details/5
         [RequireAuth]
         public async Task<IActionResult> Details(int id)
         {
@@ -31,7 +30,6 @@ namespace EcommercePWA.Controllers
             return View(order);
         }
 
-        // GET: /Order/Edit/5
         [RequireAuth]
         public async Task<IActionResult> Edit(int id)
         {
@@ -42,7 +40,6 @@ namespace EcommercePWA.Controllers
             return View(order);
         }
 
-        // POST: /Order/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -64,7 +61,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Order/UpdateOrder
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -83,7 +79,6 @@ namespace EcommercePWA.Controllers
                     return RedirectToAction("Orders", "Admin");
                 }
 
-                // Atualizar campos
                 order.Status = status;
                 order.PaymentStatus = paymentStatus;
                 order.ShippingAddress = shippingAddress;
@@ -92,7 +87,6 @@ namespace EcommercePWA.Controllers
                 order.ShippingCountry = shippingCountry;
                 order.Notes = notes;
 
-                // Atualizar datas baseado no status
                 if (status == "Shipped" && order.ShippedDate == null)
                 {
                     order.ShippedDate = DateTime.Now;
@@ -104,8 +98,7 @@ namespace EcommercePWA.Controllers
 
                 _context.Orders.Update(order);
                 await _context.SaveChangesAsync();
-                
-                // Criar notificação
+
                 await _orderService.CreateNotification(order.Id, "Pedido Atualizado", 
                     $"Status do pedido alterado para: {status}", "Info");
 
@@ -120,7 +113,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Order/Process/5?status=Shipped
         [RequireAuth]
         public async Task<IActionResult> Process(int id, string status = "Processing")
         {
@@ -136,8 +128,7 @@ namespace EcommercePWA.Controllers
                 }
 
                 await _orderService.UpdateOrderStatus(id, status);
-                
-                // Atualizar status de pagamento se necessário
+
                 if (status == "Processing" && order.PaymentStatus == "Pending")
                 {
                     order.PaymentStatus = "Paid";
@@ -164,7 +155,6 @@ namespace EcommercePWA.Controllers
             return RedirectToAction("Orders", "Admin");
         }
 
-        // GET: /Order/Reports - Relatórios de vendas
         [RequireAuth]
         public async Task<IActionResult> Reports()
         {
@@ -194,20 +184,17 @@ namespace EcommercePWA.Controllers
             return View("Reports", reportItems);
         }
 
-        // GET: /Order/Index - Lista todos os pedidos (APENAS PARA ADMINS)
         [RequireAuth]
         public async Task<IActionResult> Index()
         {
             var userRole = HttpContext.Session.GetString("UserRole");
             var userId = HttpContext.Session.GetInt32("UserId");
-            
-            // VALIDAÇÃO RIGOROSA: Apenas admins podem ver todos os pedidos
+
             if (userRole != "Admin")
             {
                 _logger.LogWarning("Tentativa de acesso não autorizado à lista de todos os pedidos. UserId: {UserId}, Role: {Role}", userId, userRole);
                 TempData["ErrorMessage"] = "❌ Acesso negado! Você não tem permissão para visualizar todos os pedidos.";
-                
-                // Redirecionar usuários comuns para seus próprios pedidos
+
                 return RedirectToAction("MyOrders", "Order");
             }
             
@@ -215,7 +202,6 @@ namespace EcommercePWA.Controllers
             return View("~/Views/Admin/Orders.cshtml", orders);
         }
 
-        // GET: /Order/MyOrders - Lista pedidos do usuário logado (APENAS SEUS PRÓPRIOS PEDIDOS)
         [RequireAuth]
         public async Task<IActionResult> MyOrders()
         {
@@ -228,7 +214,7 @@ namespace EcommercePWA.Controllers
 
             try
             {
-                // VALIDAÇÃO RIGOROSA: Filtrar APENAS pedidos do usuário logado
+
                 var orders = await _context.Orders
                     .Include(o => o.Items)
                     .ThenInclude(oi => oi.Product)
@@ -247,7 +233,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Order/MyOrderDetails/5 - Detalhes do pedido para usuário comum (APENAS SEUS PRÓPRIOS PEDIDOS)
         [RequireAuth]
         public async Task<IActionResult> MyOrderDetails(int id)
         {
@@ -260,7 +245,7 @@ namespace EcommercePWA.Controllers
 
             try
             {
-                // VALIDAÇÃO CRÍTICA: Garantir que o pedido pertence ao usuário logado
+
                 var order = await _context.Orders
                     .Include(o => o.Items)
                     .ThenInclude(oi => oi.Product)
@@ -285,7 +270,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Order/BulkAction - Ações em lote
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -306,7 +290,7 @@ namespace EcommercePWA.Controllers
                 
                 if (action == "Delete")
                 {
-                    // Exclusão de pedidos
+
                     foreach (var orderId in orderIds)
                     {
                         try
@@ -333,7 +317,7 @@ namespace EcommercePWA.Controllers
                 }
                 else
                 {
-                    // Outras ações (status)
+
                     foreach (var orderId in orderIds)
                     {
                         try
@@ -364,7 +348,6 @@ namespace EcommercePWA.Controllers
             return RedirectToAction("Orders", "Admin");
         }
 
-        // GET: /Order/Search - Buscar pedidos
         [RequireAuth]
         public async Task<IActionResult> Search(string query, string status, string paymentStatus, DateTime? startDate, DateTime? endDate)
         {
@@ -411,7 +394,6 @@ namespace EcommercePWA.Controllers
             return View("Index", orders);
         }
 
-        // POST: /Order/Delete - Excluir pedido individual
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -432,10 +414,8 @@ namespace EcommercePWA.Controllers
                     return RedirectToAction("Orders", "Admin");
                 }
 
-                // Remover itens do pedido primeiro
                 _context.OrderItems.RemoveRange(order.Items);
-                
-                // Remover o pedido
+
                 _context.Orders.Remove(order);
                 
                 await _context.SaveChangesAsync();
@@ -462,5 +442,4 @@ namespace EcommercePWA.Controllers
         public List<Order> Orders { get; set; } = new List<Order>();
     }
 }
-
 

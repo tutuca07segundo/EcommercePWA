@@ -1,12 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
 
 namespace EcommercePWA.Controllers.Api
 {
-    /// <summary>
-    /// API para gerenciamento de pedidos
-    /// </summary>
+
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
@@ -21,11 +19,6 @@ namespace EcommercePWA.Controllers.Api
             _logger = logger;
         }
 
-        /// <summary>
-        /// Obtém todos os pedidos de um usuário
-        /// </summary>
-        /// <param name="userId">ID do usuário</param>
-        /// <returns>Lista de pedidos do usuário</returns>
         [HttpGet("user/{userId}")]
         [ProducesResponseType(typeof(UserOrdersResponse), 200)]
         [ProducesResponseType(404)]
@@ -59,11 +52,6 @@ namespace EcommercePWA.Controllers.Api
             }
         }
 
-        /// <summary>
-        /// Obtém detalhes de um pedido específico
-        /// </summary>
-        /// <param name="orderId">ID do pedido</param>
-        /// <returns>Detalhes completos do pedido</returns>
         [HttpGet("{orderId}")]
         [ProducesResponseType(typeof(OrderDetailsResponse), 200)]
         [ProducesResponseType(404)]
@@ -116,12 +104,6 @@ namespace EcommercePWA.Controllers.Api
             }
         }
 
-        /// <summary>
-        /// Atualiza o status de um pedido
-        /// </summary>
-        /// <param name="orderId">ID do pedido</param>
-        /// <param name="request">Novo status</param>
-        /// <returns>Status da operação</returns>
         [HttpPut("{orderId}/status")]
         [ProducesResponseType(typeof(OrderActionResponse), 200)]
         [ProducesResponseType(404)]
@@ -148,12 +130,6 @@ namespace EcommercePWA.Controllers.Api
             }
         }
 
-        /// <summary>
-        /// Atualiza o status de pagamento de um pedido
-        /// </summary>
-        /// <param name="orderId">ID do pedido</param>
-        /// <param name="request">Novo status de pagamento</param>
-        /// <returns>Status da operação</returns>
         [HttpPut("{orderId}/payment-status")]
         [ProducesResponseType(typeof(OrderActionResponse), 200)]
         [ProducesResponseType(404)]
@@ -180,12 +156,6 @@ namespace EcommercePWA.Controllers.Api
             }
         }
 
-        /// <summary>
-        /// Adiciona código de rastreamento a um pedido
-        /// </summary>
-        /// <param name="orderId">ID do pedido</param>
-        /// <param name="request">Código de rastreamento</param>
-        /// <returns>Status da operação</returns>
         [HttpPut("{orderId}/tracking")]
         [ProducesResponseType(typeof(OrderActionResponse), 200)]
         [ProducesResponseType(404)]
@@ -194,12 +164,11 @@ namespace EcommercePWA.Controllers.Api
         {
             try
             {
-                // Método não existe no serviço atual, implementação simplificada
+
                 var order = await _orderService.GetOrderById(orderId);
                 if (order != null)
                 {
-                    // TrackingCode não existe no modelo atual
-                    // order.TrackingCode = request.TrackingCode;
+
                     await _orderService.UpdateOrder(order);
                 }
                 var success = order != null;
@@ -219,11 +188,6 @@ namespace EcommercePWA.Controllers.Api
             }
         }
 
-        /// <summary>
-        /// Cancela um pedido
-        /// </summary>
-        /// <param name="orderId">ID do pedido</param>
-        /// <returns>Status da operação</returns>
         [HttpPost("{orderId}/cancel")]
         [ProducesResponseType(typeof(OrderActionResponse), 200)]
         [ProducesResponseType(404)]
@@ -250,10 +214,6 @@ namespace EcommercePWA.Controllers.Api
             }
         }
 
-        /// <summary>
-        /// Obtém estatísticas de pedidos (admin)
-        /// </summary>
-        /// <returns>Estatísticas gerais dos pedidos</returns>
         [HttpGet("statistics")]
         [ProducesResponseType(typeof(OrderStatisticsResponse), 200)]
         [ProducesResponseType(400)]
@@ -261,7 +221,7 @@ namespace EcommercePWA.Controllers.Api
         {
             try
             {
-                // Implementação simplificada de estatísticas
+
                 var allOrders = await _orderService.GetAllOrders();
                 var stats = new {
                     TotalOrders = allOrders.Count,
@@ -292,207 +252,139 @@ namespace EcommercePWA.Controllers.Api
 
     #region Request/Response Models
 
-    /// <summary>
-    /// Resposta com pedidos do usuário
-    /// </summary>
     public class UserOrdersResponse
     {
-        /// <summary>Status da operação</summary>
+
         public bool Success { get; set; }
-        
-        /// <summary>Lista de pedidos</summary>
+
         public IEnumerable<OrderSummaryDto> Orders { get; set; } = new List<OrderSummaryDto>();
-        
-        /// <summary>Contagem de pedidos</summary>
+
         public int Count { get; set; }
     }
 
-    /// <summary>
-    /// Resumo do pedido
-    /// </summary>
     public class OrderSummaryDto
     {
-        /// <summary>ID do pedido</summary>
+
         public int Id { get; set; }
-        
-        /// <summary>Número do pedido</summary>
+
         public string OrderNumber { get; set; } = string.Empty;
-        
-        /// <summary>Status do pedido</summary>
+
         public string Status { get; set; } = string.Empty;
-        
-        /// <summary>Status do pagamento</summary>
+
         public string PaymentStatus { get; set; } = string.Empty;
-        
-        /// <summary>Método de pagamento</summary>
+
         public string PaymentMethod { get; set; } = string.Empty;
-        
-        /// <summary>Valor total</summary>
+
         public decimal TotalAmount { get; set; }
-        
-        /// <summary>Data de criação</summary>
+
         public DateTime CreatedAt { get; set; }
-        
-        /// <summary>Quantidade de itens</summary>
+
         public int ItemCount { get; set; }
     }
 
-    /// <summary>
-    /// Resposta com detalhes do pedido
-    /// </summary>
     public class OrderDetailsResponse
     {
-        /// <summary>Status da operação</summary>
+
         public bool Success { get; set; }
-        
-        /// <summary>Detalhes do pedido</summary>
+
         public OrderDetailsDto Order { get; set; } = new OrderDetailsDto();
     }
 
-    /// <summary>
-    /// Detalhes completos do pedido
-    /// </summary>
     public class OrderDetailsDto
     {
-        /// <summary>ID do pedido</summary>
+
         public int Id { get; set; }
-        
-        /// <summary>Número do pedido</summary>
+
         public string OrderNumber { get; set; } = string.Empty;
-        
-        /// <summary>Status do pedido</summary>
+
         public string Status { get; set; } = string.Empty;
-        
-        /// <summary>Status do pagamento</summary>
+
         public string PaymentStatus { get; set; } = string.Empty;
-        
-        /// <summary>Método de pagamento</summary>
+
         public string PaymentMethod { get; set; } = string.Empty;
-        
-        /// <summary>Valor total</summary>
+
         public decimal TotalAmount { get; set; }
-        
-        /// <summary>Custo do frete</summary>
+
         public decimal ShippingCost { get; set; }
-        
-        /// <summary>Valor dos impostos</summary>
+
         public decimal TaxAmount { get; set; }
-        
-        /// <summary>Valor do desconto</summary>
+
         public decimal? DiscountAmount { get; set; }
-        
-        /// <summary>Código do cupom</summary>
+
         public string? CouponCode { get; set; }
-        
-        /// <summary>Data de criação</summary>
+
         public DateTime CreatedAt { get; set; }
-        
-        /// <summary>Data de atualização</summary>
+
         public DateTime UpdatedAt { get; set; }
-        
-        /// <summary>Endereço de entrega</summary>
+
         public string ShippingAddress { get; set; } = string.Empty;
-        
-        /// <summary>Código de rastreamento</summary>
+
         public string? TrackingCode { get; set; }
-        
-        /// <summary>Itens do pedido</summary>
+
         public IEnumerable<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
     }
 
-    /// <summary>
-    /// Item do pedido
-    /// </summary>
     public class OrderItemDto
     {
-        /// <summary>ID do item</summary>
+
         public int Id { get; set; }
-        
-        /// <summary>ID do produto</summary>
+
         public int ProductId { get; set; }
-        
-        /// <summary>Nome do produto</summary>
+
         public string ProductName { get; set; } = string.Empty;
-        
-        /// <summary>ID da variação</summary>
+
         public int? ProductVariationId { get; set; }
-        
-        /// <summary>Nome da variação</summary>
+
         public string? VariationName { get; set; }
-        
-        /// <summary>Quantidade</summary>
+
         public int Quantity { get; set; }
-        
-        /// <summary>Preço unitário</summary>
+
         public decimal UnitPrice { get; set; }
-        
-        /// <summary>Preço total</summary>
+
         public decimal TotalPrice { get; set; }
     }
 
-    /// <summary>
-    /// Requisição para atualizar status do pedido
-    /// </summary>
     public class UpdateOrderStatusRequest
     {
-        /// <summary>Novo status</summary>
+
         public string Status { get; set; } = string.Empty;
     }
 
-    /// <summary>
-    /// Requisição para atualizar status de pagamento
-    /// </summary>
     public class UpdatePaymentStatusRequest
     {
-        /// <summary>Novo status de pagamento</summary>
+
         public string PaymentStatus { get; set; } = string.Empty;
     }
 
-    /// <summary>
-    /// Requisição para adicionar código de rastreamento
-    /// </summary>
     public class AddTrackingCodeRequest
     {
-        /// <summary>Código de rastreamento</summary>
+
         public string TrackingCode { get; set; } = string.Empty;
     }
 
-    /// <summary>
-    /// Resposta de ação no pedido
-    /// </summary>
     public class OrderActionResponse
     {
-        /// <summary>Status da operação</summary>
+
         public bool Success { get; set; }
-        
-        /// <summary>Mensagem de retorno</summary>
+
         public string Message { get; set; } = string.Empty;
     }
 
-    /// <summary>
-    /// Resposta com estatísticas de pedidos
-    /// </summary>
     public class OrderStatisticsResponse
     {
-        /// <summary>Status da operação</summary>
+
         public bool Success { get; set; }
-        
-        /// <summary>Total de pedidos</summary>
+
         public int TotalOrders { get; set; }
-        
-        /// <summary>Pedidos pendentes</summary>
+
         public int PendingOrders { get; set; }
-        
-        /// <summary>Pedidos concluídos</summary>
+
         public int CompletedOrders { get; set; }
-        
-        /// <summary>Pedidos cancelados</summary>
+
         public int CancelledOrders { get; set; }
-        
-        /// <summary>Receita total</summary>
+
         public decimal TotalRevenue { get; set; }
-        
-        /// <summary>Valor médio do pedido</summary>
+
         public decimal AverageOrderValue { get; set; }
     }
 

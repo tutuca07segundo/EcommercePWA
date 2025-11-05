@@ -35,7 +35,7 @@ namespace EcommercePWA.Services
 
                 if (cart == null)
                 {
-                    // Extrair userId da sessionId se for um usuário logado
+
                     int? userId = null;
                     if (sessionId.StartsWith("user_"))
                     {
@@ -51,14 +51,17 @@ namespace EcommercePWA.Services
                         UserId = userId,
                         CreatedAt = DateTime.Now,
                         LastUpdated = DateTime.Now,
-                        Items = new List<CartItem>()
+                        Items = new List<CartItem>(),
+                        ShippingCost = null,
+                        CouponCode = null,
+                        DiscountAmount = null
                     };
                     _context.Carts.Add(cart);
                     _context.SaveChanges();
                 }
                 else
                 {
-                    // Atualizar preços com base nas variações
+
                     UpdateCartPrices(cart);
                 }
 
@@ -72,7 +75,10 @@ namespace EcommercePWA.Services
                     SessionId = sessionId,
                     CreatedAt = DateTime.Now,
                     LastUpdated = DateTime.Now,
-                    Items = new List<CartItem>()
+                    Items = new List<CartItem>(),
+                    ShippingCost = null,
+                    CouponCode = null,
+                    DiscountAmount = null
                 };
             }
         }
@@ -94,8 +100,9 @@ namespace EcommercePWA.Services
                         throw new ArgumentException("Variação não disponível");
                 }
 
-                // Verificar se o item já existe no carrinho
-                // Importante: ProductVariationId null deve ser tratado diferente de qualquer valor não-null
+                // Se o carrinho estava vazio, limpar frete pois precisa ser recalculado
+                bool wasEmpty = !cart.Items.Any();
+
                 var existingItem = cart.Items.FirstOrDefault(i => 
                     i.ProductId == productId && 
                     ((i.ProductVariationId == null && variationId == null) || 
@@ -118,6 +125,12 @@ namespace EcommercePWA.Services
                         AddedAt = DateTime.Now
                     };
                     cart.Items.Add(cartItem);
+                }
+
+                // Limpar frete se estava vazio, pois peso/dimensões mudaram
+                if (wasEmpty)
+                {
+                    cart.ShippingCost = null;
                 }
 
                 cart.LastUpdated = DateTime.Now;
@@ -146,7 +159,7 @@ namespace EcommercePWA.Services
                 }
                 else
                 {
-                    // Obter o produto e a variação para garantir que o preço esteja correto
+
                     var product = _productService.GetProductByIdAsync(item.ProductId).Result;
                     if (product != null)
                     {
@@ -154,7 +167,7 @@ namespace EcommercePWA.Services
                         if (item.ProductVariationId.HasValue)
                         {
                             item.ProductVariation = product.Variations.FirstOrDefault(v => v.Id == item.ProductVariationId);
-                            // Atualizar o preço unitário com base na variação
+
                             if (item.ProductVariation?.PriceModifier.HasValue == true)
                             {
                                 item.UnitPrice = product.Price + item.ProductVariation.PriceModifier.Value;
@@ -172,8 +185,10 @@ namespace EcommercePWA.Services
                     
                     item.Quantity = quantity;
                     cart.LastUpdated = DateTime.Now;
-                    
-                    // Recalcular cupom se aplicado
+
+                    // Limpar frete pois peso total mudou
+                    cart.ShippingCost = null;
+
                     RecalculateCouponIfApplied(cart);
                     
                     _context.SaveChanges();
@@ -197,8 +212,10 @@ namespace EcommercePWA.Services
                 {
                     cart.Items.Remove(item);
                     cart.LastUpdated = DateTime.Now;
-                    
-                    // Recalcular cupom se aplicado
+
+                    // Limpar frete pois peso total mudou
+                    cart.ShippingCost = null;
+
                     RecalculateCouponIfApplied(cart);
                     
                     _context.SaveChanges();
@@ -217,8 +234,7 @@ namespace EcommercePWA.Services
             {
                 var cart = GetCart(sessionId);
                 cart.Items.Clear();
-                
-                // Limpar também dados do cupom
+
                 cart.CouponCode = null;
                 cart.DiscountAmount = null;
                 cart.ShippingCost = null;
@@ -290,7 +306,7 @@ namespace EcommercePWA.Services
                 decimal discountAmount = 0;
                 if (coupon.DiscountPercentage.HasValue)
                 {
-                    // Usar Subtotal ao invés de Total para evitar loop infinito
+
                     discountAmount = cart.Subtotal * (coupon.DiscountPercentage.Value / 100);
                 }
                 else
@@ -298,7 +314,6 @@ namespace EcommercePWA.Services
                     discountAmount = coupon.DiscountAmount;
                 }
 
-                // Persistir cupom no carrinho
                 cart.CouponCode = couponCode;
                 cart.DiscountAmount = discountAmount;
                 cart.LastUpdated = DateTime.Now;
@@ -357,7 +372,7 @@ namespace EcommercePWA.Services
 
         private async Task<decimal> GetItemPriceAsync(Product product, int? variationId)
         {
-            // Apply discount to base price
+
             var discount = await _discountService.GetActiveDiscountForProductAsync(product.Id);
             decimal basePrice = product.Price;
             
@@ -365,8 +380,7 @@ namespace EcommercePWA.Services
             {
                 basePrice = _discountService.CalculateDiscountedPrice(product.Price, discount);
             }
-            
-            // Apply variation modifier to discounted price
+
             if (variationId.HasValue)
             {
                 var variation = product.Variations.FirstOrDefault(v => v.Id == variationId);
@@ -380,7 +394,7 @@ namespace EcommercePWA.Services
 
         private decimal GetItemPrice(Product product, int? variationId)
         {
-            // Synchronous version for backward compatibility
+
             var discount = _discountService.GetActiveDiscountForProductAsync(product.Id).Result;
             decimal basePrice = product.Price;
             
@@ -426,23 +440,23 @@ namespace EcommercePWA.Services
 
         private void RecalculateCouponIfApplied(Cart cart)
         {
-            // Se há um cupom aplicado, recalcular o desconto
+
             if (!string.IsNullOrEmpty(cart.CouponCode))
             {
                 var coupon = _couponService.GetCouponByCode(cart.CouponCode);
                 if (coupon != null && coupon.IsActive && 
                     DateTime.Now >= coupon.ValidFrom && DateTime.Now <= coupon.ValidUntil)
                 {
-                    // Verificar se ainda atende ao valor mínimo
+
                     if (coupon.MinimumOrderAmount.HasValue && cart.Subtotal < coupon.MinimumOrderAmount.Value)
                     {
-                        // Remove o cupom se não atender mais ao valor mínimo
+
                         cart.CouponCode = null;
                         cart.DiscountAmount = null;
                     }
                     else
                     {
-                        // Recalcular o desconto baseado no novo subtotal
+
                         decimal newDiscountAmount = 0;
                         if (coupon.DiscountPercentage.HasValue)
                         {
@@ -452,8 +466,7 @@ namespace EcommercePWA.Services
                         {
                             newDiscountAmount = coupon.DiscountAmount;
                         }
-                        
-                        // Garantir que o desconto não seja maior que o subtotal
+
                         if (newDiscountAmount > cart.Subtotal)
                         {
                             newDiscountAmount = cart.Subtotal;
@@ -464,7 +477,7 @@ namespace EcommercePWA.Services
                 }
                 else
                 {
-                    // Cupom inválido, remover
+
                     cart.CouponCode = null;
                     cart.DiscountAmount = null;
                 }

@@ -1,4 +1,4 @@
-using EcommercePWA.Services;
+﻿using EcommercePWA.Services;
 using EcommercePWA.Data;
 using Microsoft.EntityFrameworkCore;
 using EcommercePWA.Models;
@@ -7,7 +7,6 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ Registre os serviços ANTES de builder.Build()
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -15,7 +14,6 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
-// Registrar serviços principais
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -29,28 +27,22 @@ builder.Services.AddScoped<IWishlistService, WishlistService>();
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 builder.Services.AddScoped<DataSeederService>();
 
-// Registrar novos serviços de Clean Code
 builder.Services.AddScoped<IProductPricingService, ProductPricingService>();
 builder.Services.AddScoped<ICartCalculationService, CartCalculationService>();
 
-// Add Melhor Envio service
 builder.Services.AddHttpClient<IMelhorEnvioService, MelhorEnvioService>();
 
-// Configure MercadoPago settings
 builder.Services.Configure<MercadoPagoSettings>(
     builder.Configuration.GetSection("MercadoPago"));
 
-// Add HttpClient for MercadoPago service with proper configuration
 builder.Services.AddHttpClient<IMercadoPagoService, MercadoPagoService>(client =>
 {
     client.BaseAddress = new Uri("https://api.mercadopago.com");
     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 });
 
-// Add PIX service
 builder.Services.AddScoped<IPixService, PixService>();
 
-// Add session support
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -105,20 +97,17 @@ builder.Services.AddSwaggerGen(c =>
             Url = new Uri("https://opensource.org/licenses/MIT")
         }
     });
-    
-    // Configurar tags para organização
+
     c.TagActionsBy(api => new[] { api.GroupName ?? api.ActionDescriptor.RouteValues["controller"] });
     c.DocInclusionPredicate((name, api) => true);
-    
-    // Incluir comentários XML para documentação
+
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))
     {
         c.IncludeXmlComments(xmlPath);
     }
-    
-    // Configurar esquemas de segurança
+
     c.AddSecurityDefinition("Session", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Description = "Autenticação baseada em sessão. Faça login primeiro através do endpoint /api/AuthApi/login",
@@ -144,7 +133,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configuração para suportar proxies reversos
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | 
@@ -157,7 +145,6 @@ var app = builder.Build();
 
 app.UseForwardedHeaders();
 
-// 🛠️ Executa Seed/Migration e inicializa o banco
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -168,19 +155,15 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        // Garantir que o banco existe e está atualizado
+
         await context.Database.EnsureCreatedAsync();
-        
-        // Inicializar usuário admin
+
         await authService.InitializeDatabaseAsync();
-        
-        // Inicializar produtos e categorias
+
         await productService.InitializeDatabaseAsync();
-        
-        // Inicializar cupons
+
         await couponService.InitializeDatabaseAsync();
-        
-        // Inicializar subcategorias
+
         var dataSeeder = services.GetRequiredService<DataSeederService>();
         await dataSeeder.SeedSubcategoriesAsync();
         
@@ -196,7 +179,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure o pipeline HTTP
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -205,7 +187,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 
-// Add session middleware
 app.UseSession();
 
 app.UseSwagger();

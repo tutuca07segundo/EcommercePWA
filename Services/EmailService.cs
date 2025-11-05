@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
 using SendGrid;
 using SendGrid.Helpers.Mail;
@@ -124,7 +124,6 @@ namespace EcommercePWA.Services
                 _logger.LogInformation("Para: {Email}", toEmail);
                 _logger.LogInformation("Assunto: {Subject}", subject);
 
-                // ÚNICA TENTATIVA: Gmail SMTP com credenciais reais
                 var result = await SendWithGmailSmtp(toEmail, subject, body);
                 if (result)
                 {
@@ -193,5 +192,4 @@ namespace EcommercePWA.Services
         }
     }
 }
-
 

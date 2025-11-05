@@ -1,4 +1,4 @@
-using EcommercePWA.Models;
+﻿using EcommercePWA.Models;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Text;
@@ -124,7 +124,6 @@ namespace EcommercePWA.Services
                 _logger.LogInformation($"Referência externa: {paymentDetails.ExternalReference}");
                 _logger.LogInformation($"Valor: {paymentDetails.TransactionAmount} {paymentDetails.CurrencyId}");
 
-                // Buscar pedido pela referência externa
                 if (string.IsNullOrEmpty(paymentDetails.ExternalReference))
                 {
                     _logger.LogError("Referência externa vazia no pagamento");
@@ -138,8 +137,7 @@ namespace EcommercePWA.Services
                     if (order != null)
                     {
                         _logger.LogInformation($"Pedido encontrado. Status atual: {order.Status}");
-                        
-                        // Atualizar status do pedido baseado no status do pagamento
+
                         var (newStatus, paymentStatus) = paymentDetails.Status switch
                         {
                             "approved" => ("Confirmado", "Pago"),
@@ -155,14 +153,12 @@ namespace EcommercePWA.Services
                         if (newStatus != order.Status || paymentStatus != order.PaymentStatus)
                         {
                             _logger.LogInformation($"Atualizando pedido {orderId}: Status '{order.Status}' -> '{newStatus}', Payment '{order.PaymentStatus}' -> '{paymentStatus}'");
-                            
-                            // Atualizar tanto o status do pedido quanto o status do pagamento
+
                             await _orderService.UpdateOrderStatus(orderId, newStatus);
                             await _orderService.UpdatePaymentStatus(orderId, paymentStatus);
                             
                             _logger.LogInformation($"Pedido {orderId} atualizado com sucesso");
-                            
-                            // Verificar se a atualização foi persistida
+
                             var updatedOrder = await _orderService.GetOrderById(orderId);
                             _logger.LogInformation($"Verificação: Status={updatedOrder.Status}, PaymentStatus={updatedOrder.PaymentStatus}");
                         }

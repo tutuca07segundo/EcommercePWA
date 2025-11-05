@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Services;
 using EcommercePWA.Models;
 using EcommercePWA.Attributes;
@@ -16,7 +16,6 @@ namespace EcommercePWA.Controllers
             _logger = logger;
         }
 
-        // GET: /Category/Details/5
         [RequireAuth]
         public async Task<IActionResult> Details(int id)
         {
@@ -30,7 +29,6 @@ namespace EcommercePWA.Controllers
             return View(category);
         }
 
-        // GET: /Category/Create
         [RequireAuth]
         public IActionResult Create()
         {
@@ -39,7 +37,6 @@ namespace EcommercePWA.Controllers
             return View(new Category());
         }
 
-        // POST: /Category/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -62,7 +59,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Category/Edit/5
         [RequireAuth]
         public async Task<IActionResult> Edit(int id)
         {
@@ -74,7 +70,6 @@ namespace EcommercePWA.Controllers
             return View(category);
         }
 
-        // POST: /Category/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -98,7 +93,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Category/Delete/5
         [RequireAuth]
         public async Task<IActionResult> Delete(int id)
         {
@@ -110,7 +104,6 @@ namespace EcommercePWA.Controllers
             return View(category);
         }
 
-        // POST: /Category/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -139,5 +132,4 @@ namespace EcommercePWA.Controllers
         }
     }
 }
-
 

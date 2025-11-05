@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
 
@@ -15,14 +15,12 @@ namespace EcommercePWA.Controllers
             _logger = logger;
         }
 
-        // GET: /Coupon
         public IActionResult Index()
         {
             var coupons = _couponService.GetAllCoupons();
             return View(coupons);
         }
 
-        // GET: /Coupon/Details/5
         public IActionResult Details(int id)
         {
             var coupon = _couponService.GetAllCoupons().FirstOrDefault(c => c.Id == id);
@@ -31,13 +29,11 @@ namespace EcommercePWA.Controllers
             return View(coupon);
         }
 
-        // GET: /Coupon/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: /Coupon/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Coupon coupon)
@@ -46,7 +42,6 @@ namespace EcommercePWA.Controllers
             {
                 _logger.LogInformation("Tentando criar cupom: {Code}", coupon.Code);
 
-                // Validação adicional
                 if (string.IsNullOrWhiteSpace(coupon.Code))
                 {
                     ModelState.AddModelError("Code", "O código do cupom é obrigatório");
@@ -57,14 +52,12 @@ namespace EcommercePWA.Controllers
                     ModelState.AddModelError("Description", "A descrição do cupom é obrigatória");
                 }
 
-                // Verificar se já existe um cupom com o mesmo código
                 var existingCoupon = _couponService.GetCouponByCode(coupon.Code);
                 if (existingCoupon != null)
                 {
                     ModelState.AddModelError("Code", "Já existe um cupom com este código");
                 }
 
-                // Validar datas
                 if (coupon.ValidUntil <= coupon.ValidFrom)
                 {
                     ModelState.AddModelError("ValidUntil", "A data de fim deve ser posterior à data de início");
@@ -72,17 +65,15 @@ namespace EcommercePWA.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    // Definir valores padrão se não fornecidos
+
                     if (coupon.DiscountAmount == 0 && (!coupon.DiscountPercentage.HasValue || coupon.DiscountPercentage == 0))
                     {
                         ModelState.AddModelError("", "É necessário informar um valor de desconto ou percentual");
                         return View(coupon);
                     }
 
-                    // Definir data de criação
                     coupon.CreatedAt = DateTime.Now;
-                    
-                    // Criar o cupom
+
                     var createdCoupon = _couponService.CreateCoupon(coupon);
                     
                     _logger.LogInformation("Cupom criado com sucesso: {Code}, ID: {Id}", createdCoupon.Code, createdCoupon.Id);
@@ -105,7 +96,6 @@ namespace EcommercePWA.Controllers
             return View(coupon);
         }
 
-        // GET: /Coupon/Edit/5
         public IActionResult Edit(int id)
         {
             var coupon = _couponService.GetAllCoupons().FirstOrDefault(c => c.Id == id);
@@ -114,7 +104,6 @@ namespace EcommercePWA.Controllers
             return View(coupon);
         }
 
-        // POST: /Coupon/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Coupon coupon)
@@ -126,7 +115,6 @@ namespace EcommercePWA.Controllers
             {
                 _logger.LogInformation("Tentando editar cupom: {Code}, ID: {Id}", coupon.Code, coupon.Id);
 
-                // Validação adicional
                 if (string.IsNullOrWhiteSpace(coupon.Code))
                 {
                     ModelState.AddModelError("Code", "O código do cupom é obrigatório");
@@ -137,14 +125,12 @@ namespace EcommercePWA.Controllers
                     ModelState.AddModelError("Description", "A descrição do cupom é obrigatória");
                 }
 
-                // Verificar se já existe outro cupom com o mesmo código
                 var existingCoupon = _couponService.GetCouponByCode(coupon.Code);
                 if (existingCoupon != null && existingCoupon.Id != coupon.Id)
                 {
                     ModelState.AddModelError("Code", "Já existe um cupom com este código");
                 }
 
-                // Validar datas
                 if (coupon.ValidUntil <= coupon.ValidFrom)
                 {
                     ModelState.AddModelError("ValidUntil", "A data de fim deve ser posterior à data de início");
@@ -152,7 +138,7 @@ namespace EcommercePWA.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    // Definir valores padrão se não fornecidos
+
                     if (coupon.DiscountAmount == 0 && (!coupon.DiscountPercentage.HasValue || coupon.DiscountPercentage == 0))
                     {
                         ModelState.AddModelError("", "É necessário informar um valor de desconto ou percentual");
@@ -191,7 +177,6 @@ namespace EcommercePWA.Controllers
             return View(coupon);
         }
 
-        // GET: /Coupon/Delete/5
         public IActionResult Delete(int id)
         {
             var coupon = _couponService.GetAllCoupons().FirstOrDefault(c => c.Id == id);
@@ -200,7 +185,6 @@ namespace EcommercePWA.Controllers
             return View(coupon);
         }
 
-        // POST: /Coupon/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)

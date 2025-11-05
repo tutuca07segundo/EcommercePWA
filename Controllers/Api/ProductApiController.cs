@@ -1,12 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
 
 namespace EcommercePWA.Controllers.Api
 {
-    /// <summary>
-    /// API para gerenciamento de produtos do e-commerce Kaboom
-    /// </summary>
+
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
@@ -19,13 +17,6 @@ namespace EcommercePWA.Controllers.Api
             _productService = productService;
         }
 
-        /// <summary>
-        /// Obtém todos os produtos do catálogo
-        /// </summary>
-        /// <param name="search">Termo de busca opcional</param>
-        /// <param name="categoryId">ID da categoria para filtrar</param>
-        /// <param name="sortBy">Ordenação: price_asc, price_desc, name, rating, date</param>
-        /// <returns>Lista de produtos</returns>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<Product>), 200)]
         public async Task<IActionResult> GetProducts(
@@ -46,11 +37,6 @@ namespace EcommercePWA.Controllers.Api
             }
         }
 
-        /// <summary>
-        /// Obtém um produto específico por ID
-        /// </summary>
-        /// <param name="id">ID do produto</param>
-        /// <returns>Detalhes do produto</returns>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(Product), 200)]
         [ProducesResponseType(404)]
@@ -70,10 +56,6 @@ namespace EcommercePWA.Controllers.Api
             }
         }
 
-        /// <summary>
-        /// Obtém as categorias disponíveis
-        /// </summary>
-        /// <returns>Lista de categorias</returns>
         [HttpGet("categories")]
         [ProducesResponseType(typeof(IEnumerable<Category>), 200)]
         public async Task<IActionResult> GetCategories()

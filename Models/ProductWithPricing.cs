@@ -1,8 +1,6 @@
-namespace EcommercePWA.Models
+﻿namespace EcommercePWA.Models
 {
-    /// <summary>
-    /// Modelo que encapsula um produto com informações de preço e desconto aplicadas
-    /// </summary>
+
     public class ProductWithPricing
     {
         public Product Product { get; set; } = new();

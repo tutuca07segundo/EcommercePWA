@@ -1,8 +1,6 @@
-namespace EcommercePWA.Models
+﻿namespace EcommercePWA.Models
 {
-    /// <summary>
-    /// Modelo para encapsular todos os cálculos de totais do carrinho
-    /// </summary>
+
     public class CartTotals
     {
         public decimal Subtotal { get; set; }

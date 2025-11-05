@@ -1,4 +1,4 @@
-using EcommercePWA.Models;
+﻿using EcommercePWA.Models;
 
 namespace EcommercePWA.Services
 {
@@ -27,7 +27,6 @@ namespace EcommercePWA.Services
                 decimal? discountAmount = null;
                 string? discountSource = null;
 
-                // Verificar desconto individual do produto
                 var productDiscount = await _discountService.GetActiveDiscountForProductAsync(product.Id);
                 if (productDiscount != null)
                 {
@@ -40,7 +39,6 @@ namespace EcommercePWA.Services
                     }
                 }
 
-                // Verificar promoção da categoria
                 var categoryDiscountAmount = await _categoryPromotionService.CalculateCategoryDiscountAsync(product.Category, originalPrice);
                 if (categoryDiscountAmount > 0)
                 {
@@ -53,7 +51,6 @@ namespace EcommercePWA.Services
                     }
                 }
 
-                // Aplicar o melhor desconto encontrado
                 product.DiscountedPrice = discountAmount.HasValue ? bestDiscountedPrice : null;
                 product.HasDiscount = discountAmount.HasValue;
 
@@ -92,7 +89,6 @@ namespace EcommercePWA.Services
                 var productWithPricing = await ApplyDiscountsAsync(product);
                 var basePrice = productWithPricing.FinalPrice;
 
-                // Aplicar modificador de variação ao preço com desconto
                 if (variationId.HasValue)
                 {
                     var variation = product.Variations.FirstOrDefault(v => v.Id == variationId);

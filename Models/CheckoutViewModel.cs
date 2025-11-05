@@ -1,12 +1,11 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace EcommercePWA.Models
 {
     public class CheckoutViewModel
     {
         public CartViewModel Cart { get; set; } = null!;
-        
-        // Informações de entrega
+
         [Required(ErrorMessage = "Nome é obrigatório")]
         [StringLength(100)]
         public string ShippingName { get; set; } = string.Empty;
@@ -31,7 +30,6 @@ namespace EcommercePWA.Models
         [StringLength(20)]
         public string ShippingPhone { get; set; } = string.Empty;
 
-        // Propriedades adicionais para Mercado Pago
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
@@ -40,8 +38,7 @@ namespace EcommercePWA.Models
         public string State { get; set; } = string.Empty;
         public string ZipCode { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
-        
-        // Informações de pagamento
+
         [Required(ErrorMessage = "Método de pagamento é obrigatório")]
         public string PaymentMethod { get; set; } = string.Empty;
         
@@ -56,14 +53,12 @@ namespace EcommercePWA.Models
         
         [StringLength(4)]
         public string CardCvv { get; set; } = string.Empty;
-        
-        // PIX Information
+
         public string? PixCode { get; set; }
         public string? PixQRCodeBase64 { get; set; }
         public DateTime? PixExpirationTime { get; set; }
         public bool ShowPixQrCode { get; set; } = false;
-        
-        // Opções
+
         public bool SavePaymentInfo { get; set; } = false;
         public bool SaveShippingInfo { get; set; } = false;
         public string? Notes { get; set; }

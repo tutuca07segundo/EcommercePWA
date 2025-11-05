@@ -38,6 +38,13 @@ namespace EcommercePWA.Controllers
             {
                 var sessionId = GetSessionId();
                 var cart = _cartService.GetCart(sessionId);
+                
+                // Se o carrinho está vazio, limpar o frete
+                if (!cart.Items.Any())
+                {
+                    cart.ShippingCost = null;
+                }
+                
                 var cartItems = await LoadCartItemsWithPricingAsync(cart.Items);
                 var viewModel = await BuildCartViewModelAsync(cart, cartItems);
                 
@@ -50,13 +57,12 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Cart/AddToCart
         [HttpPost]
         public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request)
         {
             try
             {
-                // Verificar se o usuário está autenticado
+
                 var userId = HttpContext.Session.GetInt32("UserId");
                 if (!userId.HasValue)
                 {
@@ -105,7 +111,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Cart/UpdateQuantity
         [HttpPost]
         [RequireAuth]
         public IActionResult UpdateQuantity([FromBody] UpdateQuantityRequest request)
@@ -118,7 +123,6 @@ namespace EcommercePWA.Controllers
                 var cart = _cartService.GetCart(sessionId);
                 var item = cart.Items.FirstOrDefault(i => i.Id == request.ItemId);
 
-                // O cupom já foi recalculado automaticamente no CartService
                 var totals = _cartCalculationService.CalculateTotals(cart);
                 
                 return Json(new {
@@ -140,7 +144,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Cart/RemoveItem
         [HttpPost]
         [RequireAuth]
         public IActionResult RemoveItem([FromBody] RemoveItemRequest request)
@@ -151,8 +154,7 @@ namespace EcommercePWA.Controllers
                 _cartService.RemoveItem(sessionId, request.ItemId);
                 
                 var cart = _cartService.GetCart(sessionId);
-                
-                // Calcular valores para retorno
+
                 var totals = _cartCalculationService.CalculateTotals(cart);
                 
                 return Json(new { 
@@ -174,7 +176,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Cart/ApplyCoupon
         [HttpPost]
         [RequireAuth]
         public IActionResult ApplyCoupon([FromBody] ApplyCouponRequest request)
@@ -186,7 +187,7 @@ namespace EcommercePWA.Controllers
                 
                 if (result.IsValid)
                 {
-                    // Salvar cupom na sessão
+
                     HttpContext.Session.SetString("CouponCode", request.CouponCode);
                     HttpContext.Session.SetString("DiscountAmount", result.DiscountAmount.ToString());
                     
@@ -216,7 +217,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Cart/RemoveCoupon
         [HttpPost]
         [RequireAuth]
         public IActionResult RemoveCoupon()
@@ -230,11 +230,9 @@ namespace EcommercePWA.Controllers
                     return Json(new { success = false, message = "Carrinho não encontrado" });
                 }
 
-                // Remover cupom da sessão
                 HttpContext.Session.Remove("AppliedCoupon");
                 _cartService.RemoveCoupon(sessionId);
 
-                // Recalcular totais sem cupom
                 var totals = _cartCalculationService.CalculateTotals(cart);
                 var viewModel = new CartViewModel
                 {
@@ -265,7 +263,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Cart/CalculateShipping
         [HttpPost]
         public async Task<IActionResult> CalculateShipping([FromBody] CalculateShippingRequest request)
         {
@@ -273,11 +270,9 @@ namespace EcommercePWA.Controllers
             {
                 var sessionId = GetSessionId();
                 var cart = _cartService.GetCart(sessionId);
-                
-                // Preparar produtos para cálculo de frete
+
                 var shippingProducts = new List<ShippingProduct>();
-                
-                // Se foi chamado da página de detalhes (com productId específico)
+
                 if (request.ProductId.HasValue)
                 {
                     var product = await _productService.GetProductByIdAsync(request.ProductId.Value);
@@ -301,7 +296,7 @@ namespace EcommercePWA.Controllers
                 }
                 else
                 {
-                    // Lógica original para carrinho
+
                     if (!cart.Items.Any())
                     {
                         return Json(new { success = false, message = "Carrinho vazio" });
@@ -331,14 +326,12 @@ namespace EcommercePWA.Controllers
                     return Json(new { success = false, message = "Nenhum produto encontrado para cálculo" });
                 }
 
-                // Validar CEP
                 var isValidCep = await _melhorEnvioService.ValidateCepAsync(request.Cep);
                 if (!isValidCep)
                 {
                     return Json(new { success = false, message = "CEP inválido" });
                 }
 
-                // Calcular frete via Melhor Envio
                 var shippingRequest = new ShippingCalculationRequest
                 {
                     ToCep = request.Cep,
@@ -359,7 +352,7 @@ namespace EcommercePWA.Controllers
                             deliveryTime = q.DeliveryTime,
                             deliveryRange = q.DeliveryRange
                         }),
-                        // Incluir dados do carrinho para manter cupom
+
                         subtotal = cart.Subtotal,
                         discountAmount = cart.DiscountAmount ?? 0,
                         couponCode = cart.CouponCode,
@@ -395,7 +388,6 @@ namespace EcommercePWA.Controllers
             }
             return sessionId;
         }
-
 
         private async Task<List<CartItem>> LoadCartItemsWithPricingAsync(List<CartItem> items)
         {
@@ -462,7 +454,6 @@ namespace EcommercePWA.Controllers
             };
         }
 
-        // GET: /Cart/GetCartCount
         [HttpGet]
         public IActionResult GetCartCount()
         {
@@ -500,8 +491,7 @@ namespace EcommercePWA.Controllers
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var cepData = System.Text.Json.JsonSerializer.Deserialize<dynamic>(content);
-                    
-                    // Verificar se o CEP existe (ViaCEP retorna erro: true quando CEP não existe)
+
                     if (content.Contains("\"erro\""))
                     {
                         return null;
@@ -541,26 +531,23 @@ namespace EcommercePWA.Controllers
             }
             catch
             {
-                // Ignorar erros de parsing
+
             }
             return null;
         }
 
-        // POST: /Cart/SetShipping
         [HttpPost]
-        // [RequireAuth] - Temporariamente removido para permitir frete sem login
+
         public IActionResult SetShipping([FromBody] SetShippingRequest request)
         {
             try
             {
                 var sessionId = GetSessionId();
-                
-                // Usar o CartService para salvar o frete
+
                 _cartService.SetShippingCost(sessionId, request.ShippingCost);
                 
                 var cart = _cartService.GetCart(sessionId);
 
-                // Recalcular total
                 var totals = _cartCalculationService.CalculateTotals(cart);
 
                 return Json(new { 
@@ -613,7 +600,7 @@ namespace EcommercePWA.Controllers
 
     public class RemoveCouponRequest
     {
-        // Classe vazia, apenas para consistência
+
     }
 
     public class CalculateShippingRequest

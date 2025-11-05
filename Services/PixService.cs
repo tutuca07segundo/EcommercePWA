@@ -1,4 +1,4 @@
-using QRCoder;
+﻿using QRCoder;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Text;
@@ -6,9 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace EcommercePWA.Services
 {
-    /// <summary>
-    /// Serviço para geração de PIX com QR Code
-    /// </summary>
+
     public class PixService : IPixService
     {
         private readonly ILogger<PixService> _logger;
@@ -28,10 +26,8 @@ namespace EcommercePWA.Services
                 var nomeRecebedor = _configuration["Pix:NomeRecebedor"] ?? "KABOOM ECOMMERCE";
                 var cidadeRecebedor = _configuration["Pix:CidadeRecebedor"] ?? "SAO PAULO";
 
-                // Gerar código PIX (EMV)
                 var pixCode = GeneratePixEMVCode(chavePix, nomeRecebedor, cidadeRecebedor, valor, descricao, identificador);
-                
-                // Gerar QR Code
+
                 var qrCodeBase64 = GenerateQRCodeImage(pixCode);
 
                 return new PixPaymentData
@@ -83,81 +79,61 @@ namespace EcommercePWA.Services
             if (string.IsNullOrWhiteSpace(chavePix))
                 return false;
 
-            // CPF (11 dígitos)
             if (Regex.IsMatch(chavePix, @"^\d{11}$"))
                 return true;
 
-            // CNPJ (14 dígitos)
             if (Regex.IsMatch(chavePix, @"^\d{14}$"))
                 return true;
 
-            // Email
             if (Regex.IsMatch(chavePix, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                 return true;
 
-            // Telefone (+5511999999999)
             if (Regex.IsMatch(chavePix, @"^\+55\d{10,11}$"))
                 return true;
 
-            // Chave aleatória (UUID)
             if (Regex.IsMatch(chavePix, @"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", RegexOptions.IgnoreCase))
                 return true;
 
             return false;
         }
 
-        /// <summary>
-        /// Gera código PIX no formato EMV (padrão brasileiro)
-        /// </summary>
         private string GeneratePixEMVCode(string chavePix, string nomeRecebedor, string cidadeRecebedor, decimal valor, string descricao, string identificador)
         {
             var emv = new StringBuilder();
 
-            // Payload Format Indicator
             emv.Append("000201");
 
-            // Point of Initiation Method (12 = QR Code dinâmico)
             emv.Append("010212");
 
-            // Merchant Account Information
             var merchantInfo = $"0014br.gov.bcb.pix01{chavePix.Length:D2}{chavePix}";
             emv.Append($"26{merchantInfo.Length:D2}{merchantInfo}");
 
-            // Merchant Category Code (0000 = não especificado)
             emv.Append("52040000");
 
-            // Transaction Currency (986 = Real brasileiro)
             emv.Append("5303986");
 
-            // Transaction Amount
             if (valor > 0)
             {
                 var valorStr = valor.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
                 emv.Append($"54{valorStr.Length:D2}{valorStr}");
             }
 
-            // Country Code
             emv.Append("5802BR");
 
-            // Merchant Name
             var nomeFormatado = nomeRecebedor.ToUpper().Substring(0, Math.Min(25, nomeRecebedor.Length));
             emv.Append($"59{nomeFormatado.Length:D2}{nomeFormatado}");
 
-            // Merchant City
             var cidadeFormatada = cidadeRecebedor.ToUpper().Substring(0, Math.Min(15, cidadeRecebedor.Length));
             emv.Append($"60{cidadeFormatada.Length:D2}{cidadeFormatada}");
 
-            // Additional Data Field Template
             var additionalData = new StringBuilder();
-            
-            // Transaction ID
+
             if (!string.IsNullOrEmpty(identificador))
             {
                 var txId = identificador.Substring(0, Math.Min(25, identificador.Length));
                 additionalData.Append($"05{txId.Length:D2}{txId}");
             }
 
-            // Description
             if (!string.IsNullOrEmpty(descricao))
             {
                 var desc = descricao.Substring(0, Math.Min(72, descricao.Length));
@@ -169,19 +145,14 @@ namespace EcommercePWA.Services
                 emv.Append($"62{additionalData.Length:D2}{additionalData}");
             }
 
-            // CRC16 (será calculado)
             emv.Append("6304");
 
-            // Calcular CRC16
             var crc = CalculateCRC16(emv.ToString());
             emv.Append(crc.ToString("X4"));
 
             return emv.ToString();
         }
 
-        /// <summary>
-        /// Calcula CRC16 para o código PIX
-        /// </summary>
         private ushort CalculateCRC16(string data)
         {
             const ushort polynomial = 0x1021;

@@ -1,4 +1,4 @@
-using EcommercePWA.Data;
+﻿using EcommercePWA.Data;
 using EcommercePWA.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +15,7 @@ namespace EcommercePWA.Services
 
         public async Task SeedSubcategoriesAsync()
         {
-            // Verificar se já existem subcategorias
+
             if (await _context.Subcategories.AnyAsync())
             {
                 return; // Dados já foram inseridos

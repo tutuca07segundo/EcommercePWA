@@ -1,4 +1,4 @@
-using EcommercePWA.Data;
+﻿using EcommercePWA.Data;
 using EcommercePWA.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -80,7 +80,6 @@ namespace EcommercePWA.Services
             if (!promotions.Any())
                 return 0;
 
-            // Pega a promoção com maior prioridade (menor número = maior prioridade)
             var bestPromotion = promotions.First();
             
             return bestPromotion.CalculateDiscount(originalPrice);
@@ -88,7 +87,7 @@ namespace EcommercePWA.Services
 
         public async Task<List<string>> GetAvailableCategoriesAsync()
         {
-            // Busca todas as categorias únicas dos produtos
+
             var categories = await _context.Products
                 .Where(p => !string.IsNullOrEmpty(p.Category))
                 .Select(p => p.Category)

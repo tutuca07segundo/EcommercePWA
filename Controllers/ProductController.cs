@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
 using EcommercePWA.Attributes;
@@ -20,7 +20,6 @@ namespace EcommercePWA.Controllers
             _logger = logger;
         }
 
-        // GET: /Product/Details/{id}
         public async Task<IActionResult> Details(int id)
         {
             try
@@ -31,12 +30,10 @@ namespace EcommercePWA.Controllers
                     return NotFound();
                 }
 
-                // Apply best discount to main product
                 await ApplyBestDiscount(product);
 
                 var relatedProducts = await _productService.GetRelatedProductsAsync(product, 4);
-                
-                // Apply discounts to related products
+
                 foreach (var relatedProduct in relatedProducts)
                 {
                     await ApplyBestDiscount(relatedProduct);
@@ -60,7 +57,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Product/Category/name
         public async Task<IActionResult> Category(string name, string sortOrder = "name")
         {
             try
@@ -91,7 +87,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Product/Search
         public async Task<IActionResult> Search(string q, string category = "", string sortOrder = "name")
         {
             try
@@ -123,7 +118,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Product/Create
         [RequireAuth]
         public async Task<IActionResult> Create()
         {
@@ -142,7 +136,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Product/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -174,7 +167,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Product/Edit/{id}
         [RequireAuth]
         public async Task<IActionResult> Edit(int id)
         {
@@ -199,7 +191,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Product/Edit/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -236,7 +227,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Product/Delete/{id}
         [RequireAuth]
         public async Task<IActionResult> Delete(int id)
         {
@@ -259,7 +249,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Product/Delete/{id}
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -289,7 +278,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Product/EditSelector
         [RequireAuth]
         public async Task<IActionResult> EditSelector(int? id)
         {
@@ -307,7 +295,6 @@ namespace EcommercePWA.Controllers
             return View("EditSelector", selectedProduct ?? new Product());
         }
 
-        // POST: /Product/EditSelector
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -328,7 +315,6 @@ namespace EcommercePWA.Controllers
             return View("EditSelector", product);
         }
 
-        // POST: /Product/AddVariation
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -358,7 +344,6 @@ namespace EcommercePWA.Controllers
             return RedirectToAction("Edit", new { id = productId });
         }
 
-        // POST: /Product/ToggleVariation
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -385,7 +370,6 @@ namespace EcommercePWA.Controllers
             return RedirectToAction("Edit", new { id = productId });
         }
 
-        // POST: /Product/DeleteVariation
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuth]
@@ -411,7 +395,6 @@ namespace EcommercePWA.Controllers
             decimal bestDiscountedPrice = product.Price;
             bool hasDiscount = false;
 
-            // Verificar desconto individual do produto
             var productDiscount = await _discountService.GetActiveDiscountForProductAsync(product.Id);
             if (productDiscount != null)
             {
@@ -423,7 +406,6 @@ namespace EcommercePWA.Controllers
                 }
             }
 
-            // Verificar promoção da categoria
             var categoryDiscount = await _categoryPromotionService.CalculateCategoryDiscountAsync(product.Category, product.Price);
             if (categoryDiscount > 0)
             {
@@ -435,7 +417,6 @@ namespace EcommercePWA.Controllers
                 }
             }
 
-            // Aplicar o melhor desconto encontrado
             if (hasDiscount)
             {
                 product.DiscountedPrice = bestDiscountedPrice;
@@ -448,7 +429,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Product/GetBrandsByCategory
         [HttpGet]
         public async Task<IActionResult> GetBrandsByCategory(string category)
         {

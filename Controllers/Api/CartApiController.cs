@@ -1,12 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
 
 namespace EcommercePWA.Controllers.Api
 {
-    /// <summary>
-    /// API para gerenciamento do carrinho de compras
-    /// </summary>
+
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
@@ -19,11 +17,6 @@ namespace EcommercePWA.Controllers.Api
             _cartService = cartService;
         }
 
-        /// <summary>
-        /// Adiciona um produto ao carrinho
-        /// </summary>
-        /// <param name="request">Dados do item para adicionar</param>
-        /// <returns>Status da operação</returns>
         [HttpPost("add")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -40,11 +33,6 @@ namespace EcommercePWA.Controllers.Api
             }
         }
 
-        /// <summary>
-        /// Obtém os itens do carrinho por sessão
-        /// </summary>
-        /// <param name="sessionId">ID da sessão</param>
-        /// <returns>Itens do carrinho</returns>
         [HttpGet("{sessionId}")]
         [ProducesResponseType(typeof(Cart), 200)]
         [ProducesResponseType(404)]
@@ -64,12 +52,6 @@ namespace EcommercePWA.Controllers.Api
             }
         }
 
-        /// <summary>
-        /// Remove um item do carrinho
-        /// </summary>
-        /// <param name="sessionId">ID da sessão</param>
-        /// <param name="itemId">ID do item do carrinho</param>
-        /// <returns>Status da operação</returns>
         [HttpDelete("{sessionId}/items/{itemId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
@@ -87,21 +69,15 @@ namespace EcommercePWA.Controllers.Api
         }
     }
 
-    /// <summary>
-    /// Modelo para requisição de adicionar ao carrinho
-    /// </summary>
     public class AddToCartRequest
     {
-        /// <summary>ID da sessão</summary>
+
         public string SessionId { get; set; } = string.Empty;
-        
-        /// <summary>ID do produto</summary>
+
         public int ProductId { get; set; }
-        
-        /// <summary>Quantidade do produto</summary>
+
         public int Quantity { get; set; }
-        
-        /// <summary>ID da variação do produto (opcional)</summary>
+
         public int? VariationId { get; set; }
     }
 }

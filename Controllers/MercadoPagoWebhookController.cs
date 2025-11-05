@@ -1,4 +1,4 @@
-using EcommercePWA.Models;
+﻿using EcommercePWA.Models;
 using EcommercePWA.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -8,9 +8,7 @@ using System.Text.Json;
 
 namespace EcommercePWA.Controllers
 {
-    /// <summary>
-    /// API para recebimento de webhooks do Mercado Pago
-    /// </summary>
+
     [Route("api/[controller]")]
     [ApiController]
     [Produces("application/json")]
@@ -30,10 +28,6 @@ namespace EcommercePWA.Controllers
             _webhookSecret = settings.Value.WebhookSecret;
         }
 
-        /// <summary>
-        /// Endpoint de teste para verificar se o webhook está funcionando
-        /// </summary>
-        /// <returns>Mensagem de confirmação</returns>
         [HttpGet]
         [ProducesResponseType(typeof(string), 200)]
         public IActionResult TestWebhook()
@@ -42,10 +36,6 @@ namespace EcommercePWA.Controllers
             return Ok("Webhook endpoint funcionando");
         }
 
-        /// <summary>
-        /// Recebe notificações de webhook do Mercado Pago sobre pagamentos
-        /// </summary>
-        /// <returns>Status do processamento da notificação</returns>
         [HttpPost("ReceiveWebhook")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(400)]
@@ -56,26 +46,22 @@ namespace EcommercePWA.Controllers
             try
             {
                 _logger.LogInformation("=== Webhook MercadoPago Recebido ===");
-                
-                // Log dos headers para debug
+
                 foreach (var header in Request.Headers)
                 {
                     _logger.LogInformation($"Header: {header.Key} = {header.Value}");
                 }
 
-                // Ler o corpo da requisição
                 using var reader = new StreamReader(Request.Body, Encoding.UTF8);
                 var requestBody = await reader.ReadToEndAsync();
                 
                 _logger.LogInformation($"Webhook Body: {requestBody}");
 
-                // Verificar se tem assinatura (opcional para desenvolvimento)
                 if (Request.Headers.TryGetValue("x-signature", out var signatureHeader))
                 {
                     var signature = signatureHeader.ToString();
                     _logger.LogInformation($"Assinatura recebida: {signature}");
-                    
-                    // Validar assinatura apenas se o webhook secret estiver configurado e não for placeholder
+
                     if (!string.IsNullOrEmpty(_webhookSecret) && _webhookSecret != "your_webhook_secret_here")
                     {
                         var signatureValue = signature.Contains('=') ? signature.Split('=')[1] : signature;
@@ -96,7 +82,6 @@ namespace EcommercePWA.Controllers
                     _logger.LogWarning("Webhook recebido sem assinatura x-signature");
                 }
 
-                // Deserializar a notificação
                 var notification = JsonSerializer.Deserialize<MercadoPagoPaymentNotification>(requestBody, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
@@ -110,7 +95,6 @@ namespace EcommercePWA.Controllers
 
                 _logger.LogInformation($"Notificação processada: Tipo={notification.Type}, Action={notification.Action}, ID={notification.Id}");
 
-                // Processar a notificação
                 var success = await _mercadoPagoService.ProcessWebhookAsync(notification);
                 if (!success)
                 {

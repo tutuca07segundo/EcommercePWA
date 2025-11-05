@@ -1,4 +1,4 @@
-using EcommercePWA.Models;
+﻿using EcommercePWA.Models;
 using EcommercePWA.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +17,7 @@ namespace EcommercePWA.Services
 
         public Coupon? GetCouponByCode(string code)
         {
-            // Buscar todos os cupons e fazer a comparação no cliente
+
             return _context.Coupons
                 .ToList()
                 .FirstOrDefault(c => c.Code.Equals(code, StringComparison.OrdinalIgnoreCase));
@@ -36,7 +36,6 @@ namespace EcommercePWA.Services
             {
                 _logger.LogInformation("Tentando criar cupom: {Code}", coupon.Code);
 
-                // Validações adicionais
                 if (string.IsNullOrWhiteSpace(coupon.Code))
                 {
                     throw new ArgumentException("O código do cupom é obrigatório");
@@ -49,7 +48,6 @@ namespace EcommercePWA.Services
 
                 _logger.LogInformation("Validações básicas passaram para cupom: {Code}", coupon.Code);
 
-                // Verificar se já existe um cupom com o mesmo código
                 var existingCoupon = GetCouponByCode(coupon.Code);
                 if (existingCoupon != null)
                 {
@@ -58,7 +56,6 @@ namespace EcommercePWA.Services
 
                 _logger.LogInformation("Verificação de duplicata passou para cupom: {Code}", coupon.Code);
 
-                // Validar datas
                 if (coupon.ValidUntil <= coupon.ValidFrom)
                 {
                     throw new ArgumentException("A data de fim deve ser posterior à data de início");
@@ -66,7 +63,6 @@ namespace EcommercePWA.Services
 
                 _logger.LogInformation("Validação de datas passou para cupom: {Code}", coupon.Code);
 
-                // Validar que pelo menos um tipo de desconto foi informado
                 if (coupon.DiscountAmount == 0 && (!coupon.DiscountPercentage.HasValue || coupon.DiscountPercentage == 0))
                 {
                     throw new ArgumentException("É necessário informar um valor de desconto ou percentual");
@@ -74,11 +70,9 @@ namespace EcommercePWA.Services
 
                 _logger.LogInformation("Validação de desconto passou para cupom: {Code}", coupon.Code);
 
-                // Definir valores padrão
                 coupon.CreatedAt = DateTime.Now;
                 coupon.CurrentUses = 0;
 
-                // Se MaximumUses for 0, definir como null (ilimitado)
                 if (coupon.MaximumUses == 0)
                 {
                     coupon.MaximumUses = null;
@@ -113,7 +107,6 @@ namespace EcommercePWA.Services
                     throw new ArgumentException($"Cupom com ID {coupon.Id} não encontrado");
                 }
 
-                // Validações
                 if (string.IsNullOrWhiteSpace(coupon.Code))
                 {
                     throw new ArgumentException("O código do cupom é obrigatório");
@@ -124,32 +117,27 @@ namespace EcommercePWA.Services
                     throw new ArgumentException("A descrição do cupom é obrigatória");
                 }
 
-                // Verificar se já existe outro cupom com o mesmo código
                 var duplicateCoupon = GetCouponByCode(coupon.Code);
                 if (duplicateCoupon != null && duplicateCoupon.Id != coupon.Id)
                 {
                     throw new InvalidOperationException($"Já existe um cupom com o código '{coupon.Code}'");
                 }
 
-                // Validar datas
                 if (coupon.ValidUntil <= coupon.ValidFrom)
                 {
                     throw new ArgumentException("A data de fim deve ser posterior à data de início");
                 }
 
-                // Validar que pelo menos um tipo de desconto foi informado
                 if (coupon.DiscountAmount == 0 && (!coupon.DiscountPercentage.HasValue || coupon.DiscountPercentage == 0))
                 {
                     throw new ArgumentException("É necessário informar um valor de desconto ou percentual");
                 }
 
-                // Se MaximumUses for 0, definir como null (ilimitado)
                 if (coupon.MaximumUses == 0)
                 {
                     coupon.MaximumUses = null;
                 }
 
-                // Atualizar propriedades
                 existingCoupon.Code = coupon.Code;
                 existingCoupon.Description = coupon.Description;
                 existingCoupon.DiscountAmount = coupon.DiscountAmount;
@@ -217,7 +205,7 @@ namespace EcommercePWA.Services
         {
             try
             {
-                // Verificar se já existem cupons
+
                 if (!_context.Coupons.Any())
                 {
                     var initialCoupons = new List<Coupon>

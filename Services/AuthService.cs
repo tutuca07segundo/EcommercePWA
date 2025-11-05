@@ -57,30 +57,56 @@ namespace EcommercePWA.Services
         {
             try
             {
-                if (await _context.Users.AnyAsync(u => u.Email.ToLower() == email.ToLower()))
+                _logger.LogInformation("RegisterAsync iniciado para: {Email}", email);
+                
+                // Verificar se email já existe E está ativo
+                if (await _context.Users.AnyAsync(u => u.Email.ToLower() == email.ToLower() && u.IsActive))
                 {
+                    _logger.LogWarning("Email já existe no banco (ativo): {Email}", email);
                     return null; // Email já existe
                 }
+                
+                // Se email existe mas está inativo, reativar o usuário
+                var inactiveUser = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower() && !u.IsActive);
+                if (inactiveUser != null)
+                {
+                    _logger.LogInformation("Reativando usuário inativo: {Email}", email);
+                    inactiveUser.Name = name;
+                    inactiveUser.Password = HashPassword(password);
+                    inactiveUser.Role = "User"; // Sempre resetar para usuário comum
+                    inactiveUser.IsActive = true;
+                    inactiveUser.CreatedAt = DateTime.Now;
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Usuário reativado com sucesso como User: {Email}", email);
+                    return inactiveUser;
+                }
+
+                var hashedPassword = HashPassword(password);
+                _logger.LogInformation("Senha hasheada. Tamanho: {Length} caracteres", hashedPassword.Length);
 
                 var user = new User
                 {
                     Name = name,
                     Email = email,
-                    Password = HashPassword(password),
+                    Password = hashedPassword,
                     Role = "User",
                     CreatedAt = DateTime.Now,
                     IsActive = true
                 };
 
+                _logger.LogInformation("Adicionando usuário ao contexto: {Email}", email);
                 _context.Users.Add(user);
+                
+                _logger.LogInformation("Salvando alterações no banco de dados...");
                 await _context.SaveChangesAsync();
                 
-                _logger.LogInformation("Novo usuário registrado: {Email}", email);
+                _logger.LogInformation("Novo usuário registrado com sucesso: {Email}, ID: {Id}", email, user.Id);
                 return user;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro durante registro do usuário {Email}", email);
+                _logger.LogError(ex, "Erro durante registro do usuário {Email}: {Message}\nStackTrace: {StackTrace}", 
+                    email, ex.Message, ex.StackTrace);
                 return null;
             }
         }
@@ -222,10 +248,9 @@ namespace EcommercePWA.Services
         {
             try
             {
-                // Garantir que o banco existe
+
                 await _context.Database.EnsureCreatedAsync();
-                
-                // Criar usuário admin se não existir
+
                 await CreateAdminUserAsync();
                 
                 return true;

@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace EcommercePWA.Models
 {
@@ -48,8 +48,7 @@ namespace EcommercePWA.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public int? CreatedByUserId { get; set; } // Admin que criou o cupom
-        
-        // Relacionamentos
+
         public List<Order> Orders { get; set; } = new List<Order>();
     }
 }

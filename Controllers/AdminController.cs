@@ -4,6 +4,7 @@ using EcommercePWA.Services;
 using EcommercePWA.Attributes;
 
 //ngrok http 5005-->Inicia o projeto para conseguir o link ngrok
+//taskkill /F /IM dotnet.exe ---> finaliza processo que ja esta rodando
 
 //https://32ded4e54472.ngrok-free.app --> link do ngrok
 //Cartão aprovado: 4509 9535 6623 3704
@@ -11,6 +12,10 @@ using EcommercePWA.Attributes;
 //Validade: 11/25
 //Nome: APRO
 
+// Cartão negado 4000 0000 0000 0002  (Visa - sempre negado)
+// CVV: 123
+// Validade: 12/26
+// Nome: Teste Negado
 
 //Dashboard: /Admin
 //Produtos: /Admin/Products
@@ -18,16 +23,7 @@ using EcommercePWA.Attributes;
 //Pedidos: /Admin/Orders
 //Usuários: /Admin/Users
 //Categorias: /Admin/Categories
-//taskkill /F /IM dotnet.exe ---> finaliza processo que ja esta rodando
-// ✅ Cartão negado 4000 0000 0000 0002  (Visa - sempre negado)
-// CVV: 123
-// Validade: 12/26
-// Nome: Teste Negado
 
-// ✅ Cartão aprovado 4509 9535 6623 3704  (Visa - Mercado Pago)
-// CVV: 123
-// Validade: 11/25
-// Nome: APRO
 
 namespace EcommercePWA.Controllers
 {
@@ -54,14 +50,13 @@ namespace EcommercePWA.Controllers
             _logger = logger;
         }
 
-        // GET: /Admin
         public async Task<IActionResult> Index()
         {
             try
             {
                 var products = await _productService.GetAllProductsAsync();
                 var orders = await _orderService.GetAllOrders();
-                
+
                 var users = await _authService.GetAllUsersAsync();
                 var dashboard = new AdminDashboardViewModel
                 {
@@ -82,39 +77,69 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Admin/Products
         public async Task<IActionResult> Products()
         {
             var products = await _productService.GetAllProductsAsync();
             return View(products);
         }
 
-        // GET: /Admin/Coupons
         public IActionResult Coupons()
         {
             var coupons = _couponService.GetAllCoupons();
             return View(coupons);
         }
 
-        // GET: /Admin/Orders
         public async Task<IActionResult> Orders()
         {
             var orders = await _orderService.GetAllOrders();
             return View(orders);
         }
 
-        // GET: /Admin/Users
         public IActionResult Users()
         {
             var users = _authService.GetAllUsersAsync().Result;
             return View(users);
         }
 
-        // GET: /Admin/Categories
         public async Task<IActionResult> Categories()
         {
             var categories = await _productService.GetAllCategoriesAsync();
             return View(categories);
+        }
+
+        // Método temporário para resetar usuário específico
+        [HttpGet]
+        public async Task<IActionResult> ResetUserRole(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return Json(new { success = false, message = "Email não fornecido" });
+            }
+
+            try
+            {
+                var user = await _authService.GetUserByEmailAsync(email);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "Usuário não encontrado" });
+                }
+
+                user.Role = "User";
+                var updated = await _authService.UpdateUserAsync(user);
+                
+                if (updated != null)
+                {
+                    _logger.LogInformation("Role do usuário {Email} resetado para User", email);
+                    return Json(new { success = true, message = $"Role do usuário {email} resetado para User com sucesso!" });
+                }
+                
+                return Json(new { success = false, message = "Erro ao atualizar usuário" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao resetar role do usuário {Email}", email);
+                return Json(new { success = false, message = $"Erro: {ex.Message}" });
+            }
         }
     }
 

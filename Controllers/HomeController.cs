@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
@@ -21,7 +21,6 @@ public class HomeController : Controller
         _productPricingService = productPricingService;
     }
 
-    // GET: /Home
     public async Task<IActionResult> Index(string? category, string? searchTerm, string? sortOrder)
     {
         try
@@ -48,7 +47,6 @@ public class HomeController : Controller
 
             var categories = await _productService.GetAllCategoriesAsync();
 
-            // Apply discounts to products
             var productsWithPricing = await _productPricingService.ApplyDiscountsToProductsAsync(products);
             ApplyPricingToProducts(products, productsWithPricing);
 
@@ -77,7 +75,6 @@ public class HomeController : Controller
         }
     }
 
-    // GET: /Home/Search
     public async Task<IActionResult> Search(string q)
     {
         try
@@ -85,7 +82,6 @@ public class HomeController : Controller
             var products = await _productService.SearchProductsAsync(q);
             var categories = await _productService.GetAllCategoriesAsync();
 
-            // Apply discounts to products
             var productsWithPricing = await _productPricingService.ApplyDiscountsToProductsAsync(products);
             ApplyPricingToProducts(products, productsWithPricing);
 
@@ -106,7 +102,6 @@ public class HomeController : Controller
         }
     }
 
-    // GET: /Home/Category/{name}
     public async Task<IActionResult> Category(string name)
     {
         try
@@ -114,7 +109,6 @@ public class HomeController : Controller
             var products = await _productService.GetProductsByCategoryAsync(name);
             var categories = await _productService.GetAllCategoriesAsync();
 
-            // Apply discounts to products
             var productsWithPricing = await _productPricingService.ApplyDiscountsToProductsAsync(products);
             ApplyPricingToProducts(products, productsWithPricing);
 
@@ -135,7 +129,6 @@ public class HomeController : Controller
         }
     }
 
-    // GET: /Home/Sort
     public async Task<IActionResult> Sort(string order)
     {
         try
@@ -144,7 +137,6 @@ public class HomeController : Controller
             var sortedProducts = _productService.SortProducts(products, order);
             var categories = await _productService.GetAllCategoriesAsync();
 
-            // Apply discounts to products
             var productsWithPricing = await _productPricingService.ApplyDiscountsToProductsAsync(sortedProducts);
             ApplyPricingToProducts(sortedProducts, productsWithPricing);
 
@@ -175,15 +167,13 @@ public class HomeController : Controller
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 
-    // API Endpoints for Advanced Filters
     [HttpPost]
     public async Task<IActionResult> FilterProducts([FromBody] ProductFilterModel filter)
     {
         try
         {
             var result = await _productService.FilterProductsAsync(filter);
-            
-            // Apply discounts to filtered products
+
             var productsWithPricing = await _productPricingService.ApplyDiscountsToProductsAsync(result.Products);
             ApplyPricingToProducts(result.Products, productsWithPricing);
 

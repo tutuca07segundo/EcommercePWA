@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using EcommercePWA.Models;
 
 namespace EcommercePWA.Data
@@ -30,7 +30,6 @@ namespace EcommercePWA.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuração do Product
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price)
                 .HasColumnType("decimal(18,2)");
@@ -39,7 +38,6 @@ namespace EcommercePWA.Data
                 .Property(p => p.Weight)
                 .HasColumnType("decimal(8,2)");
 
-            // Configuração do User
             modelBuilder.Entity<User>()
                 .Property(u => u.Password)
                 .HasMaxLength(255);
@@ -52,12 +50,10 @@ namespace EcommercePWA.Data
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
-            // Configuração do CartItem
             modelBuilder.Entity<CartItem>()
                 .Property(ci => ci.UnitPrice)
                 .HasColumnType("decimal(18,2)");
 
-            // Configuração do Order
             modelBuilder.Entity<Order>()
                 .Property(o => o.Total)
                 .HasColumnType("decimal(18,2)");
@@ -70,12 +66,10 @@ namespace EcommercePWA.Data
                 .Property(o => o.TaxAmount)
                 .HasColumnType("decimal(18,2)");
 
-            // Configuração do OrderItem
             modelBuilder.Entity<OrderItem>()
                 .Property(oi => oi.UnitPrice)
                 .HasColumnType("decimal(18,2)");
 
-            // Configuração do Coupon
             modelBuilder.Entity<Coupon>()
                 .Property(c => c.DiscountAmount)
                 .HasColumnType("decimal(18,2)");
@@ -84,17 +78,14 @@ namespace EcommercePWA.Data
                 .Property(c => c.MinimumOrderAmount)
                 .HasColumnType("decimal(18,2)");
 
-            // Configuração do ProductVariation
             modelBuilder.Entity<ProductVariation>()
                 .Property(pv => pv.PriceModifier)
                 .HasColumnType("decimal(18,2)");
 
-            // Configuração do Review
             modelBuilder.Entity<Review>()
                 .Property(r => r.Rating)
                 .HasColumnType("decimal(3,1)");
 
-            // Configuração do PasswordResetRequest
             modelBuilder.Entity<PasswordResetRequest>()
                 .Property(p => p.Email)
                 .HasMaxLength(150);
@@ -102,16 +93,12 @@ namespace EcommercePWA.Data
                 .Property(p => p.Code)
                 .HasMaxLength(6);
 
-            // Configuração dos relacionamentos de Subcategory
             modelBuilder.Entity<Subcategory>()
                 .HasOne(s => s.Category)
                 .WithMany(c => c.Subcategories)
                 .HasForeignKey(s => s.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Relacionamento Product -> Subcategory removido (agora usando Brand)
-
-            // Configuração do Discount
             modelBuilder.Entity<Discount>()
                 .Property(d => d.DiscountAmount)
                 .HasColumnType("decimal(18,2)");
@@ -120,7 +107,6 @@ namespace EcommercePWA.Data
                 .Property(d => d.DiscountPercentage)
                 .HasColumnType("decimal(5,2)");
 
-            // Configuração do relacionamento ProductDiscount (Many-to-Many)
             modelBuilder.Entity<ProductDiscount>()
                 .HasKey(pd => new { pd.ProductId, pd.DiscountId });
 
@@ -136,7 +122,6 @@ namespace EcommercePWA.Data
                 .HasForeignKey(pd => pd.DiscountId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configuração do CategoryPromotion
             modelBuilder.Entity<CategoryPromotion>()
                 .Property(cp => cp.DiscountAmount)
                 .HasColumnType("decimal(18,2)");

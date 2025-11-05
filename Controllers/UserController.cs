@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Services;
 using EcommercePWA.Models;
 using EcommercePWA.Attributes;
@@ -72,5 +72,4 @@ namespace EcommercePWA.Controllers
         }
     }
 }
-
 

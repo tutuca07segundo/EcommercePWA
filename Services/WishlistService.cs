@@ -1,4 +1,4 @@
-using EcommercePWA.Data;
+﻿using EcommercePWA.Data;
 using EcommercePWA.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,21 +25,19 @@ namespace EcommercePWA.Services
 
         public async Task<bool> AddToWishlistAsync(int userId, int productId, int? variationId = null)
         {
-            // Verifica se já existe na wishlist
+
             var existingItem = await GetWishlistItemAsync(userId, productId, variationId);
             if (existingItem != null)
             {
                 return false; // Já existe na wishlist
             }
 
-            // Verifica se o produto existe
             var product = await _context.Products.FindAsync(productId);
             if (product == null)
             {
                 return false;
             }
 
-            // Se tem variationId, verifica se a variação existe
             if (variationId.HasValue)
             {
                 var variation = await _context.ProductVariations

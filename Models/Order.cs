@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace EcommercePWA.Models
 {
@@ -60,8 +60,7 @@ namespace EcommercePWA.Models
         
         [StringLength(500)]
         public string? Notes { get; set; }
-        
-        // Relacionamentos
+
         public List<OrderItem> Items { get; set; } = new List<OrderItem>();
         public List<OrderNotification> Notifications { get; set; } = new List<OrderNotification>();
     }

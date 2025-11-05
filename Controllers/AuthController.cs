@@ -21,7 +21,6 @@ namespace EcommercePWA.Controllers
             _logger = logger;
         }
 
-        // GET: /Auth/Login
         public IActionResult Login(string? returnUrl = null, int? mustLoginToBuy = null)
         {
             if (mustLoginToBuy == 1)
@@ -32,14 +31,12 @@ namespace EcommercePWA.Controllers
             return View();
         }
 
-        // GET: /Auth/ForgotPassword
         [HttpGet]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
-        // POST: /Auth/ForgotPassword
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(string email)
@@ -81,7 +78,6 @@ namespace EcommercePWA.Controllers
             return RedirectToAction("ForgotPassword");
         }
 
-        // GET: /Auth/ResetPassword
         [HttpGet]
         public IActionResult ResetPassword(string email)
         {
@@ -89,7 +85,6 @@ namespace EcommercePWA.Controllers
             return View();
         }
 
-        // POST: /Auth/ResetPassword
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(string email, string code, string newPassword)
@@ -128,7 +123,6 @@ namespace EcommercePWA.Controllers
             return RedirectToAction("Login");
         }
 
-        // POST: /Auth/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string password, string? returnUrl = null)
@@ -150,7 +144,6 @@ namespace EcommercePWA.Controllers
                     return View();
                 }
 
-                // Criar sessão
                 HttpContext.Session.SetInt32("UserId", user.Id);
                 HttpContext.Session.SetString("UserName", user.Name);
                 HttpContext.Session.SetString("UserEmail", user.Email);
@@ -174,47 +167,60 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Auth/Register
         public IActionResult Register(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             return View(new RegisterViewModel());
         }
 
-        // POST: /Auth/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
         {
             try
             {
+                _logger.LogInformation("Tentativa de registro para email: {Email}", model.Email);
+                
                 if (!ModelState.IsValid)
+                {
+                    _logger.LogWarning("ModelState inválido no registro");
+                    foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        _logger.LogWarning("Erro de validação: {ErrorMessage}", error.ErrorMessage);
+                    }
                     return View(model);
+                }
 
                 var existingUser = await _authService.GetUserByEmailAsync(model.Email);
                 if (existingUser != null)
                 {
+                    _logger.LogWarning("Email já existe: {Email}", model.Email);
                     ModelState.AddModelError("", "Este email já está em uso");
                     return View(model);
                 }
+                
+                _logger.LogInformation("Chamando RegisterAsync para: {Email}", model.Email);
                 var user = await _authService.RegisterAsync(model.Name, model.Email, model.Password);
+                
                 if (user == null)
                 {
+                    _logger.LogError("RegisterAsync retornou null para: {Email}", model.Email);
                     ModelState.AddModelError("", "Erro ao criar conta. Tente novamente.");
                     return View(model);
                 }
+                
+                _logger.LogInformation("Usuário criado com sucesso: {Email}", model.Email);
                 TempData["SuccessMessage"] = "Conta criada com sucesso! Faça login para continuar.";
                 return RedirectToAction("Login", new { returnUrl = returnUrl });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro durante o registro");
-                ModelState.AddModelError("", "Erro durante o registro. Tente novamente.");
+                _logger.LogError(ex, "Erro durante o registro do usuário {Email}: {Message}", model.Email, ex.Message);
+                ModelState.AddModelError("", $"Erro durante o registro: {ex.Message}");
                 return View(model);
             }
         }
 
-        // POST: /Auth/Logout
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Logout()
@@ -223,7 +229,6 @@ namespace EcommercePWA.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // GET: /Auth/AccessDenied
         public IActionResult AccessDenied()
         {
             return View();

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using EcommercePWA.Data;
 using EcommercePWA.Models;
 
@@ -122,7 +122,6 @@ namespace EcommercePWA.Services
 
             if (!activeDiscounts.Any()) return 0;
 
-            // Pegar o maior desconto disponível
             var product = await _context.Products.FindAsync(productId);
             if (product == null) return 0;
 
@@ -170,7 +169,6 @@ namespace EcommercePWA.Services
                            d.ProductDiscounts.Any(pd => pd.ProductId == productId))
                 .ToListAsync();
 
-            // Order on client side to avoid SQLite decimal ordering issues
             return discounts
                 .OrderByDescending(d => d.DiscountPercentage ?? 0)
                 .ThenByDescending(d => d.DiscountAmount ?? 0)

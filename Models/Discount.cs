@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace EcommercePWA.Models
 {
@@ -37,8 +37,7 @@ namespace EcommercePWA.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public int? CreatedByUserId { get; set; }
-        
-        // Relacionamentos
+
         public List<ProductDiscount> ProductDiscounts { get; set; } = new List<ProductDiscount>();
     }
     

@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EcommercePWA.Models
@@ -38,8 +38,7 @@ namespace EcommercePWA.Models
         
         [StringLength(50)]
         public string Type { get; set; } = string.Empty; // Periférico, Peça, etc.
-        
-        // Propriedades para cálculo de frete
+
         [Range(0.01, 50000)] // peso em gramas (máximo 50kg)
         public decimal Weight { get; set; } = 200m; // 200g padrão (mais realista para periféricos)
         
@@ -53,19 +52,14 @@ namespace EcommercePWA.Models
         public int Length { get; set; } = 20; // 20cm padrão
         
         public List<string> Tags { get; set; } = new List<string>();
-        
-        
-        // Novos campos para variações de cor
+
         public virtual List<ProductVariation> Variations { get; set; } = new();
-        
-        // Navigation properties
+
         public virtual List<ProductDiscount> ProductDiscounts { get; set; } = new();
         public virtual List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public virtual List<CartItem> CartItems { get; set; } = new List<CartItem>();
         public virtual List<WishlistItem> WishlistItems { get; set; } = new List<WishlistItem>();
 
-        
-        // Discount properties (not mapped to database)
         [NotMapped]
         public decimal? DiscountedPrice { get; set; }
         

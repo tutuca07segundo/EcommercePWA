@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace EcommercePWA.Models
 {
@@ -45,15 +45,13 @@ namespace EcommercePWA.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public int? CreatedByUserId { get; set; }
-        
-        // Método para verificar se a promoção está válida
+
         public bool IsValidNow()
         {
             var now = DateTime.Now;
             return IsActive && now >= ValidFrom && now <= ValidUntil;
         }
-        
-        // Método para calcular o desconto
+
         public decimal CalculateDiscount(decimal originalPrice)
         {
             if (!IsValidNow()) return 0;

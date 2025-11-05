@@ -1,4 +1,4 @@
-using EcommercePWA.Data;
+﻿using EcommercePWA.Data;
 using EcommercePWA.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
@@ -31,7 +31,7 @@ namespace EcommercePWA.Services
 
         public async Task<ChatbotResponse> ProcessMessageAsync(string message, string sessionId, string? userId = null)
         {
-            // Salvar mensagem do usuário
+
             await SaveMessageAsync(new ChatMessage
             {
                 SessionId = sessionId,
@@ -42,7 +42,6 @@ namespace EcommercePWA.Services
 
             var response = await GenerateResponseAsync(message, userId);
 
-            // Salvar resposta do bot
             await SaveMessageAsync(new ChatMessage
             {
                 SessionId = sessionId,
@@ -57,7 +56,6 @@ namespace EcommercePWA.Services
         {
             var lowerMessage = message.ToLower().Trim();
 
-            // Saudações
             if (IsGreeting(lowerMessage))
             {
                 return new ChatbotResponse
@@ -67,25 +65,21 @@ namespace EcommercePWA.Services
                 };
             }
 
-            // Rastreamento de pedido
             if (ContainsKeywords(lowerMessage, new[] { "rastrear", "pedido", "entrega", "onde está", "📦" }))
             {
                 return await HandleOrderTrackingAsync(lowerMessage, userId);
             }
 
-            // Formas de pagamento
             if (ContainsKeywords(lowerMessage, new[] { "pagamento", "pix", "cartão", "boleto", "parcelamento", "💳" }))
             {
                 return HandlePaymentInquiry();
             }
 
-            // Contato e suporte
             if (ContainsKeywords(lowerMessage, new[] { "contato", "telefone", "whatsapp", "atendente", "humano", "suporte", "📞" }))
             {
                 return HandleContactInquiry();
             }
 
-            // Resposta padrão quando não entende - direciona para as 3 opções
             return new ChatbotResponse
             {
                 Message = "Desculpe, não entendi sua pergunta. 😅\n\nPosso te ajudar com:",
@@ -111,7 +105,6 @@ namespace EcommercePWA.Services
                 };
             }
 
-            // Buscar pedidos recentes do usuário
             var recentOrders = await _orderService.GetOrdersByUserId(int.Parse(userId));
             
             if (!recentOrders.Any())
@@ -132,7 +125,6 @@ namespace EcommercePWA.Services
             };
         }
 
-
         private ChatbotResponse HandlePaymentInquiry()
         {
             return new ChatbotResponse
@@ -145,7 +137,6 @@ namespace EcommercePWA.Services
                 QuickReplies = new List<string> { "Como pagar com PIX?", "Parcelamento", "Segurança", "Fazer pedido" }
             };
         }
-
 
         private ChatbotResponse HandleContactInquiry()
         {
@@ -163,7 +154,6 @@ namespace EcommercePWA.Services
             };
         }
 
-
         private bool IsGreeting(string message)
         {
             var greetings = new[] { "oi", "olá", "ola", "hello", "hi", "bom dia", "boa tarde", "boa noite" };
@@ -174,7 +164,6 @@ namespace EcommercePWA.Services
         {
             return keywords.Any(keyword => message.Contains(keyword));
         }
-
 
         private string GetOrderStatusDescription(string status)
         {
@@ -211,20 +200,19 @@ namespace EcommercePWA.Services
 
         public async Task<List<FAQ>> GetFAQsByCategoryAsync(string category)
         {
-            // Implementar quando tiver tabela de FAQs no banco
+
             return new List<FAQ>();
         }
 
         public async Task<List<ChatMessage>> GetChatHistoryAsync(string sessionId)
         {
-            // Implementar quando tiver tabela de mensagens no banco
+
             return new List<ChatMessage>();
         }
 
         public async Task SaveMessageAsync(ChatMessage message)
         {
-            // Implementar quando tiver tabela de mensagens no banco
-            // Por enquanto apenas simula o salvamento
+
             await Task.CompletedTask;
         }
     }

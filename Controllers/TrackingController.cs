@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
 using EcommercePWA.Attributes;
@@ -16,13 +16,11 @@ namespace EcommercePWA.Controllers
             _logger = logger;
         }
 
-        // GET: /Tracking
         public IActionResult Index()
         {
             return View();
         }
 
-        // GET: /Tracking/Order/{orderNumber}
         public async Task<IActionResult> Order(string orderNumber)
         {
             if (string.IsNullOrEmpty(orderNumber))
@@ -41,7 +39,6 @@ namespace EcommercePWA.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Verificar se o usuário pode visualizar este pedido
                 var userId = HttpContext.Session.GetInt32("UserId");
                 if (userId.HasValue && tracking.Order.UserId != userId.Value)
                 {
@@ -63,7 +60,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Tracking/Details/{orderId}
         [RequireAuth]
         public async Task<IActionResult> Details(int orderId)
         {
@@ -77,7 +73,6 @@ namespace EcommercePWA.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Verificar se o usuário pode visualizar este pedido
                 var userId = HttpContext.Session.GetInt32("UserId");
                 if (userId.HasValue && tracking.Order.UserId != userId.Value)
                 {
@@ -99,7 +94,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Tracking/Search
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Search(string orderNumber)
@@ -113,7 +107,6 @@ namespace EcommercePWA.Controllers
             return RedirectToAction("Order", new { orderNumber = orderNumber.Trim() });
         }
 
-        // GET: /Tracking/MyOrders - Lista pedidos do usuário logado
         [RequireAuth]
         public async Task<IActionResult> MyOrders()
         {
@@ -125,7 +118,7 @@ namespace EcommercePWA.Controllers
 
             try
             {
-                // CORREÇÃO: Redirecionar para MyOrders ao invés de Index para evitar acesso a todos os pedidos
+
                 return RedirectToAction("MyOrders", "Order");
             }
             catch (Exception ex)

@@ -16,7 +16,7 @@ namespace EcommercePWA.Models
         public string Email { get; set; } = string.Empty;
         
         [Required]
-        [StringLength(100)]
+        [StringLength(255)]
         public string Password { get; set; } = string.Empty;
         
         [StringLength(20)]
@@ -25,8 +25,7 @@ namespace EcommercePWA.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public bool IsActive { get; set; } = true;
-        
-        // Relacionamentos
+
         public List<Order> Orders { get; set; } = new List<Order>();
         public List<Review> Reviews { get; set; } = new List<Review>();
         public List<WishlistItem> WishlistItems { get; set; } = new List<WishlistItem>();

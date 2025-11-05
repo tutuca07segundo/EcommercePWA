@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Services;
 using EcommercePWA.Models;
 using EcommercePWA.Attributes;
@@ -15,14 +15,12 @@ namespace EcommercePWA.Controllers
             _categoryPromotionService = categoryPromotionService;
         }
 
-        // GET: CategoryPromotion
         public async Task<IActionResult> Index()
         {
             var promotions = await _categoryPromotionService.GetAllAsync();
             return View(promotions);
         }
 
-        // GET: CategoryPromotion/Details/5
         public async Task<IActionResult> Details(int id)
         {
             var promotion = await _categoryPromotionService.GetByIdAsync(id);
@@ -33,21 +31,19 @@ namespace EcommercePWA.Controllers
             return View(promotion);
         }
 
-        // GET: CategoryPromotion/Create
         public async Task<IActionResult> Create()
         {
             ViewBag.Categories = await _categoryPromotionService.GetAvailableCategoriesAsync();
             return View();
         }
 
-        // POST: CategoryPromotion/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CategoryPromotion promotion)
         {
             if (ModelState.IsValid)
             {
-                // Validar que pelo menos um tipo de desconto foi definido
+
                 if (!promotion.DiscountAmount.HasValue && !promotion.DiscountPercentage.HasValue)
                 {
                     ModelState.AddModelError("", "Você deve definir um valor fixo ou um percentual de desconto.");
@@ -55,7 +51,6 @@ namespace EcommercePWA.Controllers
                     return View(promotion);
                 }
 
-                // Validar que não foram definidos ambos os tipos
                 if (promotion.DiscountAmount.HasValue && promotion.DiscountPercentage.HasValue)
                 {
                     ModelState.AddModelError("", "Defina apenas um tipo de desconto: valor fixo OU percentual.");
@@ -63,7 +58,6 @@ namespace EcommercePWA.Controllers
                     return View(promotion);
                 }
 
-                // Validar datas
                 if (promotion.ValidFrom >= promotion.ValidUntil)
                 {
                     ModelState.AddModelError("ValidUntil", "A data de fim deve ser posterior à data de início.");
@@ -80,7 +74,6 @@ namespace EcommercePWA.Controllers
             return View(promotion);
         }
 
-        // GET: CategoryPromotion/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var promotion = await _categoryPromotionService.GetByIdAsync(id);
@@ -93,7 +86,6 @@ namespace EcommercePWA.Controllers
             return View(promotion);
         }
 
-        // POST: CategoryPromotion/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CategoryPromotion promotion)
@@ -105,7 +97,7 @@ namespace EcommercePWA.Controllers
 
             if (ModelState.IsValid)
             {
-                // Validar que pelo menos um tipo de desconto foi definido
+
                 if (!promotion.DiscountAmount.HasValue && !promotion.DiscountPercentage.HasValue)
                 {
                     ModelState.AddModelError("", "Você deve definir um valor fixo ou um percentual de desconto.");
@@ -113,7 +105,6 @@ namespace EcommercePWA.Controllers
                     return View(promotion);
                 }
 
-                // Validar que não foram definidos ambos os tipos
                 if (promotion.DiscountAmount.HasValue && promotion.DiscountPercentage.HasValue)
                 {
                     ModelState.AddModelError("", "Defina apenas um tipo de desconto: valor fixo OU percentual.");
@@ -121,7 +112,6 @@ namespace EcommercePWA.Controllers
                     return View(promotion);
                 }
 
-                // Validar datas
                 if (promotion.ValidFrom >= promotion.ValidUntil)
                 {
                     ModelState.AddModelError("ValidUntil", "A data de fim deve ser posterior à data de início.");
@@ -138,7 +128,6 @@ namespace EcommercePWA.Controllers
             return View(promotion);
         }
 
-        // GET: CategoryPromotion/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
             var promotion = await _categoryPromotionService.GetByIdAsync(id);
@@ -149,7 +138,6 @@ namespace EcommercePWA.Controllers
             return View(promotion);
         }
 
-        // POST: CategoryPromotion/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -166,7 +154,6 @@ namespace EcommercePWA.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: CategoryPromotion/Toggle/5
         public async Task<IActionResult> Toggle(int id)
         {
             var promotion = await _categoryPromotionService.GetByIdAsync(id);

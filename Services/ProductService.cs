@@ -1,4 +1,4 @@
-using EcommercePWA.Models;
+﻿using EcommercePWA.Models;
 using EcommercePWA.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,14 +14,12 @@ namespace EcommercePWA.Services
         Task<Product?> GetProductByIdAsync(int id);
         Task<List<Product>> GetRelatedProductsAsync(Product product, int count);
         Task<List<ProductVariation>> GetProductVariationsAsync(int productId);
-        
-        // Advanced Filter Methods
+
         Task<FilteredProductsResult> FilterProductsAsync(ProductFilterModel filter);
         Task<ProductFilterOptions> GetFilterOptionsAsync();
         Task<List<SearchSuggestion>> GetSearchSuggestionsAsync(string searchTerm, int maxResults = 5);
         Task<List<string>> GetBrandsByCategoryAsync(string category);
-        
-        // CRUD Operations
+
         Task<Product> CreateProductAsync(Product product);
         Task<Product> UpdateProductAsync(Product product);
         Task<bool> DeleteProductAsync(int id);
@@ -190,7 +188,6 @@ namespace EcommercePWA.Services
             }
         }
 
-        // CRUD Operations
         public async Task<Product> CreateProductAsync(Product product)
         {
             try
@@ -227,8 +224,7 @@ namespace EcommercePWA.Services
                 existingProduct.StockQuantity = product.StockQuantity;
                 existingProduct.Type = product.Type;
                 existingProduct.Tags = product.Tags;
-                
-                // Atualizar campos de peso e dimensões para frete
+
                 existingProduct.Weight = product.Weight;
                 existingProduct.Width = product.Width;
                 existingProduct.Height = product.Height;
@@ -322,7 +318,6 @@ namespace EcommercePWA.Services
                 if (category == null)
                     return false;
 
-                // Verificar se há produtos usando esta categoria
                 var productsInCategory = await _context.Products.AnyAsync(p => p.Category == category.Name);
                 if (productsInCategory)
                     throw new InvalidOperationException("Não é possível remover uma categoria que possui produtos");
@@ -463,42 +458,35 @@ namespace EcommercePWA.Services
         {
             return new List<Product>
             {
-                // Mouses
+
                 CreateProduct("Mouse Gaming Logitech G Pro X Superlight", "Mouse wireless ultra leve com sensor HERO 25K", 599.99m, "Mouses", "Logitech", 15, "Periférico", new[] { "gaming", "wireless", "leve" }, 4.8m, 150, 12, 4, 7),
                 CreateProduct("Mouse Razer DeathAdder V3 Pro", "Mouse ergonômico com sensor Focus Pro 30K", 699.99m, "Mouses", "Razer", 8, "Periférico", new[] { "gaming", "ergonômico", "premium" }, 4.7m, 180, 13, 4, 8),
                 CreateProduct("Mouse HyperX Pulsefire Haste", "Mouse ultra leve com switches ópticos", 299.99m, "Mouses", "HyperX", 25, "Periférico", new[] { "gaming", "leve", "acessível" }, 4.5m, 120, 11, 3, 6),
 
-                // Teclados
                 CreateProduct("Teclado Mecânico Corsair K100 RGB", "Teclado premium com switches Cherry MX", 1299.99m, "Teclados", "Corsair", 5, "Periférico", new[] { "mecânico", "rgb", "premium" }, 4.9m, 1200, 45, 4, 17),
                 CreateProduct("Teclado HyperX Alloy Origins Core", "Teclado compacto com switches Blue", 449.99m, "Teclados", "HyperX", 18, "Periférico", new[] { "mecânico", "compacto", "gaming" }, 4.6m),
                 CreateProduct("Teclado Logitech G915 TKL", "Teclado wireless com switches GL", 899.99m, "Teclados", "Logitech", 12, "Periférico", new[] { "wireless", "mecânico", "rgb" }, 4.7m),
 
-                // Headsets
                 CreateProduct("Headset SteelSeries Arctis Pro", "Headset premium com áudio Hi-Res", 899.99m, "Headsets", "SteelSeries", 10, "Periférico", new[] { "gaming", "áudio", "premium" }, 4.8m, 350, 20, 18, 10),
                 CreateProduct("Headset HyperX Cloud Alpha", "Headset com drivers duplos", 399.99m, "Headsets", "HyperX", 22, "Periférico", new[] { "gaming", "confortável", "qualidade" }, 4.6m),
                 CreateProduct("Headset Logitech G Pro X", "Headset com microfone Blue VO!CE", 599.99m, "Headsets", "Logitech", 15, "Periférico", new[] { "gaming", "microfone", "profissional" }, 4.7m),
 
-                // Monitores
                 CreateProduct("Monitor Samsung Odyssey G9", "Monitor ultrawide 49\" 240Hz", 8999.99m, "Monitores", "Samsung", 3, "Periférico", new[] { "ultrawide", "240hz", "curvo" }, 4.9m),
                 CreateProduct("Monitor LG 27GL850-B", "Monitor 27\" 1440p 144Hz Nano IPS", 2499.99m, "Monitores", "LG", 8, "Periférico", new[] { "1440p", "144hz", "nano-ips" }, 4.8m),
                 CreateProduct("Monitor AOC C24G1", "Monitor 24\" 1080p 144Hz VA", 899.99m, "Monitores", "AOC", 20, "Periférico", new[] { "1080p", "144hz", "curvo" }, 4.5m),
 
-                // Processadores
                 CreateProduct("Intel Core i9-13900K", "Processador 24 cores 5.8GHz", 3499.99m, "Processadores", "Intel", 7, "Peça", new[] { "intel", "i9", "gaming" }, 4.9m),
                 CreateProduct("AMD Ryzen 9 7950X", "Processador 16 cores 5.7GHz", 3999.99m, "Processadores", "AMD", 5, "Peça", new[] { "amd", "ryzen", "zen4" }, 4.8m),
                 CreateProduct("Intel Core i5-13600K", "Processador 14 cores 5.1GHz", 1899.99m, "Processadores", "Intel", 15, "Peça", new[] { "intel", "i5", "mid-range" }, 4.7m),
 
-                // Placas de Vídeo
                 CreateProduct("NVIDIA RTX 4090 Founders Edition", "GPU mais poderosa do mundo", 12999.99m, "Placas de Vídeo", "NVIDIA", 2, "Peça", new[] { "rtx", "4090", "top" }, 5.0m),
                 CreateProduct("AMD RX 7900 XTX", "GPU AMD de alta performance", 7999.99m, "Placas de Vídeo", "AMD", 6, "Peça", new[] { "amd", "rx", "7900" }, 4.8m),
                 CreateProduct("NVIDIA RTX 4070 Ti", "GPU RTX 40 série mid-range", 4499.99m, "Placas de Vídeo", "NVIDIA", 12, "Peça", new[] { "rtx", "4070", "mid-range" }, 4.6m),
 
-                // Memórias RAM
                 CreateProduct("Corsair Dominator Platinum 32GB", "RAM DDR5 6000MHz CL36", 899.99m, "Memórias RAM", "Corsair", 18, "Peça", new[] { "ddr5", "32gb", "6000mhz" }, 4.8m),
                 CreateProduct("G.Skill Trident Z5 16GB", "RAM DDR5 6400MHz CL32", 599.99m, "Memórias RAM", "G.Skill", 25, "Peça", new[] { "ddr5", "16gb", "6400mhz" }, 4.7m),
                 CreateProduct("Kingston Fury Beast 64GB", "RAM DDR4 3200MHz CL16", 799.99m, "Memórias RAM", "Kingston", 30, "Peça", new[] { "ddr4", "64gb", "3200mhz" }, 4.6m),
 
-                // SSDs
                 CreateProduct("Samsung 990 Pro 2TB", "SSD NVMe PCIe 4.0 7450MB/s", 899.99m, "SSDs", "Samsung", 20, "Peça", new[] { "nvme", "pcie4", "2tb" }, 4.9m),
                 CreateProduct("WD Black SN850X 1TB", "SSD NVMe PCIe 4.0 7300MB/s", 599.99m, "SSDs", "Western Digital", 28, "Peça", new[] { "nvme", "pcie4", "1tb" }, 4.8m),
                 CreateProduct("Crucial P5 Plus 500GB", "SSD NVMe PCIe 4.0 6600MB/s", 299.99m, "SSDs", "Crucial", 35, "Peça", new[] { "nvme", "pcie4", "500gb" }, 4.7m)
@@ -525,7 +513,6 @@ namespace EcommercePWA.Services
             };
         }
 
-        // Advanced Filter Methods Implementation
         public async Task<FilteredProductsResult> FilterProductsAsync(ProductFilterModel filter)
         {
             try
@@ -534,7 +521,6 @@ namespace EcommercePWA.Services
                     .Include(p => p.Variations)
                     .AsNoTracking();
 
-                // Apply search term filter
                 if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
                 {
                     query = query.Where(p => 
@@ -544,19 +530,16 @@ namespace EcommercePWA.Services
                         EF.Functions.Like(p.Category, $"%{filter.SearchTerm}%"));
                 }
 
-                // Apply category filter
                 if (filter.Categories.Any())
                 {
                     query = query.Where(p => filter.Categories.Contains(p.Category));
                 }
 
-                // Apply brand filter
                 if (filter.Brands.Any())
                 {
                     query = query.Where(p => filter.Brands.Contains(p.Brand));
                 }
 
-                // Apply price range filter
                 if (filter.MinPrice.HasValue)
                 {
                     query = query.Where(p => p.Price >= filter.MinPrice.Value);
@@ -566,23 +549,18 @@ namespace EcommercePWA.Services
                     query = query.Where(p => p.Price <= filter.MaxPrice.Value);
                 }
 
-
-                // Apply stock filter
                 if (filter.InStockOnly == true)
                 {
                     query = query.Where(p => p.StockQuantity > 0);
                 }
 
-                // Apply sale filter
                 if (filter.OnSaleOnly == true)
                 {
                     query = query.Where(p => p.HasDiscount);
                 }
 
-                // Get total count before pagination
                 var totalCount = await query.CountAsync();
 
-                // Apply sorting
                 query = filter.SortBy.ToLower() switch
                 {
                     "name" => filter.SortDirection == "desc" 
@@ -595,7 +573,6 @@ namespace EcommercePWA.Services
                     _ => query.OrderBy(p => p.Name)
                 };
 
-                // Apply pagination
                 var products = await query
                     .Skip((filter.Page - 1) * filter.PageSize)
                     .Take(filter.PageSize)

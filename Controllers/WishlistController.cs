@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Services;
 using EcommercePWA.Attributes;
 
@@ -83,13 +83,11 @@ namespace EcommercePWA.Controllers
 
             try
             {
-                // Usar sessionId específico para usuário logado
+
                 var sessionId = $"user_{userId.Value}";
-                
-                // Adiciona ao carrinho
+
                 await _cartService.AddToCart(sessionId, productId, variationId, 1);
-                
-                // Remove da wishlist
+
                 await _wishlistService.RemoveFromWishlistAsync(userId.Value, productId, variationId);
                 
                 var wishlistCount = await _wishlistService.GetWishlistCountAsync(userId.Value);

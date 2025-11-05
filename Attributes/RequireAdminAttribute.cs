@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using EcommercePWA.Services;
 
@@ -19,7 +19,6 @@ namespace EcommercePWA.Attributes
                 return;
             }
 
-            // Verificar se o usuário é admin
             var authService = context.HttpContext.RequestServices.GetService<IAuthService>();
             var user = authService?.GetUserByIdAsync(userId.Value).Result;
             

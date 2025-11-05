@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EcommercePWA.Data;
 using EcommercePWA.Models;
@@ -16,7 +16,6 @@ namespace EcommercePWA.Controllers
             _context = context;
         }
 
-        // GET: Subcategory
         public async Task<IActionResult> Index()
         {
             var subcategories = await _context.Subcategories
@@ -27,7 +26,6 @@ namespace EcommercePWA.Controllers
             return View(subcategories);
         }
 
-        // GET: Subcategory/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -48,15 +46,13 @@ namespace EcommercePWA.Controllers
             return View(subcategory);
         }
 
-        // GET: Subcategory/Create
         public async Task<IActionResult> Create()
         {
             var categories = await _context.Categories
                 .Where(c => c.IsActive)
                 .OrderBy(c => c.Name)
                 .ToListAsync();
-            
-            // Debug: Mostrar categorias disponíveis
+
             Console.WriteLine("Categorias disponíveis:");
             foreach (var cat in categories)
             {
@@ -67,19 +63,17 @@ namespace EcommercePWA.Controllers
             return View();
         }
 
-        // POST: Subcategory/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Subcategory subcategory)
         {
-            // Debug: Mostrar valores recebidos
+
             Console.WriteLine($"CategoryId recebido: {subcategory.CategoryId}");
             Console.WriteLine($"Name recebido: {subcategory.Name}");
             Console.WriteLine($"Description recebido: {subcategory.Description}");
             Console.WriteLine($"IsActive recebido: {subcategory.IsActive}");
             Console.WriteLine($"DisplayOrder recebido: {subcategory.DisplayOrder}");
 
-            // Debug: Mostrar erros de validação
             if (!ModelState.IsValid)
             {
                 foreach (var modelState in ModelState)
@@ -91,7 +85,6 @@ namespace EcommercePWA.Controllers
                 }
             }
 
-            // Remover validação da propriedade de navegação Category
             ModelState.Remove("Category");
             
             if (ModelState.IsValid)
@@ -109,7 +102,6 @@ namespace EcommercePWA.Controllers
             return View(subcategory);
         }
 
-        // GET: Subcategory/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -130,7 +122,6 @@ namespace EcommercePWA.Controllers
             return View(subcategory);
         }
 
-        // POST: Subcategory/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Subcategory subcategory)
@@ -140,7 +131,6 @@ namespace EcommercePWA.Controllers
                 return NotFound();
             }
 
-            // Debug: Mostrar erros de validação
             if (!ModelState.IsValid)
             {
                 foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
@@ -149,7 +139,6 @@ namespace EcommercePWA.Controllers
                 }
             }
 
-            // Remover validação da propriedade de navegação Category
             ModelState.Remove("Category");
 
             if (ModelState.IsValid)
@@ -181,7 +170,6 @@ namespace EcommercePWA.Controllers
             return View(subcategory);
         }
 
-        // GET: Subcategory/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -202,7 +190,6 @@ namespace EcommercePWA.Controllers
             return View(subcategory);
         }
 
-        // POST: Subcategory/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -213,8 +200,7 @@ namespace EcommercePWA.Controllers
             
             if (subcategory != null)
             {
-                // Subcategory removida - não há mais produtos vinculados
-                
+
                 _context.Subcategories.Remove(subcategory);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Subcategoria removida com sucesso!";
@@ -228,7 +214,6 @@ namespace EcommercePWA.Controllers
             return _context.Subcategories.Any(e => e.Id == id);
         }
 
-        // API para buscar subcategorias por categoria
         [HttpGet]
         public async Task<IActionResult> GetByCategory(int categoryId)
         {

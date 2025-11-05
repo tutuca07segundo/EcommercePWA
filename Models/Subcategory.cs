@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace EcommercePWA.Models
 {
@@ -20,8 +20,7 @@ namespace EcommercePWA.Models
         public bool IsActive { get; set; } = true;
         
         public int DisplayOrder { get; set; }
-        
-        // Relacionamentos
+
         public Category? Category { get; set; }
         public List<Product> Products { get; set; } = new List<Product>();
     }

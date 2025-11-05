@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EcommercePWA.Models;
 using EcommercePWA.Services;
 using EcommercePWA.Attributes;
@@ -19,14 +19,12 @@ namespace EcommercePWA.Controllers
             _logger = logger;
         }
 
-        // GET: /Discount
         public async Task<IActionResult> Index()
         {
             var discounts = await _discountService.GetAllDiscountsAsync();
             return View(discounts);
         }
 
-        // GET: /Discount/Details/5
         public async Task<IActionResult> Details(int id)
         {
             var discount = await _discountService.GetDiscountByIdAsync(id);
@@ -37,27 +35,24 @@ namespace EcommercePWA.Controllers
             return View(discount);
         }
 
-        // GET: /Discount/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: /Discount/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Discount discount)
         {
             if (ModelState.IsValid)
             {
-                // Validar que pelo menos um tipo de desconto foi especificado
+
                 if (!discount.DiscountAmount.HasValue && !discount.DiscountPercentage.HasValue)
                 {
                     ModelState.AddModelError("", "Especifique um valor fixo ou percentual de desconto");
                     return View(discount);
                 }
 
-                // Validar que não foram especificados ambos
                 if (discount.DiscountAmount.HasValue && discount.DiscountPercentage.HasValue)
                 {
                     ModelState.AddModelError("", "Especifique apenas um tipo de desconto (valor fixo OU percentual)");
@@ -72,7 +67,6 @@ namespace EcommercePWA.Controllers
             return View(discount);
         }
 
-        // GET: /Discount/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var discount = await _discountService.GetDiscountByIdAsync(id);
@@ -83,7 +77,6 @@ namespace EcommercePWA.Controllers
             return View(discount);
         }
 
-        // POST: /Discount/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Discount discount)
@@ -95,14 +88,13 @@ namespace EcommercePWA.Controllers
 
             if (ModelState.IsValid)
             {
-                // Validar que pelo menos um tipo de desconto foi especificado
+
                 if (!discount.DiscountAmount.HasValue && !discount.DiscountPercentage.HasValue)
                 {
                     ModelState.AddModelError("", "Especifique um valor fixo ou percentual de desconto");
                     return View(discount);
                 }
 
-                // Validar que não foram especificados ambos
                 if (discount.DiscountAmount.HasValue && discount.DiscountPercentage.HasValue)
                 {
                     ModelState.AddModelError("", "Especifique apenas um tipo de desconto (valor fixo OU percentual)");
@@ -124,7 +116,6 @@ namespace EcommercePWA.Controllers
             return View(discount);
         }
 
-        // GET: /Discount/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
             var discount = await _discountService.GetDiscountByIdAsync(id);
@@ -135,7 +126,6 @@ namespace EcommercePWA.Controllers
             return View(discount);
         }
 
-        // POST: /Discount/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -154,7 +144,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Discount/ManageProducts/5
         public async Task<IActionResult> ManageProducts(int id)
         {
             var discount = await _discountService.GetDiscountByIdAsync(id);
@@ -170,7 +159,6 @@ namespace EcommercePWA.Controllers
             return View(products);
         }
 
-        // POST: /Discount/AddProduct
         [HttpPost]
         public async Task<IActionResult> AddProduct(int discountId, int productId)
         {
@@ -190,7 +178,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // POST: /Discount/RemoveProduct
         [HttpPost]
         public async Task<IActionResult> RemoveProduct(int discountId, int productId)
         {
@@ -210,7 +197,6 @@ namespace EcommercePWA.Controllers
             }
         }
 
-        // GET: /Discount/GetAvailableProducts/5
         [HttpGet]
         public async Task<IActionResult> GetAvailableProducts(int discountId)
         {

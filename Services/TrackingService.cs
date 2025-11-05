@@ -1,4 +1,4 @@
-using EcommercePWA.Models;
+﻿using EcommercePWA.Models;
 using EcommercePWA.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -117,7 +117,6 @@ namespace EcommercePWA.Services
                 }
             };
 
-            // Marcar steps como completados baseado no status atual
             var statusOrder = new[] { "Pending", "Processing", "Shipped", "Delivered" };
             var currentIndex = Array.IndexOf(statusOrder, currentStatus);
 
@@ -133,7 +132,6 @@ namespace EcommercePWA.Services
                 }
             }
 
-            // Definir datas baseadas no status
             if (currentStatus == "Processing" && steps[1].CompletedDate == null)
             {
                 steps[1].CompletedDate = DateTime.Now;
@@ -168,7 +166,7 @@ namespace EcommercePWA.Services
 
         public string GenerateTrackingCode(string orderNumber)
         {
-            // Gerar código de rastreamento baseado no número do pedido
+
             var hash = orderNumber.GetHashCode().ToString("X");
             return $"KB{hash.Substring(0, Math.Min(6, hash.Length)).ToUpper()}";
         }
